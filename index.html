@@ -1309,9 +1309,6 @@
     if (error) {
       errEl.textContent = friendlyError(error.message);
       errEl.style.display = 'block';
-      if (/already registered|already exists|rate limit/i.test(error.message)) {
-        setTimeout(() => { document.getElementById('s-signin-email').value = email; showStudentSignin(); }, 1200);
-      }
       return;
     }
     window.location.href = '/student/onboarding.html';
@@ -1345,9 +1342,6 @@
     if (error) {
       errEl.textContent = friendlyError(error.message);
       errEl.style.display = 'block';
-      if (/already registered|already exists|rate limit/i.test(error.message)) {
-        setTimeout(() => { document.getElementById('e-signin-email').value = email; showEmployerSignin(); }, 1200);
-      }
       return;
     }
     await _db.from('employers').insert([{ id: data.user.id, company_name, county, industry }]);
