@@ -258,8 +258,8 @@
 
   <!-- ── BOCES STEP 3: Graduation year ── -->
   <div class="app-content" id="boces-3" style="display:none;">
-    <div class="app-step-title">When do you graduate?</div>
-    <div class="app-step-sub">Select your expected graduation year</div>
+    <div class="app-step-title">When did / will you graduate?</div>
+    <div class="app-step-sub">Select your graduation year</div>
     <select class="app-select" id="grad-year" onchange="checkB3()">
       <option value="" disabled selected>Choose your graduation year…</option>
     </select>
@@ -527,7 +527,7 @@
   (function populateYears() {
     const select = document.getElementById('grad-year');
     const current = new Date().getFullYear();
-    for (let y = current; y <= current + 6; y++) {
+    for (let y = current + 6; y >= current - 50; y--) {
       const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
