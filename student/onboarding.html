@@ -194,7 +194,7 @@
             <line x1="2" y1="13" x2="22" y2="13"/>
           </svg>
         </div>
-        <div class="bg-card-label">On the Job</div>
+        <div class="bg-card-label">On the Job / Other</div>
       </div>
       <div class="bg-card" id="bg-military" onclick="toggleBg(this, 'military')">
         <div class="bg-card-icon">
@@ -260,6 +260,48 @@
       <option>Prefer not to say</option>
     </select>
     <button class="ob-btn" id="military-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
+  </div>
+
+  <!-- ── STEP: Job experience ── -->
+  <div class="app-content" id="step-job-experience" style="display:none;">
+    <div class="app-step-title">What kind of work have you done?</div>
+    <div class="app-step-sub">Select all that apply — we'll use this to find your best matches.</div>
+    <div class="industry-grid" id="job-exp-grid">
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="industry-card-label">Manufacturing</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="industry-card-label">Healthcare</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="industry-card-label">Construction &amp; Trades</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
+        <div class="industry-card-label">Food Production</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+        <div class="industry-card-label">Agriculture &amp; Conservation</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/></svg></div>
+        <div class="industry-card-label">Government &amp; Public Works</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="industry-card-label">Transportation &amp; Logistics</div>
+      </div>
+      <div class="industry-card" onclick="toggleJobExp(this)">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
+        <div class="industry-card-label">Technology</div>
+      </div>
+    </div>
+    <button class="ob-btn" id="job-exp-btn" onclick="nextStep()" disabled>Continue</button>
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
@@ -390,10 +432,10 @@
     if (selected.has('boces'))    seq.push('step-boces');
     if (selected.has('college'))  seq.push('step-college');
     if (selected.has('military')) seq.push('step-military');
-    // Grad year only makes sense for BOCES, College, or Military — skip for On the Job only
     if (selected.has('boces') || selected.has('college') || selected.has('military')) {
       seq.push('step-grad-year');
     }
+    if (selected.has('job')) seq.push('step-job-experience');
     seq.push('step-county', 'step-industries', 'step-certs');
     return seq;
   }
@@ -445,6 +487,18 @@
       updateProgress(stepNum, total);
     }
 
+    if (sequence[idx] === 'step-industries' && selected.has('job')) {
+      const expLabels = new Set(
+        Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
+          .map(c => c.querySelector('.industry-card-label').textContent)
+      );
+      document.querySelectorAll('#step-industries .industry-card').forEach(card => {
+        card.classList.toggle('selected', expLabels.has(card.querySelector('.industry-card-label').textContent));
+      });
+      document.getElementById('industries-btn').disabled =
+        document.querySelectorAll('#step-industries .industry-card.selected').length === 0;
+    }
+
     if (sequence[idx] === 'step-grad-year') {
       const isMilitary = selected.has('military');
       document.querySelector('#step-grad-year .app-step-title').textContent =
@@ -482,6 +536,12 @@
     document.getElementById(btnId).disabled = !document.getElementById(inputId).value.trim();
   }
 
+  function toggleJobExp(el) {
+    el.classList.toggle('selected');
+    const any = document.querySelectorAll('#job-exp-grid .industry-card.selected').length > 0;
+    document.getElementById('job-exp-btn').disabled = !any;
+  }
+
   function toggleIndustry(el) {
     el.classList.toggle('selected');
     const any = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
@@ -498,6 +558,10 @@
       military_branch: document.getElementById('military-branch')?.value || null,
       graduation_year: document.getElementById('grad-year').value || null,
       county: document.getElementById('county-select').value || null,
+      job_experience: sequence.includes('step-job-experience')
+        ? Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
+            .map(c => c.querySelector('.industry-card-label').textContent)
+        : null,
       industries: Array.from(document.querySelectorAll('#step-industries .industry-card.selected'))
         .map(c => c.querySelector('.industry-card-label').textContent),
       certifications: Array.from(document.querySelectorAll('#cert-list .cert-row.selected'))
