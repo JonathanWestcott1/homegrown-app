@@ -15,7 +15,6 @@
     <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 2</div>
   </div>
 
-  <!-- Progress bar -->
   <div class="app-progress">
     <div class="app-progress-step">
       <div class="app-progress-circle active" id="p1">1</div>
@@ -26,7 +25,7 @@
     </div>
   </div>
 
-  <!-- Step 1: Company info + account creation -->
+  <!-- Step 1: Company info + account -->
   <div class="app-content" id="step-1">
     <div class="app-step-title">Tell us about your company</div>
     <div class="app-step-sub">We'll match you with qualified local graduates</div>
@@ -51,37 +50,79 @@
     <select class="app-select" id="company-industry">
       <option value="" disabled selected>Industry…</option>
       <option>Manufacturing</option>
-      <option>Healthcare</option>
-      <option>Construction / Trades</option>
-      <option>Food Production</option>
-      <option>Government</option>
+      <option>Healthcare &amp; Nursing</option>
+      <option>Construction &amp; Trades</option>
+      <option>Food Production &amp; Processing</option>
+      <option>Agriculture &amp; Conservation</option>
+      <option>Government &amp; Public Works</option>
+      <option>Transportation &amp; Logistics</option>
+      <option>Technology &amp; Networking</option>
+      <option>Cosmetology &amp; Barbering</option>
+      <option>Education &amp; Childcare</option>
+      <option>Retail &amp; Hospitality</option>
       <option>Other</option>
     </select>
     <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
     <button class="app-btn-primary" id="continue-btn" onclick="goStep2()">Continue</button>
   </div>
 
-  <!-- Step 2: Add first job posting via chat -->
+  <!-- Step 2: Post first job -->
   <div class="app-content" id="step-2" style="display:none;">
-    <div class="app-step-title">Add your first job posting</div>
-    <div class="app-step-sub">Describe the role naturally — we'll set it up for you.</div>
+    <div class="app-step-title">Post your first job</div>
+    <div class="app-step-sub">Describe the role — then confirm the details below.</div>
 
     <div class="app-chat" id="chat-messages">
       <div class="app-chat-msg agent">
         <div class="app-chat-label">Homegrown Assistant</div>
-        <div class="app-chat-bubble">Hi! I'm your Homegrown hiring assistant. Tell me about a role you're looking to fill — just describe it naturally and I'll set it up for you.</div>
+        <div class="app-chat-bubble">Hi! Tell me about a role you're looking to fill — just describe it naturally.</div>
       </div>
     </div>
 
     <div id="input-area">
       <div class="app-chat-input-row">
-        <input class="app-chat-input" id="job-input" type="text" placeholder="e.g. We need a mechanical assembler, $24/hr, first shift, needs OSHA 10…" />
-        <button class="app-chat-send" onclick="sendMessage()">↑</button>
+        <input class="app-chat-input" id="job-input" type="text" placeholder="e.g. We need a welder, $24/hr, first shift, needs OSHA 10…" />
+        <button class="app-chat-send" id="send-btn" onclick="sendMessage()">↑</button>
       </div>
     </div>
 
-    <div id="dashboard-btn" style="display:none;margin-top:16px;">
-      <button class="app-btn-primary" onclick="window.location.href='/employer/dashboard.html'">Go to your dashboard →</button>
+    <!-- Structured job form — revealed after chat -->
+    <div id="job-form" style="display:none;margin-top:20px;">
+      <div style="font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:14px;">Confirm the details:</div>
+      <input class="app-input" id="job-role" type="text" placeholder="Job title (e.g. Mechanical Assembler)" />
+      <input class="app-input" id="job-location" type="text" placeholder="Location (e.g. Greene, NY)" />
+      <input class="app-input" id="job-pay" type="text" placeholder="Pay range (e.g. $22–$26/hr)" />
+      <select class="app-select" id="job-shift">
+        <option value="" disabled selected>Shift</option>
+        <option>First shift</option>
+        <option>Second shift</option>
+        <option>Rotating shifts</option>
+        <option>Flexible</option>
+      </select>
+      <select class="app-select" id="job-type">
+        <option value="" disabled selected>Position type</option>
+        <option>Union</option>
+        <option>Non-union</option>
+        <option>Government</option>
+      </select>
+      <input class="app-input" id="job-benefits" type="text" placeholder="Key benefit (e.g. Paid holidays, Sign-on bonus)" />
+
+      <div style="font-size:13px;font-weight:500;color:#1a1a1a;margin:4px 0 10px;">Certifications required</div>
+      <div class="app-checklist" style="margin-bottom:12px;">
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">OSHA 10 Certification</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Blueprint Reading</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Hand Tool Safety</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">IBEW Apprenticeship Application</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Hydraulic Systems Certification</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">ServSafe Certification</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">NYS CNA License</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Adobe Certified Professional</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">CDL License</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Security Guard Certification</div></div>
+        <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Forklift Operator Certification</div></div>
+      </div>
+
+      <div id="post-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+      <button class="app-btn-primary" id="post-btn" onclick="postJob()">Post this job →</button>
     </div>
   </div>
 
@@ -92,16 +133,14 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
+  let companyName = '';
+
   function checkPw(inputId, rulesId) {
     const val = document.getElementById(inputId).value;
-    const rules = document.getElementById(rulesId);
-    rules.classList.toggle('visible', val.length > 0);
+    document.getElementById(rulesId).classList.toggle('visible', val.length > 0);
     const checks = {
-      len:     val.length >= 8,
-      upper:   /[A-Z]/.test(val),
-      lower:   /[a-z]/.test(val),
-      num:     /[0-9]/.test(val),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
+      len: val.length >= 8, upper: /[A-Z]/.test(val), lower: /[a-z]/.test(val),
+      num: /[0-9]/.test(val), special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
     };
     Object.entries(checks).forEach(([key, met]) => {
       const el = document.getElementById('pr-e-' + key);
@@ -109,12 +148,11 @@
       el.classList.toggle('met', met);
       el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
     });
-    return Object.values(checks).every(Boolean);
   }
 
-  function pwStrong(inputId, rulesId) {
-    const val = document.getElementById(inputId).value;
-    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
+  function pwStrong(inputId) {
+    const v = document.getElementById(inputId).value;
+    return v.length >= 8 && /[A-Z]/.test(v) && /[a-z]/.test(v) && /[0-9]/.test(v) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v);
   }
 
   async function goStep2() {
@@ -127,11 +165,9 @@
     const btn = document.getElementById('continue-btn');
 
     if (!name || !email || !password || !county || !industry) {
-      errEl.textContent = 'Please fill in all fields.';
-      errEl.style.display = 'block';
-      return;
+      errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return;
     }
-    if (!pwStrong('company-password', 'pw-rules-e')) {
+    if (!pwStrong('company-password')) {
       errEl.textContent = 'Password does not meet all requirements.';
       errEl.style.display = 'block';
       document.getElementById('pw-rules-e').classList.add('visible');
@@ -143,27 +179,16 @@
     btn.disabled = true;
 
     const { data, error } = await _sb.auth.signUp({
-      email,
-      password,
-      options: { data: { user_type: 'employer' } }
+      email, password, options: { data: { user_type: 'employer' } }
     });
 
     if (error) {
-      errEl.textContent = error.message;
-      errEl.style.display = 'block';
-      btn.textContent = 'Continue';
-      btn.disabled = false;
-      return;
+      errEl.textContent = error.message; errEl.style.display = 'block';
+      btn.textContent = 'Continue'; btn.disabled = false; return;
     }
 
-    const userId = data.user.id;
-    await _sb.from('employers').insert([{
-      id: userId,
-      company_name: name,
-      county,
-      industry
-    }]);
-
+    await _sb.from('employers').insert([{ id: data.user.id, company_name: name, county, industry }]);
+    companyName = name;
     showStep(2);
   }
 
@@ -172,16 +197,11 @@
     document.getElementById('step-2').style.display = 'none';
     document.getElementById('step-' + n).style.display = 'block';
     document.getElementById('step-num').textContent = n;
-    const p1 = document.getElementById('p1');
-    const p2 = document.getElementById('p2');
-    const l1 = document.getElementById('l1');
     if (n === 2) {
-      p1.classList.remove('active');
-      p1.classList.add('done');
-      p1.textContent = '✓';
-      l1.classList.add('done');
+      const p1 = document.getElementById('p1'), p2 = document.getElementById('p2');
+      p1.classList.replace('active', 'done'); p1.textContent = '✓';
+      document.getElementById('l1').classList.add('done');
       p2.classList.add('active');
-      p2.textContent = '2';
     }
   }
 
@@ -191,32 +211,66 @@
     if (!text) return;
 
     const chat = document.getElementById('chat-messages');
-
     const userMsg = document.createElement('div');
     userMsg.className = 'app-chat-msg user';
     userMsg.innerHTML = `<div class="app-chat-bubble">${escapeHtml(text)}</div>`;
     chat.appendChild(userMsg);
-    input.value = '';
+
     input.disabled = true;
-    document.querySelector('.app-chat-send').disabled = true;
+    document.getElementById('send-btn').disabled = true;
 
     setTimeout(() => {
       const agentMsg = document.createElement('div');
       agentMsg.className = 'app-chat-msg agent';
-      agentMsg.innerHTML = `<div class="app-chat-label">Homegrown Assistant</div><div class="app-chat-bubble">Got it! I'll get that set up. In the full version, your posting will be live to local BOCES graduates immediately. For now, our team will review and confirm within 24 hours. Welcome to Homegrown 🌱</div>`;
+      agentMsg.innerHTML = `<div class="app-chat-label">Homegrown Assistant</div><div class="app-chat-bubble">Got it! Confirm the details below and I'll post it to students right away.</div>`;
       chat.appendChild(agentMsg);
-      document.getElementById('dashboard-btn').style.display = 'block';
       agentMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 1000);
+      document.getElementById('job-form').style.display = 'block';
+    }, 800);
   }
+
+  async function postJob() {
+    const role = document.getElementById('job-role').value.trim();
+    const location = document.getElementById('job-location').value.trim();
+    const pay = document.getElementById('job-pay').value.trim();
+    const shift = document.getElementById('job-shift').value;
+    const job_type = document.getElementById('job-type').value;
+    const benefits = document.getElementById('job-benefits').value.trim();
+    const errEl = document.getElementById('post-error');
+    const btn = document.getElementById('post-btn');
+
+    if (!role || !location || !pay) {
+      errEl.textContent = 'Please fill in at least the job title, location, and pay.';
+      errEl.style.display = 'block'; return;
+    }
+
+    const certifications_required = Array.from(document.querySelectorAll('.app-check-row.selected'))
+      .map(r => r.querySelector('.app-check-label').textContent);
+
+    btn.textContent = 'Posting…'; btn.disabled = true; errEl.style.display = 'none';
+
+    const { data: { session } } = await _sb.auth.getSession();
+    const { error } = await _sb.from('jobs').insert([{
+      employer_id: session.user.id,
+      company_name: companyName || session.user.user_metadata?.company_name,
+      role, location, pay, shift, job_type, benefits, certifications_required
+    }]);
+
+    if (error) {
+      errEl.textContent = error.message; errEl.style.display = 'block';
+      btn.textContent = 'Post this job →'; btn.disabled = false; return;
+    }
+
+    window.location.href = '/employer/dashboard.html';
+  }
+
+  function toggleCert(el) { el.classList.toggle('selected'); }
 
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  document.getElementById('job-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') sendMessage();
-  });
+  document.getElementById('job-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 </script>
 </body>
 </html>

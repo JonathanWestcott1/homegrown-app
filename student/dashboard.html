@@ -21,75 +21,8 @@
   <div class="app-content">
     <div class="app-step-title">Jobs for you in Chenango County</div>
     <div class="app-step-sub">Updated daily</div>
-
-    <!-- Job 1: Raymond Corporation -->
-    <div class="app-job-card">
-      <div class="app-job-company">Raymond Corporation</div>
-      <div class="app-job-role">Mechanical Assembler</div>
-      <div class="app-job-location">📍 Greene, NY</div>
-      <div class="app-job-pay">$22–$26/hr</div>
-      <div class="app-fit-pills">
-        <span class="app-fit-pill">Union position</span>
-        <span class="app-fit-pill">First shift</span>
-        <span class="app-fit-pill">Paid holidays</span>
-      </div>
-      <div class="app-cert-row">
-        <div class="app-cert-label">Certifications</div>
-        <div class="app-cert-pills">
-          <span class="app-cert-pill app-cert-green">✓ OSHA 10</span>
-          <span class="app-cert-pill app-cert-green">✓ Blueprint Reading</span>
-          <span class="app-cert-pill app-cert-gray">+ IBEW Application</span>
-        </div>
-      </div>
-      <button class="app-btn-gray">Complete certs to apply</button>
-    </div>
-
-    <!-- Job 2: Chobani -->
-    <div class="app-job-card">
-      <div class="app-job-company">Chobani</div>
-      <div class="app-job-role">Production Operator</div>
-      <div class="app-job-location">📍 New Berlin, NY</div>
-      <div class="app-job-pay">$21–$25/hr</div>
-      <div class="app-fit-pills">
-        <span class="app-fit-pill">Non-union</span>
-        <span class="app-fit-pill">Rotating shifts</span>
-        <span class="app-fit-pill">$1,000 sign-on bonus</span>
-      </div>
-      <div class="app-cert-row">
-        <div class="app-cert-label">Certifications</div>
-        <div class="app-cert-pills">
-          <span class="app-cert-pill app-cert-green">✓ ServSafe</span>
-          <span class="app-cert-pill app-cert-green">✓ Hand Tool Safety</span>
-          <span class="app-cert-pill app-cert-green">✓ Food Safety Level 1</span>
-        </div>
-      </div>
-      <button class="app-btn-primary">Apply Now</button>
-    </div>
-
-    <!-- Job 3: Chenango County -->
-    <div class="app-job-card">
-      <div class="app-job-company">Chenango County</div>
-      <div class="app-job-role">Heavy Equipment Operator</div>
-      <div class="app-job-location">📍 Norwich, NY</div>
-      <div class="app-job-pay">$20–$24/hr</div>
-      <div class="app-fit-pills">
-        <span class="app-fit-pill">Government</span>
-        <span class="app-fit-pill">First shift</span>
-        <span class="app-fit-pill">Full benefits</span>
-      </div>
-      <div class="app-cert-row">
-        <div class="app-cert-label">Certifications</div>
-        <div class="app-cert-pills">
-          <span class="app-cert-pill app-cert-green">✓ CDL License</span>
-          <span class="app-cert-pill app-cert-green">✓ Hand Tool Safety</span>
-          <span class="app-cert-pill app-cert-gray">+ Hydraulic Systems</span>
-        </div>
-      </div>
-      <button class="app-btn-gray">Complete certs to apply</button>
-    </div>
-
-    <div style="text-align:center;font-size:13px;color:#999;margin-top:8px;padding-bottom:32px;">
-      More jobs coming soon as we onboard local employers.
+    <div id="job-feed">
+      <div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px;">Loading jobs…</div>
     </div>
   </div>
 
@@ -102,14 +35,75 @@
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
-    if (!session) {
-      window.location.href = '/';
+    if (!session) { window.location.href = '/'; return; }
+
+    document.getElementById('profile-icon').textContent = session.user.email.charAt(0).toUpperCase();
+
+    const [{ data: studentData }, { data: jobs }] = await Promise.all([
+      _sb.from('students').select('certifications').eq('id', session.user.id).single(),
+      _sb.from('jobs').select('*').eq('is_active', true).order('created_at', { ascending: false })
+    ]);
+
+    const myCerts = studentData?.certifications || [];
+    renderJobs(jobs || [], myCerts);
+  })();
+
+  function renderJobs(jobs, myCerts) {
+    const feed = document.getElementById('job-feed');
+
+    if (jobs.length === 0) {
+      feed.innerHTML = `
+        <div style="text-align:center;padding:40px 0 20px;color:#999;font-size:14px;line-height:1.6;">
+          No jobs posted yet —<br>check back soon as employers join.
+        </div>
+        <div style="text-align:center;font-size:13px;color:#bbb;padding-bottom:32px;">
+          More jobs coming soon as we onboard local employers.
+        </div>`;
       return;
     }
-    const email = session.user.email || '';
-    const initial = email.charAt(0).toUpperCase();
-    document.getElementById('profile-icon').textContent = initial;
-  })();
+
+    feed.innerHTML = jobs.map(job => {
+      const reqCerts = job.certifications_required || [];
+      const allMet = reqCerts.length === 0 || reqCerts.every(c => myCerts.includes(c));
+
+      const pills = [job.job_type, job.shift, job.benefits]
+        .filter(Boolean)
+        .map(p => `<span class="app-fit-pill">${p}</span>`)
+        .join('');
+
+      const certPills = reqCerts.map(c => {
+        const has = myCerts.includes(c);
+        return `<span class="app-cert-pill ${has ? 'app-cert-green' : 'app-cert-gray'}">${has ? '✓' : '+'} ${c}</span>`;
+      }).join('');
+
+      const btn = allMet
+        ? `<button class="app-btn-primary">Apply Now</button>`
+        : `<button class="app-btn-gray">Complete certs to apply</button>`;
+
+      return `
+        <div class="app-job-card">
+          <div class="app-job-company">${esc(job.company_name)}</div>
+          <div class="app-job-role">${esc(job.role)}</div>
+          <div class="app-job-location">📍 ${esc(job.location)}</div>
+          <div class="app-job-pay">${esc(job.pay)}</div>
+          ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
+          ${reqCerts.length > 0 ? `
+            <div class="app-cert-row">
+              <div class="app-cert-label">Certifications</div>
+              <div class="app-cert-pills">${certPills}</div>
+            </div>` : ''}
+          ${btn}
+        </div>`;
+    }).join('') + `
+      <div style="text-align:center;font-size:13px;color:#999;margin-top:8px;padding-bottom:32px;">
+        More jobs coming soon as we onboard local employers.
+      </div>`;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 
   async function logout() {
     await _sb.auth.signOut();
