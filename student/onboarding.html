@@ -27,7 +27,11 @@
       border: 2px solid #3B6D11;
       background: #EAF3DE;
     }
-    .path-card-emoji { font-size: 32px; margin-bottom: 8px; line-height: 1; }
+    .path-card-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
     .path-card-label { font-size: 14px; font-weight: 600; color: #1C1C1A; margin-bottom: 4px; }
     .path-card-desc { font-size: 12px; color: #888780; line-height: 1.4; }
 
@@ -50,7 +54,11 @@
       border: 2px solid #3B6D11;
       background: #EAF3DE;
     }
-    .industry-card-emoji { font-size: 24px; margin-bottom: 6px; line-height: 1; }
+    .industry-card-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
     .industry-card-label { font-size: 13px; font-weight: 600; color: #1C1C1A; }
 
     .year-grid {
@@ -196,26 +204,53 @@
     <div class="app-step-title">How did you learn your skills?</div>
     <div class="app-step-sub">We'll personalize your job feed based on your background.</div>
     <div class="path-grid">
+
       <div class="path-card" id="pc-boces" onclick="selectPath(this, 'boces')">
-        <div class="path-card-emoji">🎓</div>
+        <div class="path-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
         <div class="path-card-label">BOCES Program</div>
         <div class="path-card-desc">Career &amp; technical education</div>
       </div>
+
       <div class="path-card" id="pc-college" onclick="selectPath(this, 'general')">
-        <div class="path-card-emoji">🏫</div>
+        <div class="path-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l7-4 7 4v14"/>
+            <path d="M9 21v-6h6v6"/>
+            <path d="M9 10h.01M15 10h.01"/>
+          </svg>
+        </div>
         <div class="path-card-label">Community College</div>
         <div class="path-card-desc">Two-year or technical college</div>
       </div>
+
       <div class="path-card" id="pc-job" onclick="selectPath(this, 'general')">
-        <div class="path-card-emoji">💼</div>
+        <div class="path-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <line x1="2" y1="13" x2="22" y2="13"/>
+          </svg>
+        </div>
         <div class="path-card-label">On the Job</div>
         <div class="path-card-desc">Learned through work experience</div>
       </div>
+
       <div class="path-card" id="pc-mil" onclick="selectPath(this, 'general')">
-        <div class="path-card-emoji">🎖️</div>
+        <div class="path-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
         <div class="path-card-label">Military / Veteran</div>
         <div class="path-card-desc">Served in the armed forces</div>
       </div>
+
     </div>
     <button class="btn-disabled" id="s1-btn">Continue</button>
   </div>
@@ -240,7 +275,7 @@
       <option>Welding Technology</option>
       <option>Other</option>
     </select>
-    <button class="btn-disabled" id="b2-btn" onclick="showStep('boces-3', 3)">Continue</button>
+    <button class="btn-disabled" id="b2-btn">Continue</button>
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
@@ -249,12 +284,12 @@
     <div class="app-step-title">When do you graduate?</div>
     <div class="app-step-sub">Tap your expected graduation year</div>
     <div class="year-grid">
-      <div class="year-card" onclick="selectYear(this, 'boces', '2025')">2025</div>
-      <div class="year-card" onclick="selectYear(this, 'boces', '2026')">2026</div>
-      <div class="year-card" onclick="selectYear(this, 'boces', '2027')">2027</div>
-      <div class="year-card" onclick="selectYear(this, 'boces', '2028')">2028</div>
+      <div class="year-card" onclick="selectYear(this, '2025')">2025</div>
+      <div class="year-card" onclick="selectYear(this, '2026')">2026</div>
+      <div class="year-card" onclick="selectYear(this, '2027')">2027</div>
+      <div class="year-card" onclick="selectYear(this, '2028')">2028</div>
     </div>
-    <button class="btn-disabled" id="b3-btn" onclick="showStep('boces-4', 4)">Continue</button>
+    <button class="btn-disabled" id="b3-btn">Continue</button>
     <button class="back-link" onclick="showStep('boces-2', 2)">← Back</button>
   </div>
 
@@ -297,7 +332,7 @@
       <option>Other upstate NY county</option>
       <option>Outside New York</option>
     </select>
-    <button class="btn-disabled" id="g2-btn" onclick="showStep('gen-3', 3)">Continue</button>
+    <button class="btn-disabled" id="g2-btn">Continue</button>
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
@@ -306,40 +341,93 @@
     <div class="app-step-title">What kind of work are you looking for?</div>
     <div class="app-step-sub">Tap all that interest you.</div>
     <div class="industry-grid">
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🔧</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Manufacturing</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🏥</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Healthcare</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🏗️</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Construction &amp; Trades</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🍕</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+            <path d="M7 2v20"/>
+            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Food Production</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🌲</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 8C8 10 5.9 16.17 3.82 19c0 0 2.05-3.84 8.18-6.5"/>
+            <path d="M21 3s-4.68 3.68-4 8c0 0-5.32-8-14-3 0 0 5.18 1.65 7 6 0 0 3.18-8.5 11-11z"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Agriculture &amp; Conservation</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🏛️</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M3 10h18"/>
+            <path d="M5 6l7-3 7 3"/>
+            <path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Government &amp; Public Works</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">🚛</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <path d="M16 8h4l3 5v3h-7V8z"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Transportation &amp; Logistics</div>
       </div>
+
       <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-emoji">💻</div>
+        <div class="industry-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8"/>
+            <path d="M12 17v4"/>
+          </svg>
+        </div>
         <div class="industry-card-label">Technology</div>
       </div>
+
     </div>
-    <button class="btn-disabled" id="g3-btn" onclick="showStep('gen-4', 4)">Continue</button>
+    <button class="btn-disabled" id="g3-btn">Continue</button>
     <button class="back-link" onclick="showStep('gen-2', 2)">← Back</button>
   </div>
 
@@ -385,9 +473,7 @@
   const ALL_STEPS = ['step-1','boces-2','boces-3','boces-4','gen-2','gen-3','gen-4'];
 
   function showStep(id, progressStep) {
-    ALL_STEPS.forEach(s => {
-      document.getElementById(s).style.display = 'none';
-    });
+    ALL_STEPS.forEach(s => { document.getElementById(s).style.display = 'none'; });
     document.getElementById(id).style.display = 'block';
 
     const counter = document.getElementById('step-counter');
@@ -436,11 +522,7 @@
 
   function goStep2() {
     if (!chosenPath) return;
-    if (chosenPath === 'boces') {
-      showStep('boces-2', 2);
-    } else {
-      showStep('gen-2', 2);
-    }
+    showStep(chosenPath === 'boces' ? 'boces-2' : 'gen-2', 2);
   }
 
   function checkB2() {
@@ -455,17 +537,13 @@
     }
   }
 
-  function selectYear(el, flow, year) {
-    const grid = el.parentElement;
-    grid.querySelectorAll('.year-card').forEach(c => c.classList.remove('selected'));
+  function selectYear(el, year) {
+    document.querySelectorAll('.year-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     bocesYear = year;
-    const btnId = flow === 'boces' ? 'b3-btn' : null;
-    if (btnId) {
-      const btn = document.getElementById(btnId);
-      btn.className = 'btn-enabled';
-      btn.onclick = () => showStep('boces-4', 4);
-    }
+    const btn = document.getElementById('b3-btn');
+    btn.className = 'btn-enabled';
+    btn.onclick = () => showStep('boces-4', 4);
   }
 
   function toggleCert(el) {
@@ -505,15 +583,14 @@
   function finishBoces() {
     const program = document.getElementById('boces-program').value;
     const certifications = getCerts('boces-cert-list');
-    const profile = {
+    localStorage.setItem('hg_profile', JSON.stringify({
       path: 'boces',
       program: program || null,
       graduation_year: bocesYear || null,
       county: null,
       industries: null,
       certifications
-    };
-    localStorage.setItem('hg_profile', JSON.stringify(profile));
+    }));
     window.location.href = '/student/dashboard.html';
   }
 
@@ -522,15 +599,14 @@
     const industries = Array.from(document.querySelectorAll('#gen-3 .industry-card.selected'))
       .map(c => c.querySelector('.industry-card-label').textContent);
     const certifications = getCerts('gen-cert-list');
-    const profile = {
+    localStorage.setItem('hg_profile', JSON.stringify({
       path: 'general',
       program: null,
       graduation_year: null,
       county: county || null,
       industries,
       certifications
-    };
-    localStorage.setItem('hg_profile', JSON.stringify(profile));
+    }));
     window.location.href = '/student/dashboard.html';
   }
 </script>
