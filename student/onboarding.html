@@ -210,7 +210,7 @@
 
   <!-- ── STEP: BOCES program ── -->
   <div class="app-content" id="step-boces" style="display:none;">
-    <div class="app-step-title">What BOCES program were you in?</div>
+    <div class="app-step-title">What BOCES program are/were you in?</div>
     <div class="app-step-sub">Select your DCMO BOCES program.</div>
     <select class="app-select" id="boces-program" onchange="checkSelect('boces-program','boces-btn')">
       <option value="" disabled selected>Choose your program…</option>
@@ -234,7 +234,7 @@
 
   <!-- ── STEP: College name ── -->
   <div class="app-content" id="step-college" style="display:none;">
-    <div class="app-step-title">Which college did you attend?</div>
+    <div class="app-step-title">Which college do/did you attend?</div>
     <div class="app-step-sub">Enter the name of your school.</div>
     <div class="college-search-wrap">
       <input class="app-input" id="college-name" type="text" placeholder="Start typing your college name…" autocomplete="off" style="border-radius:8px;" />
@@ -382,21 +382,21 @@
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
     <div class="cert-list" id="cert-list">
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">OSHA 10 Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS Cosmetology License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Blueprint Reading</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hand Tool Safety</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">IBEW Apprenticeship Application</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hydraulic Systems Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Adobe Certified Professional</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS Cosmetology License</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
     </div>
-    <div class="cert-note">Don't worry if you don't have any yet — we'll show you how to get them.</div>
+    <div class="cert-note">No certifications? No problem — just tap "See my jobs →" below and we'll show you what you qualify for.</div>
     <button class="ob-btn" onclick="finish()">See my jobs →</button>
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
@@ -410,15 +410,15 @@
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
-    if (!session) { window.location.href = '/'; }
+    if (!session) { window.location.href = '/'; return; }
+    const saved = JSON.parse(localStorage.getItem('hg_profile') || 'null');
+    if (saved) prefillProfile(saved);
   })();
 
-  // Tracks which background cards are selected
   const selected = new Set();
-
-  // The computed sequence of step IDs, built after step 1
   let sequence = [];
   let currentIdx = 0;
+  let industriesDirty = false;
 
   function toggleBg(el, key) {
     el.classList.toggle('selected');
@@ -487,16 +487,22 @@
       updateProgress(stepNum, total);
     }
 
-    if (sequence[idx] === 'step-industries' && selected.has('job')) {
-      const expLabels = new Set(
-        Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
-          .map(c => c.querySelector('.industry-card-label').textContent)
-      );
-      document.querySelectorAll('#step-industries .industry-card').forEach(card => {
-        card.classList.toggle('selected', expLabels.has(card.querySelector('.industry-card-label').textContent));
-      });
-      document.getElementById('industries-btn').disabled =
-        document.querySelectorAll('#step-industries .industry-card.selected').length === 0;
+    if (sequence[idx] === 'step-industries') {
+      if (selected.has('job') && !industriesDirty) {
+        const expLabels = new Set(
+          Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
+            .map(c => c.querySelector('.industry-card-label').textContent)
+        );
+        document.querySelectorAll('#step-industries .industry-card').forEach(card => {
+          card.classList.toggle('selected', expLabels.has(card.querySelector('.industry-card-label').textContent));
+        });
+        document.getElementById('industries-btn').disabled =
+          document.querySelectorAll('#step-industries .industry-card.selected').length === 0;
+      }
+      const hasPreFill = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
+      document.querySelector('#step-industries .app-step-sub').textContent = hasPreFill && selected.has('job')
+        ? 'Pre-filled from your experience — adjust as needed.'
+        : 'Tap all that interest you.';
     }
 
     if (sequence[idx] === 'step-grad-year') {
@@ -511,7 +517,12 @@
   }
 
   function startSequence() {
+    industriesDirty = false;
     sequence = buildSequence();
+    if (!selected.has('job')) {
+      document.querySelectorAll('#step-industries .industry-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('industries-btn').disabled = true;
+    }
     const total = sequence.length - 1;
     buildProgressBar(total);
     currentIdx = 1;
@@ -519,6 +530,7 @@
   }
 
   function nextStep() {
+    if (sequence[currentIdx] === 'step-job-experience') industriesDirty = false;
     currentIdx++;
     showStepAt(currentIdx);
   }
@@ -544,13 +556,18 @@
 
   function toggleIndustry(el) {
     el.classList.toggle('selected');
+    industriesDirty = true;
     const any = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
     document.getElementById('industries-btn').disabled = !any;
   }
 
   function toggleCert(el) { el.classList.toggle('selected'); }
 
-  function finish() {
+  async function finish() {
+    const btn = document.querySelector('#step-certs .ob-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
     const profile = {
       backgrounds: Array.from(selected),
       boces_program: document.getElementById('boces-program')?.value || null,
@@ -567,8 +584,58 @@
       certifications: Array.from(document.querySelectorAll('#cert-list .cert-row.selected'))
         .map(r => r.querySelector('.cert-label').textContent)
     };
+
     localStorage.setItem('hg_profile', JSON.stringify(profile));
+
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session) {
+      await _sb.from('students').upsert({
+        id: session.user.id,
+        program: profile.boces_program || null,
+        graduation_year: profile.graduation_year || null,
+        certifications: profile.certifications.length > 0 ? profile.certifications : null
+      });
+    }
+
     window.location.href = '/student/dashboard.html';
+  }
+
+  function prefillProfile(p) {
+    (p.backgrounds || []).forEach(bg => {
+      const card = document.getElementById('bg-' + bg);
+      if (card) { card.classList.add('selected'); selected.add(bg); }
+    });
+    if (selected.size > 0) document.getElementById('bg-btn').disabled = false;
+
+    if (p.boces_program) document.getElementById('boces-program').value = p.boces_program;
+    if (p.college_name)  document.getElementById('college-name').value = p.college_name;
+    if (p.military_branch) document.getElementById('military-branch').value = p.military_branch;
+    if (p.graduation_year) document.getElementById('grad-year').value = p.graduation_year;
+    if (p.county) document.getElementById('county-select').value = p.county;
+
+    if (p.job_experience?.length) {
+      document.querySelectorAll('#job-exp-grid .industry-card').forEach(card => {
+        if (p.job_experience.includes(card.querySelector('.industry-card-label').textContent))
+          card.classList.add('selected');
+      });
+      document.getElementById('job-exp-btn').disabled = false;
+    }
+
+    if (p.industries?.length) {
+      document.querySelectorAll('#step-industries .industry-card').forEach(card => {
+        if (p.industries.includes(card.querySelector('.industry-card-label').textContent))
+          card.classList.add('selected');
+      });
+      document.getElementById('industries-btn').disabled = false;
+      industriesDirty = true;
+    }
+
+    if (p.certifications?.length) {
+      document.querySelectorAll('#cert-list .cert-row').forEach(row => {
+        if (p.certifications.includes(row.querySelector('.cert-label').textContent))
+          row.classList.add('selected');
+      });
+    }
   }
 
   // ── College autocomplete ──

@@ -272,8 +272,9 @@
     const pathLabel = backgrounds.map(b => bgLabels[b] || b).join(', ') || '–';
     document.getElementById('sheet-path').textContent = pathLabel;
 
-    if (profile.program) {
-      document.getElementById('sheet-program').textContent = profile.program;
+    const program = profile.boces_program || profile.program || null;
+    if (program) {
+      document.getElementById('sheet-program').textContent = program;
       document.getElementById('sheet-program-row').style.display = 'flex';
     }
     if (profile.graduation_year) {
