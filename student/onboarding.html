@@ -378,9 +378,6 @@
   let sequence = [];
   let currentIdx = 0;
 
-  // Fixed steps always at the end
-  const TAIL = ['step-grad-year', 'step-county', 'step-industries', 'step-certs'];
-
   function toggleBg(el, key) {
     el.classList.toggle('selected');
     if (selected.has(key)) selected.delete(key);
@@ -393,7 +390,11 @@
     if (selected.has('boces'))    seq.push('step-boces');
     if (selected.has('college'))  seq.push('step-college');
     if (selected.has('military')) seq.push('step-military');
-    seq.push(...TAIL);
+    // Grad year only makes sense for BOCES, College, or Military — skip for On the Job only
+    if (selected.has('boces') || selected.has('college') || selected.has('military')) {
+      seq.push('step-grad-year');
+    }
+    seq.push('step-county', 'step-industries', 'step-certs');
     return seq;
   }
 
