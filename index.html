@@ -827,38 +827,6 @@
           <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
           <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
         </div>
-        <div class="hg-form">
-          <select id="s-program" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
-            <option value="" disabled selected>Select your BOCES program</option>
-            <option>Automotive Collision &amp; Refinishing</option>
-            <option>Automotive Technology</option>
-            <option>Carpentry &amp; Building Construction</option>
-            <option>Computer Technology &amp; Networking</option>
-            <option>Conservation &amp; Heavy Equipment</option>
-            <option>Cosmetology</option>
-            <option>Culinary Arts</option>
-            <option>Electrical / IBEW Prep</option>
-            <option>Nurse Assisting (CNA)</option>
-            <option>Security &amp; Law Enforcement</option>
-            <option>Visual Communications</option>
-            <option>Welding Technology</option>
-            <option>Other</option>
-          </select>
-          <select id="s-year" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
-            <option value="" disabled selected>Graduation year</option>
-          </select>
-          <script>
-            (function() {
-              const sel = document.getElementById('s-year');
-              const cur = new Date().getFullYear();
-              for (let y = cur - 5; y <= cur + 4; y++) {
-                const opt = document.createElement('option');
-                opt.value = opt.textContent = y;
-                sel.appendChild(opt);
-              }
-            })();
-          </script>
-        </div>
         <div id="s-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
         <button class="hg-btn-primary" onclick="submitStudent()">Create student account</button>
       </div>
@@ -1231,15 +1199,12 @@
   window.submitStudent = async function() {
     const firstName = document.getElementById('s-firstname').value.trim();
     const lastName = document.getElementById('s-lastname').value.trim();
-    const name = firstName + ' ' + lastName;
     const phone = document.getElementById('s-phone').value.trim();
     const email = document.getElementById('s-email').value.trim();
     const password = document.getElementById('s-password').value;
-    const program = document.getElementById('s-program').value.trim();
-    const graduation_year = document.getElementById('s-year').value.trim();
     const errEl = document.getElementById('s-error');
 
-    if (!firstName || !lastName || !email || !phone || !password || !program || !graduation_year) {
+    if (!firstName || !lastName || !email || !phone || !password) {
       errEl.textContent = 'Please fill in all fields.';
       errEl.style.display = 'block';
       return;
@@ -1261,7 +1226,6 @@
       errEl.style.display = 'block';
       return;
     }
-    await _db.from('students').insert([{ id: data.user.id, program, graduation_year }]);
     window.location.href = '/student/onboarding.html';
   };
 

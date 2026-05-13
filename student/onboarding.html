@@ -66,6 +66,7 @@
     </div>
     <div id="s2-error" style="display:none;color:#c0392b;font-size:13px;margin:8px 0;">Please select a year.</div>
     <button class="app-btn-primary" onclick="goStep3()">Continue</button>
+    <button type="button" onclick="showStep(1)" style="width:100%;padding:13px;font-size:14px;font-weight:500;background:transparent;color:#666660;border:none;cursor:pointer;font-family:inherit;margin-top:4px;">← Back</button>
   </div>
 
   <!-- Step 3: Certifications + Account -->
@@ -137,6 +138,7 @@
     </div>
     <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
     <button class="app-btn-primary" id="finish-btn" onclick="finish()">See my jobs →</button>
+    <button type="button" onclick="showStep(2)" style="width:100%;padding:13px;font-size:14px;font-weight:500;background:transparent;color:#666660;border:none;cursor:pointer;font-family:inherit;margin-top:4px;">← Back</button>
   </div>
 
 </div>
@@ -199,47 +201,58 @@
   }
 
   async function finish() {
-    const email = document.getElementById('student-email').value.trim();
-    const password = document.getElementById('student-password').value;
     const errEl = document.getElementById('s3-error');
     const btn = document.getElementById('finish-btn');
-
-    if (!email || !password) {
-      errEl.textContent = 'Please enter your email and password.';
-      errEl.style.display = 'block';
-      return;
-    }
-    if (!pwStrong('student-password', 'pw-rules-s')) {
-      errEl.textContent = 'Password does not meet all requirements.';
-      errEl.style.display = 'block';
-      document.getElementById('pw-rules-s').classList.add('visible');
-      return;
-    }
-
-    errEl.style.display = 'none';
-    btn.textContent = 'Creating account…';
-    btn.disabled = true;
-
     const program = document.getElementById('program-select').value;
     const certifications = Array.from(document.querySelectorAll('.app-check-row.selected'))
       .map(row => row.querySelector('.app-check-label').textContent);
 
-    const { data, error } = await _sb.auth.signUp({
-      email,
-      password,
-      options: { data: { user_type: 'student' } }
-    });
+    // Check if user already signed up from the landing page
+    const { data: { session: existing } } = await _sb.auth.getSession();
+    let userId;
 
-    if (error) {
-      errEl.textContent = error.message;
-      errEl.style.display = 'block';
-      btn.textContent = 'See my jobs →';
-      btn.disabled = false;
-      return;
+    if (existing) {
+      userId = existing.user.id;
+    } else {
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value;
+
+      if (!email || !password) {
+        errEl.textContent = 'Please enter your email and password.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!pwStrong('student-password', 'pw-rules-s')) {
+        errEl.textContent = 'Password does not meet all requirements.';
+        errEl.style.display = 'block';
+        document.getElementById('pw-rules-s').classList.add('visible');
+        return;
+      }
+
+      errEl.style.display = 'none';
+      btn.textContent = 'Creating account…';
+      btn.disabled = true;
+
+      const { data, error } = await _sb.auth.signUp({
+        email, password,
+        options: { data: { user_type: 'student' } }
+      });
+
+      if (error) {
+        errEl.textContent = error.message;
+        errEl.style.display = 'block';
+        btn.textContent = 'See my jobs →';
+        btn.disabled = false;
+        return;
+      }
+      userId = data.user.id;
     }
 
-    const userId = data.user.id;
-    await _sb.from('students').insert([{
+    errEl.style.display = 'none';
+    btn.textContent = 'Setting up your profile…';
+    btn.disabled = true;
+
+    await _sb.from('students').upsert([{
       id: userId,
       program,
       graduation_year: selectedYear,

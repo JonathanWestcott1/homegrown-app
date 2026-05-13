@@ -230,7 +230,7 @@ body {
   justify-content: center;
   flex-shrink: 0;
   font-size: 13px;
-  color: #3B6D11;
+  color: transparent;
 }
 
 .app-check-row.selected .app-check-box {
