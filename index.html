@@ -806,7 +806,10 @@
     <div id="student-section">
       <div id="student-form-wrap">
         <div class="hg-form">
-          <input id="s-name" type="text" placeholder="Full name" />
+          <div style="display:flex;gap:8px;">
+            <input id="s-firstname" type="text" placeholder="First name" style="flex:1;" />
+            <input id="s-lastname" type="text" placeholder="Last name" style="flex:1;" />
+          </div>
           <input id="s-email" type="email" placeholder="Email address" />
           <input id="s-password" type="password" placeholder="Password" oninput="checkPw('s-password','pw-rules-s','s')" />
         </div>
@@ -1162,14 +1165,16 @@
   })();
 
   window.submitStudent = async function() {
-    const name = document.getElementById('s-name').value.trim();
+    const firstName = document.getElementById('s-firstname').value.trim();
+    const lastName = document.getElementById('s-lastname').value.trim();
+    const name = firstName + ' ' + lastName;
     const email = document.getElementById('s-email').value.trim();
     const password = document.getElementById('s-password').value;
     const program = document.getElementById('s-program').value.trim();
     const graduation_year = document.getElementById('s-year').value.trim();
     const errEl = document.getElementById('s-error');
 
-    if (!name || !email || !password || !program || !graduation_year) {
+    if (!firstName || !lastName || !email || !password || !program || !graduation_year) {
       errEl.textContent = 'Please fill in all fields.';
       errEl.style.display = 'block';
       return;
@@ -1184,7 +1189,7 @@
 
     const { data, error } = await _db.auth.signUp({
       email, password,
-      options: { data: { user_type: 'student' } }
+      options: { data: { user_type: 'student', first_name: firstName, last_name: lastName } }
     });
     if (error) {
       errEl.textContent = error.message;
