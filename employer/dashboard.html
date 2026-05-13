@@ -168,6 +168,10 @@
       window.location.href = '/';
       return;
     }
+    if (localStorage.getItem('employer_setup_complete') !== 'true') {
+      window.location.href = '/employer/setup.html';
+      return;
+    }
     const email = session.user.email || '';
     document.getElementById('profile-icon').textContent = email.charAt(0).toUpperCase();
   })();

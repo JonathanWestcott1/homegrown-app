@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown — Employer Setup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f5;
+      color: #1C1C1A;
+      min-height: 100vh;
+    }
+
+    .app-wrap {
+      max-width: 390px;
+      margin: 0 auto;
+      background: #FAFAF8;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 0.5px solid #D3D1C7;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      padding: 20px 20px 0;
+    }
+    .progress-step { display: flex; align-items: center; }
+    .progress-step:not(:last-child) { flex: 1; }
+    .progress-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #D3D1C7;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .progress-circle.done { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .progress-circle.active { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .progress-line { flex: 1; height: 2px; background: #D3D1C7; }
+    .progress-line.done { background: #3B6D11; }
+
+    /* Content */
+    .app-content { padding: 24px 20px; }
+    .step-title { font-size: 22px; font-weight: 500; color: #1C1C1A; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .step-sub { font-size: 14px; color: #666660; margin-bottom: 24px; line-height: 1.5; }
+
+    /* Field groups */
+    .field-group { margin-bottom: 18px; }
+    .field-label { font-size: 13px; font-weight: 500; color: #1C1C1A; margin-bottom: 6px; display: block; }
+    .field-sublabel { font-size: 12px; color: #888780; margin-bottom: 8px; }
+
+    textarea.f-input, input.f-input, select.f-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 14px;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 8px;
+      background: #fff;
+      color: #1C1C1A;
+      font-family: inherit;
+      outline: none;
+    }
+    textarea.f-input { resize: vertical; }
+    textarea.f-input:focus, input.f-input:focus, select.f-input:focus { border-color: #3B6D11; }
+    select.f-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      background: #3B6D11;
+      color: #EAF3DE;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { background: #2f5a0e; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      font-size: 14px;
+      color: #666660;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 14px;
+      width: 100%;
+    }
+
+    /* Section headings */
+    .section-heading { font-size: 15px; font-weight: 500; color: #1C1C1A; margin-bottom: 4px; }
+    .section-subheading { font-size: 12px; color: #888780; margin-bottom: 12px; }
+    .section-gap { margin-bottom: 28px; }
+
+    /* Pill cards (multi-select backgrounds) */
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill-card {
+      border: 0.5px solid #D3D1C7;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      background: #fff;
+      color: #444441;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .pill-card.selected {
+      background: #EAF3DE;
+      border: 1.5px solid #3B6D11;
+      color: #3B6D11;
+    }
+
+    /* Certification checkboxes */
+    .check-list { display: flex; flex-direction: column; gap: 8px; }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #fff;
+    }
+    .check-row.selected { border-color: #3B6D11; background: #EAF3DE; }
+    .check-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid #D3D1C7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: transparent;
+    }
+    .check-row.selected .check-box { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .check-label { font-size: 14px; color: #1C1C1A; }
+
+    /* Toggle switches */
+    .toggle-group { border-top: 0.5px solid #D3D1C7; }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 0.5px solid #D3D1C7;
+    }
+    .toggle-label { font-size: 14px; color: #1C1C1A; flex: 1; padding-right: 16px; line-height: 1.4; }
+    .toggle-switch {
+      width: 44px;
+      height: 26px;
+      background: #D3D1C7;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s ease;
+    }
+    .toggle-switch.on { background: #3B6D11; }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.on::after { transform: translateX(18px); }
+
+    /* Application method cards */
+    .method-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      background: #fff;
+      transition: all 0.15s;
+    }
+    .method-card.selected { border-color: #3B6D11; background: #EAF3DE; border-width: 2px; }
+    .method-icon { font-size: 24px; flex-shrink: 0; line-height: 1; }
+    .method-title { font-size: 15px; font-weight: 500; color: #1C1C1A; margin-bottom: 3px; }
+    .method-desc { font-size: 13px; color: #666660; line-height: 1.4; }
+
+    /* Response time pills (single-select) */
+    .response-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .response-pill {
+      border: 0.5px solid #D3D1C7;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      background: #fff;
+      color: #444441;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .response-pill.selected { background: #EAF3DE; border: 1.5px solid #3B6D11; color: #3B6D11; }
+
+    /* Two-column inputs */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* Error */
+    .error-msg { display: none; color: #c0392b; font-size: 13px; margin-bottom: 8px; margin-top: 4px; }
+
+    /* Success screen */
+    .success-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #EAF3DE;
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      padding: 40px;
+    }
+    .success-screen.show { display: flex; }
+    .success-title { font-size: 26px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.5px; }
+    .success-sub { font-size: 15px; color: #3B6D11; line-height: 1.6; max-width: 280px; }
+  </style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:7px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
+    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 3</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar">
+    <div class="progress-step">
+      <div class="progress-circle active" id="pc1">1</div>
+      <div class="progress-line" id="pl1"></div>
+    </div>
+    <div class="progress-step">
+      <div class="progress-circle" id="pc2">2</div>
+      <div class="progress-line" id="pl2"></div>
+    </div>
+    <div class="progress-step">
+      <div class="progress-circle" id="pc3">3</div>
+    </div>
+  </div>
+
+  <!-- ── STEP 1: Company Profile ── -->
+  <div class="app-content" id="step-1">
+    <div class="step-title">Tell us about your company</div>
+    <div class="step-sub">Help locals understand who you are before they apply.</div>
+
+    <div class="field-group">
+      <label class="field-label">What does your company do?</label>
+      <div class="field-sublabel">2–3 sentences. Write like you're explaining it to a local kid.</div>
+      <textarea class="f-input" id="company-description" rows="4" placeholder="e.g. Raymond's makes forklifts right here in Greene. We've been part of this community for over 80 years and we hire locally whenever we can."></textarea>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Company size</label>
+      <select class="f-input" id="company-size">
+        <option value="" disabled selected>Select size…</option>
+        <option>Just me (1)</option>
+        <option>2–10 employees</option>
+        <option>11–50 employees</option>
+        <option>51–200 employees</option>
+        <option>200+ employees</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Website <span style="font-weight:400;color:#888780;">(optional)</span></label>
+      <input class="f-input" id="company-website" type="url" placeholder="https://yourcompany.com" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Street address</label>
+      <div class="field-sublabel">Used to show locals how far you are from them.</div>
+      <input class="f-input" id="company-address" type="text" placeholder="e.g. 20 South Canal Street, Greene, NY 13778" />
+    </div>
+
+    <div class="error-msg" id="s1-error"></div>
+    <button class="btn-primary" onclick="goStep(2)">Continue</button>
+  </div>
+
+  <!-- ── STEP 2: Hiring Needs ── -->
+  <div class="app-content" id="step-2" style="display:none;">
+    <div class="step-title">What are you looking for?</div>
+    <div class="step-sub">We'll match you with locals who have the right background.</div>
+
+    <!-- Backgrounds -->
+    <div class="section-gap">
+      <div class="section-heading">Which training backgrounds produce your best hires?</div>
+      <div class="section-subheading">Select all that apply</div>
+      <div class="pill-group" id="bg-pills">
+        <div class="pill-card" onclick="togglePill(this)">BOCES Graduate</div>
+        <div class="pill-card" onclick="togglePill(this)">Community College</div>
+        <div class="pill-card" onclick="togglePill(this)">Military / Veteran</div>
+        <div class="pill-card" onclick="togglePill(this)">On the Job Training</div>
+        <div class="pill-card" onclick="togglePill(this)">Self-Taught</div>
+        <div class="pill-card" onclick="togglePill(this)">Any background welcome</div>
+      </div>
+    </div>
+
+    <!-- Certifications -->
+    <div class="section-gap">
+      <div class="section-heading">What certifications do you commonly require?</div>
+      <div class="section-subheading">Select all that typically apply to your roles</div>
+      <div class="check-list">
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">OSHA 10 Certification</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Blueprint Reading</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Hand Tool Safety</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">IBEW Apprenticeship Application</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Hydraulic Systems Certification</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">ServSafe Certification</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">NYS CNA License</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Adobe Certified Professional</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">CDL License</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Security Guard Certification</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Forklift Operator Certification</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">NYS Cosmetology License</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">CPR / First Aid Certified</div></div>
+      </div>
+    </div>
+
+    <!-- Toggles -->
+    <div class="section-gap">
+      <div class="toggle-group">
+        <div class="toggle-row">
+          <div class="toggle-label">Do you offer apprenticeships or on the job training?</div>
+          <div class="toggle-switch" id="toggle-apprentice" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label">Do you sponsor certifications for new hires?</div>
+          <div class="toggle-switch" id="toggle-sponsor" onclick="toggleSwitch(this)"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goStep(3)">Continue</button>
+    <button class="back-link" onclick="goStep(1)">← Back</button>
+  </div>
+
+  <!-- ── STEP 3: How to Hire ── -->
+  <div class="app-content" id="step-3" style="display:none;">
+    <div class="step-title">How should locals reach you?</div>
+    <div class="step-sub">We'll show this to candidates so they know exactly what to do.</div>
+
+    <!-- Application method -->
+    <div class="section-gap">
+      <div class="section-heading">How should candidates apply?</div>
+
+      <div class="method-card" id="method-homegrown" onclick="selectMethod('homegrown')">
+        <div class="method-icon">🌱</div>
+        <div>
+          <div class="method-title">Through Homegrown</div>
+          <div class="method-desc">Candidates express interest here and you reach out to them.</div>
+        </div>
+      </div>
+
+      <div class="method-card" id="method-call" onclick="selectMethod('call')">
+        <div class="method-icon">📞</div>
+        <div>
+          <div class="method-title">Call us directly</div>
+          <div class="method-desc">Show candidates your phone number to call or text.</div>
+        </div>
+      </div>
+
+      <div class="method-card" id="method-walkin" onclick="selectMethod('walkin')">
+        <div class="method-icon">🚶</div>
+        <div>
+          <div class="method-title">Show up in person</div>
+          <div class="method-desc">Tell candidates to come in during business hours.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="section-gap">
+      <div class="section-heading">Who should candidates contact?</div>
+      <div style="margin-top:10px;" class="two-col">
+        <input class="f-input" id="contact-name" type="text" placeholder="e.g. Sarah in HR" />
+        <input class="f-input" id="contact-info" type="text" placeholder="607-555-0100 or hr@co.com" />
+      </div>
+    </div>
+
+    <!-- Response time -->
+    <div class="section-gap">
+      <div class="section-heading">How quickly do you typically respond to candidates?</div>
+      <div style="margin-top:10px;" class="response-pills" id="response-pills">
+        <div class="response-pill" onclick="selectResponse(this)">Within 24 hours</div>
+        <div class="response-pill" onclick="selectResponse(this)">Within a week</div>
+        <div class="response-pill" onclick="selectResponse(this)">1–2 weeks</div>
+        <div class="response-pill" onclick="selectResponse(this)">Varies</div>
+      </div>
+      <div style="font-size:12px;color:#888780;font-style:italic;margin-top:10px;">Candidates will see your typical response time. Faster responses get more applicants.</div>
+    </div>
+
+    <div class="error-msg" id="s3-error"></div>
+    <button class="btn-primary" onclick="finish()">Finish setup →</button>
+    <button class="back-link" onclick="goStep(2)">← Back</button>
+  </div>
+
+</div>
+
+<!-- Success screen -->
+<div class="success-screen" id="success-screen">
+  <svg width="48" height="48" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+    <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+  </svg>
+  <div class="success-title">You're all set! 🌱</div>
+  <div class="success-sub">Your profile is live. Locals in your area can now find your jobs.</div>
+</div>
+
+<script>
+  const _sb = window.supabase.createClient(
+    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+  );
+
+  // Redirect if no session
+  (async () => {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { window.location.href = '/'; }
+  })();
+
+  let currentStep = 1;
+  let selectedMethod = '';
+
+  // ── Navigation ──
+  function goStep(n) {
+    if (n === 2 && currentStep === 1) {
+      const desc = document.getElementById('company-description').value.trim();
+      const addr = document.getElementById('company-address').value.trim();
+      const errEl = document.getElementById('s1-error');
+      if (!desc || !addr) {
+        errEl.textContent = 'Please fill in your company description and address.';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+    }
+
+    document.getElementById('step-' + currentStep).style.display = 'none';
+    document.getElementById('step-' + n).style.display = 'block';
+    document.getElementById('step-num').textContent = n;
+    updateProgress(n);
+    currentStep = n;
+    window.scrollTo(0, 0);
+  }
+
+  function updateProgress(n) {
+    for (let i = 1; i <= 3; i++) {
+      const circle = document.getElementById('pc' + i);
+      circle.classList.remove('active', 'done');
+      if (i < n) {
+        circle.classList.add('done');
+        circle.textContent = '✓';
+      } else if (i === n) {
+        circle.classList.add('active');
+        circle.textContent = i;
+      } else {
+        circle.textContent = i;
+      }
+    }
+    for (let i = 1; i <= 2; i++) {
+      const line = document.getElementById('pl' + i);
+      line.classList.toggle('done', i < n);
+    }
+  }
+
+  // ── Step 2 interactions ──
+  function togglePill(el) { el.classList.toggle('selected'); }
+  function toggleCheck(el) { el.classList.toggle('selected'); }
+  function toggleSwitch(el) { el.classList.toggle('on'); }
+
+  // ── Step 3 interactions ──
+  function selectMethod(key) {
+    ['homegrown', 'call', 'walkin'].forEach(k => {
+      document.getElementById('method-' + k).classList.toggle('selected', k === key);
+    });
+    selectedMethod = key;
+  }
+
+  function selectResponse(el) {
+    document.querySelectorAll('#response-pills .response-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ── Finish ──
+  async function finish() {
+    const errEl = document.getElementById('s3-error');
+    if (!selectedMethod) {
+      errEl.textContent = 'Please select how candidates should apply.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const profile = {
+      company_description: document.getElementById('company-description').value.trim(),
+      company_size: document.getElementById('company-size').value || '',
+      website: document.getElementById('company-website').value.trim(),
+      address: document.getElementById('company-address').value.trim(),
+      preferred_backgrounds: Array.from(document.querySelectorAll('#bg-pills .pill-card.selected')).map(el => el.textContent),
+      required_certifications: Array.from(document.querySelectorAll('.check-row.selected .check-label')).map(el => el.textContent),
+      offers_apprenticeships: document.getElementById('toggle-apprentice').classList.contains('on'),
+      sponsors_certifications: document.getElementById('toggle-sponsor').classList.contains('on'),
+      application_method: selectedMethod,
+      contact_name: document.getElementById('contact-name').value.trim(),
+      contact_info: document.getElementById('contact-info').value.trim(),
+      response_time: (document.querySelector('#response-pills .response-pill.selected') || {}).textContent || ''
+    };
+
+    // Save to localStorage
+    localStorage.setItem('employer_profile', JSON.stringify(profile));
+    localStorage.setItem('employer_setup_complete', 'true');
+
+    // Attempt Supabase save (non-blocking)
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) {
+        await _sb.from('employers').update({
+          company_description: profile.company_description,
+          company_size: profile.company_size,
+          website: profile.website,
+          address: profile.address,
+          preferred_backgrounds: profile.preferred_backgrounds,
+          required_certifications: profile.required_certifications,
+          offers_apprenticeships: profile.offers_apprenticeships,
+          sponsors_certifications: profile.sponsors_certifications,
+          application_method: profile.application_method,
+          contact_name: profile.contact_name,
+          contact_info: profile.contact_info,
+          response_time: profile.response_time
+        }).eq('id', session.user.id);
+      }
+    } catch (e) {
+      // localStorage save already done — proceed anyway
+    }
+
+    // Show success screen
+    document.getElementById('success-screen').classList.add('show');
+    setTimeout(() => {
+      window.location.href = '/employer/dashboard.html';
+    }, 1500);
+  }
+</script>
+</body>
+</html>
