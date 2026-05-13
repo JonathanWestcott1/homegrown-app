@@ -114,6 +114,33 @@
     /* Dynamic progress bar */
     #progress-bar { display: none; }
     #progress-bar.visible { display: flex; }
+
+    /* College autocomplete */
+    .college-search-wrap { position: relative; margin-bottom: 0; }
+    .college-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: #fff;
+      border: 0.5px solid #D3D1C7;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .college-dropdown.open { display: block; }
+    .college-option {
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #1C1C1A;
+      border-bottom: 0.5px solid #F0EFE9;
+      cursor: pointer;
+    }
+    .college-option:last-child { border-bottom: none; }
+    .college-option:active { background: #EAF3DE; }
   </style>
 </head>
 <body>
@@ -209,7 +236,10 @@
   <div class="app-content" id="step-college" style="display:none;">
     <div class="app-step-title">Which college did you attend?</div>
     <div class="app-step-sub">Enter the name of your school.</div>
-    <input class="app-input" id="college-name" type="text" placeholder="e.g. SUNY Oneonta, Delhi Tech…" oninput="checkInput('college-name','college-btn')" />
+    <div class="college-search-wrap">
+      <input class="app-input" id="college-name" type="text" placeholder="Start typing your college name…" autocomplete="off" style="border-radius:8px;" />
+      <div class="college-dropdown" id="college-dropdown"></div>
+    </div>
     <button class="ob-btn" id="college-btn" onclick="nextStep()" disabled>Continue</button>
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
@@ -414,6 +444,14 @@
       updateProgress(stepNum, total);
     }
 
+    if (sequence[idx] === 'step-grad-year') {
+      const isMilitary = selected.has('military');
+      document.querySelector('#step-grad-year .app-step-title').textContent =
+        isMilitary ? 'When did / will you complete your service?' : 'When did / will you graduate?';
+      document.querySelector('#step-grad-year .app-step-sub').textContent =
+        isMilitary ? 'Select your end of service year.' : 'Select your graduation year.';
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -466,6 +504,183 @@
     };
     localStorage.setItem('hg_profile', JSON.stringify(profile));
     window.location.href = '/student/dashboard.html';
+  }
+
+  // ── College autocomplete ──
+  const COLLEGES = [
+    // SUNY system
+    'University at Albany (SUNY)','Binghamton University (SUNY)','University at Buffalo (SUNY)',
+    'Stony Brook University (SUNY)','SUNY Brockport','SUNY Buffalo State','SUNY Cortland',
+    'SUNY Delhi','SUNY Empire State College','SUNY Fredonia','SUNY Geneseo','SUNY Maritime College',
+    'SUNY Morrisville','SUNY New Paltz','SUNY Old Westbury','SUNY Oneonta','SUNY Oswego',
+    'SUNY Plattsburgh','SUNY Polytechnic Institute','SUNY Purchase','SUNY Potsdam',
+    'SUNY Cobleskill','SUNY Canton','Alfred State College (SUNY)','Farmingdale State College (SUNY)',
+    // SUNY community colleges
+    'Broome Community College (SUNY)','Cayuga Community College (SUNY)','Clinton Community College (SUNY)',
+    'Columbia-Greene Community College (SUNY)','Corning Community College (SUNY)',
+    'Dutchess Community College (SUNY)','Erie Community College (SUNY)',
+    'Finger Lakes Community College (SUNY)','Fulton-Montgomery Community College (SUNY)',
+    'Genesee Community College (SUNY)','Herkimer College (SUNY)',
+    'Hudson Valley Community College (SUNY)','Jamestown Community College (SUNY)',
+    'Jefferson Community College (SUNY)','Mohawk Valley Community College (SUNY)',
+    'Monroe Community College (SUNY)','Nassau Community College (SUNY)',
+    'Niagara County Community College (SUNY)','North Country Community College (SUNY)',
+    'Onondaga Community College (SUNY)','Orange County Community College (SUNY)',
+    'Rockland Community College (SUNY)','Schenectady County Community College (SUNY)',
+    'Suffolk County Community College (SUNY)','Sullivan County Community College (SUNY)',
+    'Tompkins Cortland Community College (SUNY)','Ulster County Community College (SUNY)',
+    'Westchester Community College (SUNY)',
+    // CUNY
+    'Baruch College (CUNY)','Brooklyn College (CUNY)','City College of New York (CUNY)',
+    'College of Staten Island (CUNY)','Hunter College (CUNY)','John Jay College (CUNY)',
+    'Lehman College (CUNY)','Medgar Evers College (CUNY)','Queens College (CUNY)',
+    'York College (CUNY)','Borough of Manhattan Community College (CUNY)',
+    'Bronx Community College (CUNY)','Kingsborough Community College (CUNY)',
+    'LaGuardia Community College (CUNY)','Queensborough Community College (CUNY)',
+    'Hostos Community College (CUNY)',
+    // NY private
+    'Columbia University','Cornell University','New York University (NYU)',
+    'Fordham University','St. John\'s University','Hofstra University','Adelphi University',
+    'Pace University','Manhattan College','Wagner College','Iona University',
+    'Long Island University (LIU)','Marist College','Vassar College','Skidmore College',
+    'Colgate University','Hamilton College','Clarkson University','St. Lawrence University',
+    'Rensselaer Polytechnic Institute (RPI)','Union College','Siena College',
+    'Rochester Institute of Technology (RIT)','University of Rochester','Syracuse University',
+    'Le Moyne College','The New School','Pratt Institute','Sarah Lawrence College',
+    'Bard College','New York Institute of Technology (NYIT)','Touro University',
+    'Yeshiva University','Molloy University','Mount Saint Mary College','Nazareth University',
+    'Niagara University','Roberts Wesleyan University','St. Bonaventure University',
+    'Utica University','Wells College','Alfred University','Cazenovia College',
+    'Keuka College','Medaille University','Monroe College','St. Thomas Aquinas College',
+    // Ivy League
+    'Harvard University','Yale University','Princeton University','Dartmouth College',
+    'Brown University','University of Pennsylvania',
+    // Top national universities
+    'MIT (Massachusetts Institute of Technology)','Stanford University','Duke University',
+    'Johns Hopkins University','Northwestern University','University of Chicago',
+    'Vanderbilt University','Rice University','Washington University in St. Louis',
+    'Emory University','Georgetown University','Carnegie Mellon University',
+    'Tufts University','Wake Forest University','Case Western Reserve University',
+    'Tulane University','Lehigh University','Pepperdine University',
+    'Boston University','Boston College','Northeastern University','Brandeis University',
+    'George Washington University','American University','Howard University',
+    'Georgia Tech (Georgia Institute of Technology)','University of Michigan',
+    'University of Virginia','University of North Carolina at Chapel Hill',
+    'University of Wisconsin-Madison','UC Berkeley','UCLA','UC San Diego','UC Davis',
+    'UC Santa Barbara','UC Irvine','UC Santa Cruz','UC Riverside',
+    'USC (University of Southern California)','Cal Poly San Luis Obispo',
+    'San Jose State University','San Francisco State University',
+    'University of Texas at Austin','Texas A&M University','Texas Tech University',
+    'University of Houston','Baylor University','TCU (Texas Christian University)',
+    'SMU (Southern Methodist University)','University of Florida','Florida State University',
+    'University of Miami','University of South Florida','Florida International University',
+    'UCF (University of Central Florida)','Florida A&M University',
+    'University of Georgia','Georgia State University','Georgia Southern University',
+    'University of Alabama','Auburn University','University of Tennessee','Tennessee State University',
+    'University of Kentucky','University of Louisville','University of Mississippi',
+    'Mississippi State University','Louisiana State University (LSU)',
+    'University of Arkansas','University of Missouri','University of Kansas',
+    'Kansas State University','University of Nebraska-Lincoln','University of Iowa',
+    'Iowa State University','University of Minnesota','Michigan State University',
+    'Ohio State University','University of Cincinnati','University of Dayton',
+    'Ohio University','Bowling Green State University','Kent State University',
+    'Miami University (Ohio)','Indiana University','Purdue University',
+    'University of Notre Dame','Butler University','DePaul University',
+    'Loyola University Chicago','Illinois Institute of Technology',
+    'University of Illinois Urbana-Champaign','University of Illinois Chicago',
+    'Illinois State University','Northern Illinois University','Marquette University',
+    'University of Wisconsin-Milwaukee','University of Colorado Boulder',
+    'Colorado State University','University of Denver','Colorado School of Mines',
+    'University of Utah','Utah State University','Brigham Young University (BYU)',
+    'University of Arizona','Arizona State University','Northern Arizona University',
+    'University of New Mexico','New Mexico State University',
+    'University of Nevada, Las Vegas','University of Nevada, Reno',
+    'University of Oregon','Oregon State University','Portland State University',
+    'University of Washington','Washington State University','Seattle University',
+    'University of Idaho','Boise State University','University of Montana',
+    'Montana State University','University of Wyoming','University of North Dakota',
+    'North Dakota State University','University of South Dakota','South Dakota State University',
+    'University of Maryland','University of Maryland, Baltimore County',
+    'University of Delaware','Drexel University','Temple University',
+    'Penn State University','University of Pittsburgh','Duquesne University',
+    'West Virginia University','Rutgers University','Seton Hall University',
+    'Montclair State University','The College of New Jersey','Rowan University',
+    'New Jersey Institute of Technology (NJIT)','University of Connecticut',
+    'Quinnipiac University','Fairfield University','Sacred Heart University',
+    'University of Rhode Island','Providence College','Bryant University',
+    'University of Massachusetts Amherst','Worcester Polytechnic Institute (WPI)',
+    'Holy Cross College','Clark University','University of New Hampshire',
+    'University of Vermont','Middlebury College','University of Maine',
+    'Bowdoin College','Colby College','Bates College',
+    // Military academies
+    'United States Military Academy (West Point)','United States Naval Academy',
+    'United States Air Force Academy','United States Coast Guard Academy',
+    'United States Merchant Marine Academy','Virginia Military Institute (VMI)','The Citadel',
+    // HBCUs
+    'Spelman College','Morehouse College','Hampton University','Tuskegee University',
+    'Fisk University','Grambling State University','North Carolina A&T State University',
+    'Morgan State University','Clark Atlanta University','Dillard University',
+    'Xavier University of Louisiana',
+    // Liberal arts colleges
+    'Williams College','Amherst College','Swarthmore College','Pomona College',
+    'Wellesley College','Smith College','Mount Holyoke College','Barnard College',
+    'Grinnell College','Oberlin College','Kenyon College','Denison University',
+    'Carleton College','Macalester College','St. Olaf College','College of Wooster',
+    'Gettysburg College','Dickinson College','Franklin & Marshall College',
+    'Muhlenberg College','Lafayette College','Bucknell University','Trinity College (CT)',
+    'Wesleyan University','Connecticut College','Harvey Mudd College',
+    'Claremont McKenna College','Scripps College','Pitzer College',
+    'Reed College','Whitman College','Colorado College','DePauw University',
+    'Wabash College','Wheaton College (MA)','Wheaton College (IL)',
+    // Other notable
+    'George Mason University','Virginia Tech','College of William & Mary',
+    'James Madison University','Old Dominion University','University of Richmond',
+    'Appalachian State University','NC State University',
+    'University of South Carolina','Clemson University','College of Charleston',
+    'Furman University','Wake Forest University',
+    'University of Maryland Eastern Shore','Towson University',
+    'Salisbury University','Loyola University Maryland',
+    'University of Pittsburgh at Bradford','Indiana University of Pennsylvania',
+    'Slippery Rock University','Millersville University',
+    'Kutztown University','East Stroudsburg University',
+    'University of Scranton','Villanova University','Saint Joseph\'s University',
+    'La Salle University','Immaculata University','Cabrini University',
+  ].sort();
+
+  (function initCollegeSearch() {
+    const input = document.getElementById('college-name');
+    const dropdown = document.getElementById('college-dropdown');
+
+    input.addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      if (q.length < 2) {
+        dropdown.classList.remove('open');
+        dropdown.innerHTML = '';
+        document.getElementById('college-btn').disabled = !this.value.trim();
+        return;
+      }
+      const matches = COLLEGES.filter(c => c.toLowerCase().includes(q)).slice(0, 25);
+      if (matches.length === 0) {
+        dropdown.classList.remove('open');
+        dropdown.innerHTML = '';
+      } else {
+        dropdown.innerHTML = matches.map(c =>
+          `<div class="college-option" onmousedown="selectCollege(this, '${c.replace(/'/g,"&#39;")}')">${c}</div>`
+        ).join('');
+        dropdown.classList.add('open');
+      }
+      document.getElementById('college-btn').disabled = !this.value.trim();
+    });
+
+    input.addEventListener('blur', function() {
+      setTimeout(() => dropdown.classList.remove('open'), 150);
+    });
+  })();
+
+  function selectCollege(el, name) {
+    document.getElementById('college-name').value = name;
+    document.getElementById('college-dropdown').classList.remove('open');
+    document.getElementById('college-btn').disabled = false;
   }
 
   (function populateYears() {
