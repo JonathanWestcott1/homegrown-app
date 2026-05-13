@@ -861,7 +861,17 @@
           <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 6 characters</div>
         </div>
         <div class="hg-form">
-          <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
+          <select id="e-county" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
+            <option value="" disabled selected>County…</option>
+            <option>Chenango County</option>
+            <option>Delaware County</option>
+            <option>Madison County</option>
+            <option>Otsego County</option>
+            <option>Broome County</option>
+            <option>Cortland County</option>
+            <option>Other upstate NY county</option>
+            <option>Outside New York</option>
+          </select>
           <select id="e-industry" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Industry</option>
             <option>Manufacturing</option>
@@ -1299,7 +1309,7 @@
     const company_name = document.getElementById('e-company').value.trim();
     const email = document.getElementById('e-email').value.trim();
     const password = document.getElementById('e-password').value;
-    const county = document.getElementById('e-county').value.trim();
+    const county = document.getElementById('e-county').value;
     const industry = document.getElementById('e-industry').value.trim();
     const errEl = document.getElementById('e-error');
 
