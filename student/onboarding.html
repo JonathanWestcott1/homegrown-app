@@ -23,15 +23,8 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .path-card.selected {
-      border: 2px solid #3B6D11;
-      background: #EAF3DE;
-    }
-    .path-card-icon {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
+    .path-card.selected { border: 2px solid #3B6D11; background: #EAF3DE; }
+    .path-card-icon { display: flex; justify-content: center; margin-bottom: 10px; }
     .path-card-label { font-size: 14px; font-weight: 600; color: #1C1C1A; margin-bottom: 4px; }
     .path-card-desc { font-size: 12px; color: #888780; line-height: 1.4; }
 
@@ -50,17 +43,9 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .industry-card.selected {
-      border: 2px solid #3B6D11;
-      background: #EAF3DE;
-    }
-    .industry-card-icon {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 6px;
-    }
+    .industry-card.selected { border: 2px solid #3B6D11; background: #EAF3DE; }
+    .industry-card-icon { display: flex; justify-content: center; margin-bottom: 6px; }
     .industry-card-label { font-size: 13px; font-weight: 600; color: #1C1C1A; }
-
 
     .cert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
     .cert-row {
@@ -154,26 +139,25 @@
       </svg>
       <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
     </div>
-    <div id="step-counter" style="font-size:12px;color:#999;display:none;">Step <span id="step-num">2</span> of 4</div>
+    <div id="step-counter" style="font-size:12px;color:#999;display:none;">Step <span id="step-num">2</span> of <span id="step-total">4</span></div>
   </div>
 
-  <!-- Progress bar (hidden on step 1) -->
-  <div class="app-progress" id="progress-bar" style="display:none;">
-    <div class="app-progress-step">
-      <div class="app-progress-circle" id="pb1">1</div>
-      <div class="app-progress-line" id="pl1"></div>
-    </div>
-    <div class="app-progress-step">
-      <div class="app-progress-circle" id="pb2">2</div>
-      <div class="app-progress-line" id="pl2"></div>
-    </div>
-    <div class="app-progress-step">
-      <div class="app-progress-circle" id="pb3">3</div>
-      <div class="app-progress-line" id="pl3"></div>
-    </div>
-    <div class="app-progress-step">
-      <div class="app-progress-circle" id="pb4">4</div>
-    </div>
+  <!-- Progress bar: 4-step (general) -->
+  <div class="app-progress" id="pb-4" style="display:none;">
+    <div class="app-progress-step"><div class="app-progress-circle" id="g-pb1">1</div><div class="app-progress-line" id="g-pl1"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="g-pb2">2</div><div class="app-progress-line" id="g-pl2"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="g-pb3">3</div><div class="app-progress-line" id="g-pl3"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="g-pb4">4</div></div>
+  </div>
+
+  <!-- Progress bar: 6-step (boces) -->
+  <div class="app-progress" id="pb-6" style="display:none;">
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb1">1</div><div class="app-progress-line" id="b-pl1"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb2">2</div><div class="app-progress-line" id="b-pl2"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb3">3</div><div class="app-progress-line" id="b-pl3"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb4">4</div><div class="app-progress-line" id="b-pl4"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb5">5</div><div class="app-progress-line" id="b-pl5"></div></div>
+    <div class="app-progress-step"><div class="app-progress-circle" id="b-pb6">6</div></div>
   </div>
 
   <!-- ── STEP 1: Who are you? ── -->
@@ -181,7 +165,6 @@
     <div class="app-step-title">How did you learn your skills?</div>
     <div class="app-step-sub">We'll personalize your job feed based on your background.</div>
     <div class="path-grid">
-
       <div class="path-card" id="pc-boces" onclick="selectPath(this, 'boces')">
         <div class="path-card-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -192,7 +175,6 @@
         <div class="path-card-label">BOCES Program</div>
         <div class="path-card-desc">Career &amp; technical education</div>
       </div>
-
       <div class="path-card" id="pc-college" onclick="selectPath(this, 'general')">
         <div class="path-card-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -205,7 +187,6 @@
         <div class="path-card-label">Community College</div>
         <div class="path-card-desc">Two-year or technical college</div>
       </div>
-
       <div class="path-card" id="pc-job" onclick="selectPath(this, 'general')">
         <div class="path-card-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -217,7 +198,6 @@
         <div class="path-card-label">On the Job</div>
         <div class="path-card-desc">Learned through work experience</div>
       </div>
-
       <div class="path-card" id="pc-mil" onclick="selectPath(this, 'general')">
         <div class="path-card-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -227,12 +207,13 @@
         <div class="path-card-label">Military / Veteran</div>
         <div class="path-card-desc">Served in the armed forces</div>
       </div>
-
     </div>
     <button class="btn-disabled" id="s1-btn">Continue</button>
   </div>
 
-  <!-- ── BOCES STEP 2: Program ── -->
+  <!-- ══ BOCES FLOW ══ -->
+
+  <!-- BOCES Step 2: Program -->
   <div class="app-content" id="boces-2" style="display:none;">
     <div class="app-step-title">What program are you in?</div>
     <div class="app-step-sub">Select your DCMO BOCES program</div>
@@ -256,7 +237,7 @@
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
-  <!-- ── BOCES STEP 3: Graduation year ── -->
+  <!-- BOCES Step 3: Grad year -->
   <div class="app-content" id="boces-3" style="display:none;">
     <div class="app-step-title">When did / will you graduate?</div>
     <div class="app-step-sub">Select your graduation year</div>
@@ -264,11 +245,72 @@
       <option value="" disabled selected>Choose your graduation year…</option>
     </select>
     <button class="btn-disabled" id="b3-btn">Continue</button>
-    <button class="back-link" onclick="showStep('boces-2', 2)">← Back</button>
+    <button class="back-link" onclick="showStep('boces-2', 2, 'boces')">← Back</button>
   </div>
 
-  <!-- ── BOCES STEP 4: Certifications ── -->
+  <!-- BOCES Step 4: County -->
   <div class="app-content" id="boces-4" style="display:none;">
+    <div class="app-step-title">Where are you located?</div>
+    <div class="app-step-sub">We'll show you jobs close to home.</div>
+    <select class="app-select" id="boces-county" onchange="checkB4()">
+      <option value="" disabled selected>Select your county…</option>
+      <option>Chenango County</option>
+      <option>Delaware County</option>
+      <option>Madison County</option>
+      <option>Otsego County</option>
+      <option>Broome County</option>
+      <option>Cortland County</option>
+      <option>Other upstate NY county</option>
+      <option>Outside New York</option>
+    </select>
+    <button class="btn-disabled" id="b4-btn">Continue</button>
+    <button class="back-link" onclick="showStep('boces-3', 3, 'boces')">← Back</button>
+  </div>
+
+  <!-- BOCES Step 5: Industries -->
+  <div class="app-content" id="boces-5" style="display:none;">
+    <div class="app-step-title">What kind of work are you looking for?</div>
+    <div class="app-step-sub">Tap all that interest you.</div>
+    <div class="industry-grid" id="boces-industries">
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="industry-card-label">Manufacturing</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="industry-card-label">Healthcare</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="industry-card-label">Construction &amp; Trades</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
+        <div class="industry-card-label">Food Production</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19c0 0 2.05-3.84 8.18-6.5"/><path d="M21 3s-4.68 3.68-4 8c0 0-5.32-8-14-3 0 0 5.18 1.65 7 6 0 0 3.18-8.5 11-11z"/></svg></div>
+        <div class="industry-card-label">Agriculture &amp; Conservation</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/></svg></div>
+        <div class="industry-card-label">Government &amp; Public Works</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="industry-card-label">Transportation &amp; Logistics</div>
+      </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'boces')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
+        <div class="industry-card-label">Technology</div>
+      </div>
+    </div>
+    <button class="btn-disabled" id="b5-btn">Continue</button>
+    <button class="back-link" onclick="showStep('boces-4', 4, 'boces')">← Back</button>
+  </div>
+
+  <!-- BOCES Step 6: Certifications -->
+  <div class="app-content" id="boces-6" style="display:none;">
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
     <div class="cert-list" id="boces-cert-list">
@@ -288,10 +330,12 @@
     </div>
     <div class="cert-note">Don't worry if you don't have any yet — we'll show you how to get them.</div>
     <button class="btn-enabled" onclick="finishBoces()">See my jobs →</button>
-    <button class="back-link" onclick="showStep('boces-3', 3)">← Back</button>
+    <button class="back-link" onclick="showStep('boces-5', 5, 'boces')">← Back</button>
   </div>
 
-  <!-- ── GENERAL STEP 2: County ── -->
+  <!-- ══ GENERAL FLOW ══ -->
+
+  <!-- General Step 2: County -->
   <div class="app-content" id="gen-2" style="display:none;">
     <div class="app-step-title">Where are you located?</div>
     <div class="app-step-sub">We'll show you jobs close to home.</div>
@@ -310,102 +354,49 @@
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
-  <!-- ── GENERAL STEP 3: Industries ── -->
+  <!-- General Step 3: Industries -->
   <div class="app-content" id="gen-3" style="display:none;">
     <div class="app-step-title">What kind of work are you looking for?</div>
     <div class="app-step-sub">Tap all that interest you.</div>
-    <div class="industry-grid">
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-        </div>
+    <div class="industry-grid" id="gen-industries">
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
         <div class="industry-card-label">Manufacturing</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <div class="industry-card-label">Healthcare</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
         <div class="industry-card-label">Construction &amp; Trades</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-            <path d="M7 2v20"/>
-            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
         <div class="industry-card-label">Food Production</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 8C8 10 5.9 16.17 3.82 19c0 0 2.05-3.84 8.18-6.5"/>
-            <path d="M21 3s-4.68 3.68-4 8c0 0-5.32-8-14-3 0 0 5.18 1.65 7 6 0 0 3.18-8.5 11-11z"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19c0 0 2.05-3.84 8.18-6.5"/><path d="M21 3s-4.68 3.68-4 8c0 0-5.32-8-14-3 0 0 5.18 1.65 7 6 0 0 3.18-8.5 11-11z"/></svg></div>
         <div class="industry-card-label">Agriculture &amp; Conservation</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 21h18"/>
-            <path d="M3 10h18"/>
-            <path d="M5 6l7-3 7 3"/>
-            <path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/></svg></div>
         <div class="industry-card-label">Government &amp; Public Works</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="3" width="15" height="13" rx="1"/>
-            <path d="M16 8h4l3 5v3h-7V8z"/>
-            <circle cx="5.5" cy="18.5" r="2.5"/>
-            <circle cx="18.5" cy="18.5" r="2.5"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
         <div class="industry-card-label">Transportation &amp; Logistics</div>
       </div>
-
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="3" width="20" height="14" rx="2"/>
-            <path d="M8 21h8"/>
-            <path d="M12 17v4"/>
-          </svg>
-        </div>
+      <div class="industry-card" onclick="toggleIndustry(this, 'gen')">
+        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
         <div class="industry-card-label">Technology</div>
       </div>
-
     </div>
     <button class="btn-disabled" id="g3-btn">Continue</button>
-    <button class="back-link" onclick="showStep('gen-2', 2)">← Back</button>
+    <button class="back-link" onclick="showStep('gen-2', 2, 'gen')">← Back</button>
   </div>
 
-  <!-- ── GENERAL STEP 4: Skills ── -->
+  <!-- General Step 4: Skills -->
   <div class="app-content" id="gen-4" style="display:none;">
     <div class="app-step-title">What skills do you have?</div>
     <div class="app-step-sub">Select all that apply — even if you learned them on the job.</div>
@@ -426,7 +417,7 @@
     </div>
     <div class="cert-note">Learned a skill on the job but don't have a cert? Select it anyway — employers care about what you can do.</div>
     <button class="btn-enabled" onclick="finishGeneral()">See my jobs →</button>
-    <button class="back-link" onclick="showStep('gen-3', 3)">← Back</button>
+    <button class="back-link" onclick="showStep('gen-3', 3, 'gen')">← Back</button>
   </div>
 
 </div>
@@ -442,45 +433,44 @@
   })();
 
   let chosenPath = null;
-  let bocesYear = null;
 
-  const ALL_STEPS = ['step-1','boces-2','boces-3','boces-4','gen-2','gen-3','gen-4'];
+  const ALL_STEPS = ['step-1','boces-2','boces-3','boces-4','boces-5','boces-6','gen-2','gen-3','gen-4'];
 
-  function showStep(id, progressStep) {
+  function showStep(id, currentStep, path) {
     ALL_STEPS.forEach(s => { document.getElementById(s).style.display = 'none'; });
     document.getElementById(id).style.display = 'block';
 
     const counter = document.getElementById('step-counter');
-    const bar = document.getElementById('progress-bar');
+    document.getElementById('pb-4').style.display = 'none';
+    document.getElementById('pb-6').style.display = 'none';
 
-    if (progressStep === null) {
+    if (currentStep === null) {
       counter.style.display = 'none';
-      bar.style.display = 'none';
     } else {
+      const isBoces = (path || chosenPath) === 'boces';
+      const total = isBoces ? 6 : 4;
       counter.style.display = 'block';
-      document.getElementById('step-num').textContent = progressStep;
-      bar.style.display = 'flex';
-      updateProgress(progressStep);
+      document.getElementById('step-num').textContent = currentStep;
+      document.getElementById('step-total').textContent = total;
+      const barId = isBoces ? 'pb-6' : 'pb-4';
+      document.getElementById(barId).style.display = 'flex';
+      updateProgress(currentStep, total, isBoces ? 'b' : 'g');
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function updateProgress(active) {
-    for (let i = 1; i <= 4; i++) {
-      const circle = document.getElementById('pb' + i);
+  function updateProgress(active, total, prefix) {
+    for (let i = 1; i <= total; i++) {
+      const circle = document.getElementById(prefix + '-pb' + i);
+      if (!circle) continue;
       circle.classList.remove('active', 'done');
-      if (i < active) {
-        circle.classList.add('done');
-        circle.textContent = '✓';
-      } else if (i === active) {
-        circle.classList.add('active');
-        circle.textContent = i;
-      } else {
-        circle.textContent = i;
-      }
-      if (i < 4) {
-        document.getElementById('pl' + i).classList.toggle('done', i < active);
+      if (i < active) { circle.classList.add('done'); circle.textContent = '✓'; }
+      else if (i === active) { circle.classList.add('active'); circle.textContent = i; }
+      else { circle.textContent = i; }
+      if (i < total) {
+        const line = document.getElementById(prefix + '-pl' + i);
+        if (line) line.classList.toggle('done', i < active);
       }
     }
   }
@@ -496,32 +486,77 @@
 
   function goStep2() {
     if (!chosenPath) return;
-    showStep(chosenPath === 'boces' ? 'boces-2' : 'gen-2', 2);
+    showStep(chosenPath === 'boces' ? 'boces-2' : 'gen-2', 2, chosenPath);
   }
 
   function checkB2() {
     const val = document.getElementById('boces-program').value;
     const btn = document.getElementById('b2-btn');
-    if (val) {
-      btn.className = 'btn-enabled';
-      btn.onclick = () => showStep('boces-3', 3);
-    } else {
-      btn.className = 'btn-disabled';
-      btn.onclick = null;
-    }
+    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-3', 3, 'boces'); }
+    else { btn.className = 'btn-disabled'; btn.onclick = null; }
   }
 
   function checkB3() {
     const val = document.getElementById('grad-year').value;
-    bocesYear = val || null;
     const btn = document.getElementById('b3-btn');
-    if (val) {
-      btn.className = 'btn-enabled';
-      btn.onclick = () => showStep('boces-4', 4);
-    } else {
-      btn.className = 'btn-disabled';
-      btn.onclick = null;
-    }
+    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-4', 4, 'boces'); }
+    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+  }
+
+  function checkB4() {
+    const val = document.getElementById('boces-county').value;
+    const btn = document.getElementById('b4-btn');
+    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-5', 5, 'boces'); }
+    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+  }
+
+  function toggleIndustry(el, path) {
+    el.classList.toggle('selected');
+    const gridId = path === 'boces' ? 'boces-industries' : 'gen-industries';
+    const btnId  = path === 'boces' ? 'b5-btn' : 'g3-btn';
+    const nextStep = path === 'boces' ? () => showStep('boces-6', 6, 'boces') : () => showStep('gen-4', 4, 'gen');
+    const anySelected = document.querySelectorAll('#' + gridId + ' .industry-card.selected').length > 0;
+    const btn = document.getElementById(btnId);
+    if (anySelected) { btn.className = 'btn-enabled'; btn.onclick = nextStep; }
+    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+  }
+
+  function checkG2() {
+    const val = document.getElementById('gen-county').value;
+    const btn = document.getElementById('g2-btn');
+    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('gen-3', 3, 'gen'); }
+    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+  }
+
+  function toggleCert(el) { el.classList.toggle('selected'); }
+
+  function getCerts(listId) {
+    return Array.from(document.querySelectorAll('#' + listId + ' .cert-row.selected'))
+      .map(row => row.querySelector('.cert-label').textContent);
+  }
+
+  function finishBoces() {
+    localStorage.setItem('hg_profile', JSON.stringify({
+      path: 'boces',
+      program: document.getElementById('boces-program').value || null,
+      graduation_year: document.getElementById('grad-year').value || null,
+      county: document.getElementById('boces-county').value || null,
+      industries: Array.from(document.querySelectorAll('#boces-industries .industry-card.selected')).map(c => c.querySelector('.industry-card-label').textContent),
+      certifications: getCerts('boces-cert-list')
+    }));
+    window.location.href = '/student/dashboard.html';
+  }
+
+  function finishGeneral() {
+    localStorage.setItem('hg_profile', JSON.stringify({
+      path: 'general',
+      program: null,
+      graduation_year: null,
+      county: document.getElementById('gen-county').value || null,
+      industries: Array.from(document.querySelectorAll('#gen-industries .industry-card.selected')).map(c => c.querySelector('.industry-card-label').textContent),
+      certifications: getCerts('gen-cert-list')
+    }));
+    window.location.href = '/student/dashboard.html';
   }
 
   (function populateYears() {
@@ -534,70 +569,6 @@
       select.appendChild(opt);
     }
   })();
-
-  function toggleCert(el) {
-    el.classList.toggle('selected');
-  }
-
-  function toggleIndustry(el) {
-    el.classList.toggle('selected');
-    const anySelected = document.querySelectorAll('#gen-3 .industry-card.selected').length > 0;
-    const btn = document.getElementById('g3-btn');
-    if (anySelected) {
-      btn.className = 'btn-enabled';
-      btn.onclick = () => showStep('gen-4', 4);
-    } else {
-      btn.className = 'btn-disabled';
-      btn.onclick = null;
-    }
-  }
-
-  function checkG2() {
-    const val = document.getElementById('gen-county').value;
-    const btn = document.getElementById('g2-btn');
-    if (val) {
-      btn.className = 'btn-enabled';
-      btn.onclick = () => showStep('gen-3', 3);
-    } else {
-      btn.className = 'btn-disabled';
-      btn.onclick = null;
-    }
-  }
-
-  function getCerts(listId) {
-    return Array.from(document.querySelectorAll('#' + listId + ' .cert-row.selected'))
-      .map(row => row.querySelector('.cert-label').textContent);
-  }
-
-  function finishBoces() {
-    const program = document.getElementById('boces-program').value;
-    const certifications = getCerts('boces-cert-list');
-    localStorage.setItem('hg_profile', JSON.stringify({
-      path: 'boces',
-      program: program || null,
-      graduation_year: bocesYear || null,
-      county: null,
-      industries: null,
-      certifications
-    }));
-    window.location.href = '/student/dashboard.html';
-  }
-
-  function finishGeneral() {
-    const county = document.getElementById('gen-county').value;
-    const industries = Array.from(document.querySelectorAll('#gen-3 .industry-card.selected'))
-      .map(c => c.querySelector('.industry-card-label').textContent);
-    const certifications = getCerts('gen-cert-list');
-    localStorage.setItem('hg_profile', JSON.stringify({
-      path: 'general',
-      program: null,
-      graduation_year: null,
-      county: county || null,
-      industries,
-      certifications
-    }));
-    window.location.href = '/student/dashboard.html';
-  }
 </script>
 </body>
 </html>
