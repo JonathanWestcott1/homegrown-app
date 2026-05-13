@@ -821,11 +821,7 @@
           </div>
         </div>
         <div class="pw-rules" id="pw-rules-s">
-          <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
-          <div class="pw-rule" id="pr-s-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
-          <div class="pw-rule" id="pr-s-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
-          <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
-          <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+          <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 6 characters</div>
         </div>
         <div id="s-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
         <button class="hg-btn-primary" onclick="submitStudent()">Create student account</button>
@@ -862,11 +858,7 @@
           </div>
         </div>
         <div class="pw-rules" id="pw-rules-e">
-          <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
-          <div class="pw-rule" id="pr-e-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
-          <div class="pw-rule" id="pr-e-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
-          <div class="pw-rule" id="pr-e-num"><span class="pw-rule-icon">○</span>One number</div>
-          <div class="pw-rule" id="pr-e-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+          <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 6 characters</div>
         </div>
         <div class="hg-form">
           <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
@@ -1248,24 +1240,13 @@
   function checkPw(inputId, rulesId, prefix) {
     const val = document.getElementById(inputId).value;
     document.getElementById(rulesId).classList.toggle('visible', val.length > 0);
-    const checks = {
-      len:     val.length >= 8,
-      upper:   /[A-Z]/.test(val),
-      lower:   /[a-z]/.test(val),
-      num:     /[0-9]/.test(val),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
-    };
-    Object.entries(checks).forEach(([key, met]) => {
-      const el = document.getElementById('pr-' + prefix + '-' + key);
-      if (!el) return;
-      el.classList.toggle('met', met);
-      el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
-    });
+    const met = val.length >= 6;
+    const el = document.getElementById('pr-' + prefix + '-len');
+    if (el) { el.classList.toggle('met', met); el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○'; }
   }
 
   function pwStrong(inputId) {
-    const val = document.getElementById(inputId).value;
-    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
+    return document.getElementById(inputId).value.length >= 6;
   }
 
   // Redirect already-logged-in users to their dashboard
