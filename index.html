@@ -840,11 +840,18 @@
           </select>
           <select id="s-year" onchange="this.style.color=this.value?'#1a1a1a':'#bbb'" style="padding:12px 14px;font-size:15px;border:0.5px solid #ddd;border-radius:8px;background:#fff;color:#bbb;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Graduation year</option>
-            <option>2025</option>
-            <option>2026</option>
-            <option>2027</option>
-            <option>2028</option>
           </select>
+          <script>
+            (function() {
+              const sel = document.getElementById('s-year');
+              const cur = new Date().getFullYear();
+              for (let y = cur - 5; y <= cur + 4; y++) {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = y;
+                sel.appendChild(opt);
+              }
+            })();
+          </script>
         </div>
         <div id="s-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
         <button class="hg-btn-primary" onclick="submitStudent()">Create student account</button>
