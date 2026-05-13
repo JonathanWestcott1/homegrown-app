@@ -267,8 +267,9 @@
 
     if (!profile) return;
 
-    const pathLabel = profile.path === 'boces' ? 'BOCES Program' :
-                      profile.path === 'general' ? 'Community College / Work / Military' : '–';
+    const bgLabels = { boces: 'BOCES Program', college: 'College', job: 'On the Job', military: 'Military / Veteran' };
+    const backgrounds = profile.backgrounds || (profile.path ? [profile.path] : []);
+    const pathLabel = backgrounds.map(b => bgLabels[b] || b).join(', ') || '–';
     document.getElementById('sheet-path').textContent = pathLabel;
 
     if (profile.program) {
