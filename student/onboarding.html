@@ -607,11 +607,26 @@
     });
     if (selected.size > 0) document.getElementById('bg-btn').disabled = false;
 
-    if (p.boces_program) document.getElementById('boces-program').value = p.boces_program;
-    if (p.college_name)  document.getElementById('college-name').value = p.college_name;
-    if (p.military_branch) document.getElementById('military-branch').value = p.military_branch;
-    if (p.graduation_year) document.getElementById('grad-year').value = p.graduation_year;
-    if (p.county) document.getElementById('county-select').value = p.county;
+    if (p.boces_program) {
+      document.getElementById('boces-program').value = p.boces_program;
+      document.getElementById('boces-btn').disabled = false;
+    }
+    if (p.college_name) {
+      document.getElementById('college-name').value = p.college_name;
+      document.getElementById('college-btn').disabled = false;
+    }
+    if (p.military_branch) {
+      document.getElementById('military-branch').value = p.military_branch;
+      document.getElementById('military-btn').disabled = false;
+    }
+    if (p.graduation_year) {
+      document.getElementById('grad-year').value = p.graduation_year;
+      document.getElementById('grad-btn').disabled = false;
+    }
+    if (p.county) {
+      document.getElementById('county-select').value = p.county;
+      document.getElementById('county-btn').disabled = false;
+    }
 
     if (p.job_experience?.length) {
       document.querySelectorAll('#job-exp-grid .industry-card').forEach(card => {
