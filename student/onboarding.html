@@ -8,6 +8,25 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
   <style>
+    .bg-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .bg-card {
+      background: #ffffff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .bg-card.selected { border: 2px solid #3B6D11; background: #EAF3DE; }
+    .bg-card-icon { display: flex; justify-content: center; margin-bottom: 10px; }
+    .bg-card-label { font-size: 14px; font-weight: 600; color: #1C1C1A; }
+
     .industry-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -92,7 +111,9 @@
 
     .cert-note { font-size: 12px; color: #B4B2A9; margin-top: 8px; margin-bottom: 16px; line-height: 1.5; }
 
-    optgroup { font-weight: 600; color: #666660; }
+    /* Dynamic progress bar */
+    #progress-bar { display: none; }
+    #progress-bar.visible { display: flex; }
   </style>
 </head>
 <body>
@@ -107,64 +128,127 @@
       </svg>
       <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
     </div>
-    <div id="step-counter" style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 5</div>
+    <div id="step-counter" style="font-size:12px;color:#999;display:none;">Step <span id="step-num">2</span> of <span id="step-total">5</span></div>
   </div>
 
-  <!-- Progress bar -->
-  <div class="app-progress" id="progress-bar">
-    <div class="app-progress-step"><div class="app-progress-circle active" id="pb1">1</div><div class="app-progress-line" id="pl1"></div></div>
-    <div class="app-progress-step"><div class="app-progress-circle" id="pb2">2</div><div class="app-progress-line" id="pl2"></div></div>
-    <div class="app-progress-step"><div class="app-progress-circle" id="pb3">3</div><div class="app-progress-line" id="pl3"></div></div>
-    <div class="app-progress-step"><div class="app-progress-circle" id="pb4">4</div><div class="app-progress-line" id="pl4"></div></div>
-    <div class="app-progress-step"><div class="app-progress-circle" id="pb5">5</div></div>
-  </div>
+  <!-- Progress bar (populated dynamically) -->
+  <div class="app-progress" id="progress-bar"></div>
 
-  <!-- Step 1: Program / Background -->
-  <div class="app-content" id="step-1">
+  <!-- ── STEP: Background (always first) ── -->
+  <div class="app-content" id="step-background">
     <div class="app-step-title">What's your background?</div>
-    <div class="app-step-sub">Select your program or how you learned your skills.</div>
-    <select class="app-select" id="program-select" onchange="checkStep1()">
-      <option value="" disabled selected>Choose your background…</option>
-      <optgroup label="BOCES Programs">
-        <option>Automotive Collision &amp; Refinishing</option>
-        <option>Automotive Technology</option>
-        <option>Carpentry &amp; Building Construction</option>
-        <option>Computer Technology &amp; Networking</option>
-        <option>Conservation &amp; Heavy Equipment</option>
-        <option>Cosmetology</option>
-        <option>Culinary Arts</option>
-        <option>Electrical / IBEW Prep</option>
-        <option>Nurse Assisting (CNA)</option>
-        <option>Security &amp; Law Enforcement</option>
-        <option>Visual Communications</option>
-        <option>Welding Technology</option>
-      </optgroup>
-      <optgroup label="Other Backgrounds">
-        <option>Community College</option>
-        <option>On the Job / Work Experience</option>
-        <option>Military / Veteran</option>
-        <option>Other</option>
-      </optgroup>
-    </select>
-    <button class="ob-btn" id="s1-btn" onclick="goTo(2)" disabled>Continue</button>
+    <div class="app-step-sub">Select all that apply.</div>
+    <div class="bg-grid">
+      <div class="bg-card" id="bg-boces" onclick="toggleBg(this, 'boces')">
+        <div class="bg-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div class="bg-card-label">BOCES Program</div>
+      </div>
+      <div class="bg-card" id="bg-college" onclick="toggleBg(this, 'college')">
+        <div class="bg-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l7-4 7 4v14"/>
+            <path d="M9 21v-6h6v6"/>
+            <path d="M9 10h.01M15 10h.01"/>
+          </svg>
+        </div>
+        <div class="bg-card-label">College</div>
+      </div>
+      <div class="bg-card" id="bg-job" onclick="toggleBg(this, 'job')">
+        <div class="bg-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <line x1="2" y1="13" x2="22" y2="13"/>
+          </svg>
+        </div>
+        <div class="bg-card-label">On the Job</div>
+      </div>
+      <div class="bg-card" id="bg-military" onclick="toggleBg(this, 'military')">
+        <div class="bg-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="bg-card-label">Military / Veteran</div>
+      </div>
+    </div>
+    <button class="ob-btn" id="bg-btn" onclick="startSequence()" disabled>Continue</button>
   </div>
 
-  <!-- Step 2: Grad year -->
-  <div class="app-content" id="step-2" style="display:none;">
+  <!-- ── STEP: BOCES program ── -->
+  <div class="app-content" id="step-boces" style="display:none;">
+    <div class="app-step-title">What BOCES program were you in?</div>
+    <div class="app-step-sub">Select your DCMO BOCES program.</div>
+    <select class="app-select" id="boces-program" onchange="checkSelect('boces-program','boces-btn')">
+      <option value="" disabled selected>Choose your program…</option>
+      <option>Automotive Collision &amp; Refinishing</option>
+      <option>Automotive Technology</option>
+      <option>Carpentry &amp; Building Construction</option>
+      <option>Computer Technology &amp; Networking</option>
+      <option>Conservation &amp; Heavy Equipment</option>
+      <option>Cosmetology</option>
+      <option>Culinary Arts</option>
+      <option>Electrical / IBEW Prep</option>
+      <option>Nurse Assisting (CNA)</option>
+      <option>Security &amp; Law Enforcement</option>
+      <option>Visual Communications</option>
+      <option>Welding Technology</option>
+      <option>Other</option>
+    </select>
+    <button class="ob-btn" id="boces-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
+  </div>
+
+  <!-- ── STEP: College name ── -->
+  <div class="app-content" id="step-college" style="display:none;">
+    <div class="app-step-title">Which college did you attend?</div>
+    <div class="app-step-sub">Enter the name of your school.</div>
+    <input class="app-input" id="college-name" type="text" placeholder="e.g. SUNY Oneonta, Delhi Tech…" oninput="checkInput('college-name','college-btn')" />
+    <button class="ob-btn" id="college-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
+  </div>
+
+  <!-- ── STEP: Military branch ── -->
+  <div class="app-content" id="step-military" style="display:none;">
+    <div class="app-step-title">Which branch did you serve in?</div>
+    <div class="app-step-sub">Select your branch of service.</div>
+    <select class="app-select" id="military-branch" onchange="checkSelect('military-branch','military-btn')">
+      <option value="" disabled selected>Choose your branch…</option>
+      <option>Army</option>
+      <option>Navy</option>
+      <option>Air Force</option>
+      <option>Marine Corps</option>
+      <option>Coast Guard</option>
+      <option>Space Force</option>
+      <option>National Guard / Reserves</option>
+      <option>Prefer not to say</option>
+    </select>
+    <button class="ob-btn" id="military-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
+  </div>
+
+  <!-- ── STEP: Graduation year ── -->
+  <div class="app-content" id="step-grad-year" style="display:none;">
     <div class="app-step-title">When did / will you graduate?</div>
     <div class="app-step-sub">Select your graduation year.</div>
-    <select class="app-select" id="grad-year" onchange="checkStep2()">
+    <select class="app-select" id="grad-year" onchange="checkSelect('grad-year','grad-btn')">
       <option value="" disabled selected>Choose your graduation year…</option>
     </select>
-    <button class="ob-btn" id="s2-btn" onclick="goTo(3)" disabled>Continue</button>
-    <button class="back-link" onclick="goTo(1)">← Back</button>
+    <button class="ob-btn" id="grad-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
-  <!-- Step 3: County -->
-  <div class="app-content" id="step-3" style="display:none;">
+  <!-- ── STEP: County ── -->
+  <div class="app-content" id="step-county" style="display:none;">
     <div class="app-step-title">Where are you located?</div>
     <div class="app-step-sub">We'll show you jobs close to home.</div>
-    <select class="app-select" id="county-select" onchange="checkStep3()">
+    <select class="app-select" id="county-select" onchange="checkSelect('county-select','county-btn')">
       <option value="" disabled selected>Select your county…</option>
       <option>Chenango County</option>
       <option>Delaware County</option>
@@ -175,12 +259,12 @@
       <option>Other upstate NY county</option>
       <option>Outside New York</option>
     </select>
-    <button class="ob-btn" id="s3-btn" onclick="goTo(4)" disabled>Continue</button>
-    <button class="back-link" onclick="goTo(2)">← Back</button>
+    <button class="ob-btn" id="county-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
-  <!-- Step 4: Industries -->
-  <div class="app-content" id="step-4" style="display:none;">
+  <!-- ── STEP: Industries ── -->
+  <div class="app-content" id="step-industries" style="display:none;">
     <div class="app-step-title">What kind of work are you looking for?</div>
     <div class="app-step-sub">Tap all that interest you.</div>
     <div class="industry-grid">
@@ -217,12 +301,12 @@
         <div class="industry-card-label">Technology</div>
       </div>
     </div>
-    <button class="ob-btn" id="s4-btn" onclick="goTo(5)" disabled>Continue</button>
-    <button class="back-link" onclick="goTo(3)">← Back</button>
+    <button class="ob-btn" id="industries-btn" onclick="nextStep()" disabled>Continue</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
-  <!-- Step 5: Certifications -->
-  <div class="app-content" id="step-5" style="display:none;">
+  <!-- ── STEP: Certifications (always last) ── -->
+  <div class="app-content" id="step-certs" style="display:none;">
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
     <div class="cert-list" id="cert-list">
@@ -242,7 +326,7 @@
     </div>
     <div class="cert-note">Don't worry if you don't have any yet — we'll show you how to get them.</div>
     <button class="ob-btn" onclick="finish()">See my jobs →</button>
-    <button class="back-link" onclick="goTo(4)">← Back</button>
+    <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
 </div>
@@ -257,62 +341,125 @@
     if (!session) { window.location.href = '/'; }
   })();
 
-  const BOCES_PROGRAMS = [
-    'Automotive Collision & Refinishing','Automotive Technology',
-    'Carpentry & Building Construction','Computer Technology & Networking',
-    'Conservation & Heavy Equipment','Cosmetology','Culinary Arts',
-    'Electrical / IBEW Prep','Nurse Assisting (CNA)','Security & Law Enforcement',
-    'Visual Communications','Welding Technology'
-  ];
+  // Tracks which background cards are selected
+  const selected = new Set();
 
-  function goTo(n) {
-    for (let i = 1; i <= 5; i++) {
-      document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none';
+  // The computed sequence of step IDs, built after step 1
+  let sequence = [];
+  let currentIdx = 0;
+
+  // Fixed steps always at the end
+  const TAIL = ['step-grad-year', 'step-county', 'step-industries', 'step-certs'];
+
+  function toggleBg(el, key) {
+    el.classList.toggle('selected');
+    if (selected.has(key)) selected.delete(key);
+    else selected.add(key);
+    document.getElementById('bg-btn').disabled = selected.size === 0;
+  }
+
+  function buildSequence() {
+    const seq = ['step-background'];
+    if (selected.has('boces'))    seq.push('step-boces');
+    if (selected.has('college'))  seq.push('step-college');
+    if (selected.has('military')) seq.push('step-military');
+    seq.push(...TAIL);
+    return seq;
+  }
+
+  function buildProgressBar(total) {
+    const bar = document.getElementById('progress-bar');
+    let html = '';
+    for (let i = 1; i <= total; i++) {
+      const isLast = i === total;
+      html += `<div class="app-progress-step">
+        <div class="app-progress-circle" id="pb${i}">${i}</div>
+        ${!isLast ? `<div class="app-progress-line" id="pl${i}"></div>` : ''}
+      </div>`;
     }
-    document.getElementById('step-num').textContent = n;
-    updateProgress(n);
+    bar.innerHTML = html;
+  }
+
+  function updateProgress(stepNumber, total) {
+    for (let i = 1; i <= total; i++) {
+      const c = document.getElementById('pb' + i);
+      if (!c) continue;
+      c.classList.remove('active', 'done');
+      if (i < stepNumber) { c.classList.add('done'); c.textContent = '✓'; }
+      else if (i === stepNumber) { c.classList.add('active'); c.textContent = i; }
+      else { c.textContent = i; }
+      if (i < total) {
+        const l = document.getElementById('pl' + i);
+        if (l) l.classList.toggle('done', i < stepNumber);
+      }
+    }
+  }
+
+  function showStepAt(idx) {
+    // Hide all
+    document.querySelectorAll('[id^="step-"]').forEach(el => el.style.display = 'none');
+    // Show current
+    document.getElementById(sequence[idx]).style.display = 'block';
+
+    const isFirst = idx === 0;
+    const total = sequence.length - 1; // exclude step-background from count
+    const stepNum = idx; // steps 2..N shown as 1..total
+
+    document.getElementById('step-counter').style.display = isFirst ? 'none' : 'block';
+    document.getElementById('progress-bar').classList.toggle('visible', !isFirst);
+
+    if (!isFirst) {
+      document.getElementById('step-num').textContent = stepNum;
+      document.getElementById('step-total').textContent = total;
+      updateProgress(stepNum, total);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function updateProgress(active) {
-    for (let i = 1; i <= 5; i++) {
-      const circle = document.getElementById('pb' + i);
-      circle.classList.remove('active', 'done');
-      if (i < active) { circle.classList.add('done'); circle.textContent = '✓'; }
-      else if (i === active) { circle.classList.add('active'); circle.textContent = i; }
-      else { circle.textContent = i; }
-      if (i < 5) document.getElementById('pl' + i).classList.toggle('done', i < active);
-    }
+  function startSequence() {
+    sequence = buildSequence();
+    const total = sequence.length - 1;
+    buildProgressBar(total);
+    currentIdx = 1;
+    showStepAt(currentIdx);
   }
 
-  function checkStep1() {
-    document.getElementById('s1-btn').disabled = !document.getElementById('program-select').value;
+  function nextStep() {
+    currentIdx++;
+    showStepAt(currentIdx);
   }
 
-  function checkStep2() {
-    document.getElementById('s2-btn').disabled = !document.getElementById('grad-year').value;
+  function prevStep() {
+    currentIdx--;
+    showStepAt(currentIdx);
   }
 
-  function checkStep3() {
-    document.getElementById('s3-btn').disabled = !document.getElementById('county-select').value;
+  function checkSelect(selectId, btnId) {
+    document.getElementById(btnId).disabled = !document.getElementById(selectId).value;
+  }
+
+  function checkInput(inputId, btnId) {
+    document.getElementById(btnId).disabled = !document.getElementById(inputId).value.trim();
   }
 
   function toggleIndustry(el) {
     el.classList.toggle('selected');
-    const anySelected = document.querySelectorAll('#step-4 .industry-card.selected').length > 0;
-    document.getElementById('s4-btn').disabled = !anySelected;
+    const any = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
+    document.getElementById('industries-btn').disabled = !any;
   }
 
   function toggleCert(el) { el.classList.toggle('selected'); }
 
   function finish() {
-    const program = document.getElementById('program-select').value;
     const profile = {
-      path: BOCES_PROGRAMS.includes(program) ? 'boces' : 'general',
-      program,
+      backgrounds: Array.from(selected),
+      boces_program: document.getElementById('boces-program')?.value || null,
+      college_name: document.getElementById('college-name')?.value.trim() || null,
+      military_branch: document.getElementById('military-branch')?.value || null,
       graduation_year: document.getElementById('grad-year').value || null,
       county: document.getElementById('county-select').value || null,
-      industries: Array.from(document.querySelectorAll('#step-4 .industry-card.selected'))
+      industries: Array.from(document.querySelectorAll('#step-industries .industry-card.selected'))
         .map(c => c.querySelector('.industry-card-label').textContent),
       certifications: Array.from(document.querySelectorAll('#cert-list .cert-row.selected'))
         .map(r => r.querySelector('.cert-label').textContent)
@@ -326,8 +473,7 @@
     const current = new Date().getFullYear();
     for (let y = current + 6; y >= current - 50; y--) {
       const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
+      opt.value = y; opt.textContent = y;
       select.appendChild(opt);
     }
   })();
