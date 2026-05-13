@@ -61,29 +61,6 @@
     }
     .industry-card-label { font-size: 13px; font-weight: 600; color: #1C1C1A; }
 
-    .year-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .year-card {
-      background: #ffffff;
-      border: 0.5px solid #D3D1C7;
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: 600;
-      color: #1C1C1A;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .year-card.selected {
-      border: 2px solid #3B6D11;
-      background: #EAF3DE;
-      color: #3B6D11;
-    }
 
     .cert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
     .cert-row {
@@ -282,13 +259,10 @@
   <!-- ── BOCES STEP 3: Graduation year ── -->
   <div class="app-content" id="boces-3" style="display:none;">
     <div class="app-step-title">When do you graduate?</div>
-    <div class="app-step-sub">Tap your expected graduation year</div>
-    <div class="year-grid">
-      <div class="year-card" onclick="selectYear(this, '2025')">2025</div>
-      <div class="year-card" onclick="selectYear(this, '2026')">2026</div>
-      <div class="year-card" onclick="selectYear(this, '2027')">2027</div>
-      <div class="year-card" onclick="selectYear(this, '2028')">2028</div>
-    </div>
+    <div class="app-step-sub">Select your expected graduation year</div>
+    <select class="app-select" id="grad-year" onchange="checkB3()">
+      <option value="" disabled selected>Choose your graduation year…</option>
+    </select>
     <button class="btn-disabled" id="b3-btn">Continue</button>
     <button class="back-link" onclick="showStep('boces-2', 2)">← Back</button>
   </div>
@@ -537,14 +511,29 @@
     }
   }
 
-  function selectYear(el, year) {
-    document.querySelectorAll('.year-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    bocesYear = year;
+  function checkB3() {
+    const val = document.getElementById('grad-year').value;
+    bocesYear = val || null;
     const btn = document.getElementById('b3-btn');
-    btn.className = 'btn-enabled';
-    btn.onclick = () => showStep('boces-4', 4);
+    if (val) {
+      btn.className = 'btn-enabled';
+      btn.onclick = () => showStep('boces-4', 4);
+    } else {
+      btn.className = 'btn-disabled';
+      btn.onclick = null;
+    }
   }
+
+  (function populateYears() {
+    const select = document.getElementById('grad-year');
+    const current = new Date().getFullYear();
+    for (let y = current; y <= current + 6; y++) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      select.appendChild(opt);
+    }
+  })();
 
   function toggleCert(el) {
     el.classList.toggle('selected');
