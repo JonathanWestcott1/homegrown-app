@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown — Job Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; background: #FAFAF8; color: #1C1C1A; min-height: 100vh; font-size: 14px; }
+
+    /* ── Password screen ── */
+    #pw-screen { position: fixed; inset: 0; background: #FAFAF8; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .pw-card { width: 100%; max-width: 360px; background: #fff; border: 0.5px solid #D3D1C7; border-radius: 12px; padding: 36px 28px; text-align: center; margin: 20px; }
+    .pw-logo { display: flex; align-items: center; gap: 7px; justify-content: center; margin-bottom: 24px; }
+    .pw-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
+    .pw-sub { font-size: 13px; color: #666660; margin-bottom: 22px; }
+    .pw-input { width: 100%; padding: 12px 14px; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: inherit; font-size: 14px; background: #fff; outline: none; margin-bottom: 8px; }
+    .pw-input:focus { border-color: #3B6D11; }
+    .pw-error { font-size: 12px; color: #c0392b; margin-bottom: 10px; display: none; }
+    .pw-btn { width: 100%; padding: 12px; background: #3B6D11; color: #EAF3DE; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .pw-btn:hover { background: #2f5a0e; }
+
+    /* ── Admin header ── */
+    .admin-header { background: #fff; border-bottom: 0.5px solid #D3D1C7; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .admin-logo { display: flex; align-items: center; gap: 7px; text-decoration: none; }
+    .admin-logo-text { font-size: 16px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.4px; }
+
+    /* ── Main content ── */
+    .admin-content { padding: 32px; max-width: 1100px; margin: 0 auto; }
+    .admin-title-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+    .admin-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+    .admin-subtitle { font-size: 13px; color: #666660; margin-top: 3px; }
+
+    /* ── Buttons ── */
+    .btn-primary { padding: 9px 16px; background: #3B6D11; color: #EAF3DE; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .btn-primary:hover { background: #2f5a0e; }
+    .btn-secondary { padding: 9px 16px; background: transparent; color: #666660; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .btn-secondary:hover { background: #f5f5f3; }
+    .btn-danger { padding: 0; background: none; border: none; color: #c0392b; font-family: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .btn-danger:hover { text-decoration: underline; }
+
+    /* ── Table ── */
+    .table-wrap { background: #fff; border: 0.5px solid #D3D1C7; border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #F5F5F3; }
+    th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #B4B2A9; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 0.5px solid #D3D1C7; white-space: nowrap; }
+    td { padding: 14px 16px; border-bottom: 0.5px solid #F0EFE9; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fafaf8; }
+    .td-role { font-weight: 500; }
+    .td-company { color: #666660; }
+    .td-date { color: #B4B2A9; font-size: 12px; white-space: nowrap; }
+    .cert-badge { display: inline-block; padding: 2px 8px; background: #EAF3DE; color: #3B6D11; border-radius: 20px; font-size: 11px; font-weight: 500; border: 0.5px solid #C0DD97; }
+
+    /* ── Empty / loading state ── */
+    .empty-state { text-align: center; padding: 52px 20px; color: #B4B2A9; font-size: 14px; line-height: 1.6; }
+
+    /* ── Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; overflow-y: auto; }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px 64px; }
+    .modal { background: #fff; border-radius: 12px; width: 100%; max-width: 620px; padding: 28px; }
+    .modal-title { font-size: 18px; font-weight: 600; letter-spacing: -0.4px; margin-bottom: 22px; }
+
+    /* ── Form ── */
+    .form-row { margin-bottom: 14px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .form-label { display: block; font-size: 11px; font-weight: 600; color: #B4B2A9; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .form-input, .form-select { width: 100%; padding: 10px 12px; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: inherit; font-size: 14px; background: #fff; outline: none; color: #1C1C1A; }
+    .form-input:focus, .form-select:focus { border-color: #3B6D11; }
+    .form-input::placeholder { color: #B4B2A9; }
+
+    /* ── Section divider ── */
+    .form-section { margin-top: 22px; padding-top: 20px; border-top: 0.5px solid #F0EFE9; }
+    .form-section-label { font-size: 13px; font-weight: 600; color: #1C1C1A; margin-bottom: 12px; }
+
+    /* ── Checkboxes ── */
+    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #1C1C1A; user-select: none; }
+    .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3B6D11; cursor: pointer; flex-shrink: 0; }
+
+    /* ── Custom cert ── */
+    .custom-cert-row { display: flex; gap: 8px; margin-top: 12px; }
+    .custom-cert-input { flex: 1; padding: 8px 12px; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; background: #fff; }
+    .custom-cert-input:focus { border-color: #3B6D11; }
+    .custom-cert-input::placeholder { color: #B4B2A9; }
+    .custom-cert-btn { padding: 8px 14px; background: #EAF3DE; color: #3B6D11; border: 0.5px solid #C0DD97; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .custom-cert-btn:hover { background: #d8edb5; }
+
+    /* ── Toggle switch ── */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+    .toggle-label-text { font-size: 14px; color: #1C1C1A; }
+    .toggle-wrap { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #D3D1C7; border-radius: 24px; transition: 0.2s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; }
+    input:checked + .toggle-slider { background: #3B6D11; }
+    input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    /* ── Modal footer ── */
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 0.5px solid #F0EFE9; }
+    .modal-error { font-size: 13px; color: #c0392b; margin-top: 12px; display: none; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #3B6D11; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15); transform: translateY(80px); opacity: 0; transition: all 0.3s ease; z-index: 9999; pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ── Password screen ── -->
+<div id="pw-screen">
+  <div class="pw-card">
+    <div class="pw-logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
+    <div class="pw-title">Admin Access</div>
+    <div class="pw-sub">Enter your password to manage job postings</div>
+    <input class="pw-input" id="pw-input" type="password" placeholder="Admin password"
+      onkeydown="if(event.key==='Enter') checkPassword()" autofocus />
+    <div class="pw-error" id="pw-error">Incorrect password — try again.</div>
+    <button class="pw-btn" onclick="checkPassword()">Enter</button>
+  </div>
+</div>
+
+<!-- ── Admin panel ── -->
+<div id="admin-panel" style="display:none;">
+  <div class="admin-header">
+    <div class="admin-logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span class="admin-logo-text">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
+    <span style="font-size:12px;color:#B4B2A9;font-weight:500;">Job Admin</span>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-title-row">
+      <div>
+        <div class="admin-title">Job Admin</div>
+        <div class="admin-subtitle">Add and manage job postings</div>
+      </div>
+      <button class="btn-primary" onclick="openModal()">+ Add New Job</button>
+    </div>
+    <div class="table-wrap" id="jobs-table-wrap">
+      <div class="empty-state">Loading jobs…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Job Modal ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Add New Job</div>
+    <form id="job-form" onsubmit="return false;">
+
+      <div class="form-row">
+        <label class="form-label">COMPANY NAME *</label>
+        <input class="form-input" id="f-company" type="text" placeholder="e.g. Chenango Valley Welding" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">ROLE TITLE *</label>
+        <input class="form-input" id="f-role" type="text" placeholder="e.g. Maintenance Technician" />
+      </div>
+
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">CITY *</label>
+          <input class="form-input" id="f-city" type="text" placeholder="e.g. Norwich" />
+        </div>
+        <div>
+          <label class="form-label">STATE</label>
+          <input class="form-input" id="f-state" type="text" value="NY" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">DISTANCE FROM GREENE, NY</label>
+        <input class="form-input" id="f-distance" type="text" placeholder="e.g. 8 miles away" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">PAY RANGE *</label>
+        <input class="form-input" id="f-pay" type="text" placeholder="e.g. $22–$26/hr" />
+      </div>
+
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">SHIFT TYPE</label>
+          <select class="form-select" id="f-shift">
+            <option value="First shift">First shift</option>
+            <option value="Second shift">Second shift</option>
+            <option value="Third shift">Third shift</option>
+            <option value="Rotating shifts">Rotating shifts</option>
+            <option value="Flexible">Flexible</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">BENEFITS</label>
+          <input class="form-input" id="f-benefits" type="text" placeholder="e.g. Paid holidays, Health insurance" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">SIGN-ON BONUS</label>
+        <input class="form-input" id="f-bonus" type="text" placeholder="e.g. $1,000 sign-on bonus — leave blank if none" />
+      </div>
+
+      <div class="toggle-row">
+        <span class="toggle-label-text">Union position</span>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="f-union" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">Certifications Required</div>
+        <div class="checkbox-grid" id="cert-checkboxes"></div>
+        <div class="custom-cert-row">
+          <input class="custom-cert-input" id="custom-cert-input" type="text" placeholder="Add custom certification"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomCert();}" />
+          <button class="custom-cert-btn" type="button" onclick="addCustomCert()">+ Add</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">Target Industries</div>
+        <div class="checkbox-grid" id="industry-checkboxes"></div>
+      </div>
+
+      <div class="modal-error" id="modal-error"></div>
+    </form>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="post-btn" onclick="postJob()">Post Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/*
+  ─────────────────────────────────────────────────────────
+  SUPABASE TABLE SETUP
+  Run this SQL in: https://supabase.com/dashboard/project/mccrpgqtqtrxfifxvwbd/sql
+
+  DROP TABLE IF EXISTS public.jobs;
+
+  CREATE TABLE public.jobs (
+    id                      bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    created_at              timestamptz DEFAULT now(),
+    company_name            text,
+    role_title              text,
+    city                    text,
+    state                   text DEFAULT 'NY',
+    distance                text,
+    pay                     text,
+    shift_type              text,
+    is_union                boolean DEFAULT false,
+    benefits                text,
+    sign_on_bonus           text,
+    certifications_required text[],
+    target_industries       text[],
+    is_active               boolean DEFAULT true
+  );
+
+  ALTER TABLE public.jobs DISABLE ROW LEVEL SECURITY;
+  ─────────────────────────────────────────────────────────
+*/
+
+console.log(`
+📋 SUPABASE TABLE SETUP — run in SQL editor:
+https://supabase.com/dashboard/project/mccrpgqtqtrxfifxvwbd/sql
+
+DROP TABLE IF EXISTS public.jobs;
+
+CREATE TABLE public.jobs (
+  id                      bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  created_at              timestamptz DEFAULT now(),
+  company_name            text,
+  role_title              text,
+  city                    text,
+  state                   text DEFAULT 'NY',
+  distance                text,
+  pay                     text,
+  shift_type              text,
+  is_union                boolean DEFAULT false,
+  benefits                text,
+  sign_on_bonus           text,
+  certifications_required text[],
+  target_industries       text[],
+  is_active               boolean DEFAULT true
+);
+
+ALTER TABLE public.jobs DISABLE ROW LEVEL SECURITY;
+`);
+
+const _sb = window.supabase.createClient(
+  'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+);
+
+// ── Auth ──────────────────────────────────────────────
+const PASSWORD = 'homegrown2026';
+
+(function initAuth() {
+  if (sessionStorage.getItem('hg_admin') === '1') {
+    showPanel();
+  }
+})();
+
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PASSWORD) {
+    sessionStorage.setItem('hg_admin', '1');
+    showPanel();
+  } else {
+    const err = document.getElementById('pw-error');
+    err.style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+function showPanel() {
+  document.getElementById('pw-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  loadJobs();
+}
+
+// ── Load & render jobs ────────────────────────────────
+async function loadJobs() {
+  const wrap = document.getElementById('jobs-table-wrap');
+  wrap.innerHTML = '<div class="empty-state">Loading jobs…</div>';
+
+  const { data: jobs, error } = await _sb
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    wrap.innerHTML = `<div class="empty-state" style="color:#c0392b;">Error: ${esc(error.message)}</div>`;
+    return;
+  }
+
+  if (!jobs || jobs.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">No jobs added yet. Click "Add New Job" to get started.</div>`;
+    return;
+  }
+
+  const rows = jobs.map(job => {
+    const loc = [job.city, job.state].filter(Boolean).join(', ') || job.location || '—';
+    const certCount = (job.certifications_required || []).length;
+    const certBadge = certCount > 0
+      ? `<span class="cert-badge">${certCount} cert${certCount === 1 ? '' : 's'}</span>`
+      : `<span style="color:#B4B2A9;">None</span>`;
+    return `<tr>
+      <td class="td-role">${esc(job.role_title || job.role || '—')}</td>
+      <td class="td-company">${esc(job.company_name || '—')}</td>
+      <td>${esc(loc)}</td>
+      <td>${esc(job.pay || '—')}</td>
+      <td>${certBadge}</td>
+      <td class="td-date">${fmtDate(job.created_at)}</td>
+      <td><button class="btn-danger" onclick="deleteJob(${job.id})">Delete</button></td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th><th>Company</th><th>Location</th><th>Pay</th>
+          <th>Certs Required</th><th>Date Added</th><th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Delete ─────────────────────────────────────────────
+async function deleteJob(id) {
+  if (!confirm('Delete this job posting? This cannot be undone.')) return;
+  const { error } = await _sb.from('jobs').delete().eq('id', id);
+  if (error) { alert('Delete failed: ' + error.message); return; }
+  showToast('Job deleted.');
+  loadJobs();
+}
+
+// ── Modal ──────────────────────────────────────────────
+const CERTS = [
+  'CPR / First Aid Certified','OSHA 10 Certification','ServSafe Certification',
+  'CDL License','NYS CNA License','Security Guard Certification',
+  'NYS Cosmetology License','Forklift Operator Certification',
+  'Blueprint Reading','Hand Tool Safety','IBEW Apprenticeship Application',
+  'Hydraulic Systems Certification','Adobe Certified Professional'
+];
+const INDUSTRIES = [
+  'Manufacturing','Healthcare','Construction & Trades','Food Production',
+  'Agriculture & Conservation','Government & Public Works',
+  'Transportation & Logistics','Technology','Cosmetology & Barbering'
+];
+
+function buildCheckboxes() {
+  document.getElementById('cert-checkboxes').innerHTML = CERTS.map((c, i) =>
+    `<label class="checkbox-item">
+      <input type="checkbox" name="cert" value="${esc(c)}" id="ck-c${i}" />
+      ${esc(c)}
+    </label>`).join('');
+
+  document.getElementById('industry-checkboxes').innerHTML = INDUSTRIES.map((ind, i) =>
+    `<label class="checkbox-item">
+      <input type="checkbox" name="industry" value="${esc(ind)}" id="ck-i${i}" />
+      ${esc(ind)}
+    </label>`).join('');
+}
+
+function openModal() {
+  buildCheckboxes();
+  document.getElementById('job-form').reset();
+  document.getElementById('f-state').value = 'NY';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function addCustomCert() {
+  const input = document.getElementById('custom-cert-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const grid = document.getElementById('cert-checkboxes');
+  const label = document.createElement('label');
+  label.className = 'checkbox-item';
+  label.innerHTML = `<input type="checkbox" name="cert" value="${esc(val)}" checked />${esc(val)}`;
+  grid.appendChild(label);
+  input.value = '';
+  input.focus();
+}
+
+// ── Post job ───────────────────────────────────────────
+async function postJob() {
+  const company  = document.getElementById('f-company').value.trim();
+  const role     = document.getElementById('f-role').value.trim();
+  const city     = document.getElementById('f-city').value.trim();
+  const state    = document.getElementById('f-state').value.trim() || 'NY';
+  const distance = document.getElementById('f-distance').value.trim();
+  const pay      = document.getElementById('f-pay').value.trim();
+  const shift    = document.getElementById('f-shift').value;
+  const benefits = document.getElementById('f-benefits').value.trim();
+  const bonus    = document.getElementById('f-bonus').value.trim();
+  const isUnion  = document.getElementById('f-union').checked;
+
+  const errEl = document.getElementById('modal-error');
+  errEl.style.display = 'none';
+
+  if (!company || !role || !city || !pay) {
+    errEl.textContent = 'Company name, role title, city, and pay range are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const certs = Array.from(document.querySelectorAll('#cert-checkboxes input[name="cert"]:checked')).map(el => el.value);
+  const industries = Array.from(document.querySelectorAll('#industry-checkboxes input[name="industry"]:checked')).map(el => el.value);
+
+  const btn = document.getElementById('post-btn');
+  btn.disabled = true;
+  btn.textContent = 'Posting…';
+
+  const { error } = await _sb.from('jobs').insert({
+    company_name:            company,
+    role_title:              role,
+    city,
+    state,
+    distance:                distance || null,
+    pay,
+    shift_type:              shift,
+    is_union:                isUnion,
+    benefits:                benefits || null,
+    sign_on_bonus:           bonus || null,
+    certifications_required: certs.length > 0 ? certs : null,
+    target_industries:       industries.length > 0 ? industries : null,
+    is_active:               true
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Post Job';
+
+  if (error) {
+    errEl.textContent = 'Error posting job: ' + error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  closeModal();
+  loadJobs();
+  showToast('Job posted successfully ✓');
+}
+
+// ── Toast ──────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Helpers ────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+</script>
+</body>
+</html>

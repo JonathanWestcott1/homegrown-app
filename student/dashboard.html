@@ -171,8 +171,15 @@
     <div class="app-step-title" id="feed-title">Jobs for you</div>
     <div class="app-step-sub">Updated daily</div>
     <div id="job-feed">
-      <div style="text-align:center;padding:40px 0;color:#bbb;font-size:14px;">Loading jobs…</div>
+      <div id="jobs-loading" style="display:flex;flex-direction:column;align-items:center;padding:48px 0;gap:12px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:spin 1s linear infinite;">
+          <circle cx="12" cy="12" r="10" stroke="#D3D1C7" stroke-width="2.5"/>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span style="font-size:13px;color:#B4B2A9;">Finding jobs for you…</span>
+      </div>
     </div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
   </div>
 
 </div>
@@ -257,6 +264,7 @@
     ]);
 
     const myCerts = studentData?.certifications || profile?.certifications || [];
+    document.getElementById('jobs-loading').remove();
     renderJobs(jobs || [], myCerts);
   })();
 
@@ -332,10 +340,15 @@
       const reqCerts = job.certifications_required || [];
       const allMet = reqCerts.length === 0 || reqCerts.every(c => myCerts.includes(c));
 
-      const pills = [job.job_type, job.shift, job.benefits]
-        .filter(Boolean)
-        .map(p => `<span class="app-fit-pill">${p}</span>`)
-        .join('');
+      // Support both new and legacy column names
+      const roleTitle = job.role_title || job.role || '';
+      const locationStr = [job.city, job.state].filter(Boolean).join(', ') || job.location || '';
+      const shiftStr = job.shift_type || job.shift || '';
+      const jobTypeStr = job.job_type || '';
+
+      const pillValues = [shiftStr, jobTypeStr, job.benefits, job.is_union ? 'Union' : null, job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null]
+        .filter(Boolean);
+      const pills = pillValues.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
 
       const certPills = reqCerts.map(c => {
         const has = myCerts.includes(c);
@@ -349,9 +362,9 @@
       return `
         <div class="app-job-card">
           <div class="app-job-company">${esc(job.company_name)}</div>
-          <div class="app-job-role">${esc(job.role)}</div>
-          <div class="app-job-location">📍 ${esc(job.location)}</div>
-          <div class="app-job-pay">${esc(job.pay)}</div>
+          <div class="app-job-role">${esc(roleTitle)}</div>
+          ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
+          ${job.pay ? `<div class="app-job-pay">${esc(job.pay)}</div>` : ''}
           ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
           ${reqCerts.length > 0 ? `
             <div class="app-cert-row">
