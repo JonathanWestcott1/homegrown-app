@@ -53,7 +53,8 @@ body {
   gap: 0;
 }
 
-.app-progress-step { display: flex; align-items: center; flex: 1; }
+.app-progress-step { display: flex; align-items: center; }
+.app-progress-step:not(:last-child) { flex: 1; }
 
 .app-progress-circle {
   width: 28px;

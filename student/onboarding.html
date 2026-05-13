@@ -470,7 +470,7 @@
 
   function showStepAt(idx) {
     // Hide all
-    document.querySelectorAll('[id^="step-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.app-content[id^="step-"]').forEach(el => el.style.display = 'none');
     // Show current
     document.getElementById(sequence[idx]).style.display = 'block';
 
