@@ -811,6 +811,7 @@
             <input id="s-lastname" type="text" placeholder="Last name" style="flex:1;" />
           </div>
           <input id="s-email" type="email" placeholder="Email address" />
+          <input id="s-phone" type="tel" placeholder="Phone number" />
           <input id="s-password" type="password" placeholder="Password" oninput="checkPw('s-password','pw-rules-s','s')" />
         </div>
         <div class="pw-rules" id="pw-rules-s">
@@ -1168,13 +1169,14 @@
     const firstName = document.getElementById('s-firstname').value.trim();
     const lastName = document.getElementById('s-lastname').value.trim();
     const name = firstName + ' ' + lastName;
+    const phone = document.getElementById('s-phone').value.trim();
     const email = document.getElementById('s-email').value.trim();
     const password = document.getElementById('s-password').value;
     const program = document.getElementById('s-program').value.trim();
     const graduation_year = document.getElementById('s-year').value.trim();
     const errEl = document.getElementById('s-error');
 
-    if (!firstName || !lastName || !email || !password || !program || !graduation_year) {
+    if (!firstName || !lastName || !email || !phone || !password || !program || !graduation_year) {
       errEl.textContent = 'Please fill in all fields.';
       errEl.style.display = 'block';
       return;
@@ -1189,7 +1191,7 @@
 
     const { data, error } = await _db.auth.signUp({
       email, password,
-      options: { data: { user_type: 'student', first_name: firstName, last_name: lastName } }
+      options: { data: { user_type: 'student', first_name: firstName, last_name: lastName, phone } }
     });
     if (error) {
       errEl.textContent = error.message;
