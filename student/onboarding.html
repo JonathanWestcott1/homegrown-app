@@ -78,36 +78,26 @@
     .cert-row.selected .cert-box { background: #3B6D11; border-color: #3B6D11; color: #fff; }
     .cert-label { font-size: 14px; color: #1C1C1A; }
 
-    .btn-disabled {
+    .ob-btn {
       width: 100%;
       padding: 14px;
       font-size: 15px;
       font-weight: 500;
-      background: #f0f0f0;
-      color: #B4B2A9;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      letter-spacing: -0.2px;
-      margin-top: 8px;
-      cursor: default;
-      pointer-events: none;
-    }
-    .btn-enabled {
-      width: 100%;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 500;
-      background: #3B6D11;
-      color: #EAF3DE;
       border: none;
       border-radius: 8px;
       font-family: inherit;
       letter-spacing: -0.2px;
       margin-top: 8px;
       cursor: pointer;
+      background: #3B6D11;
+      color: #EAF3DE;
     }
-    .btn-enabled:hover { background: #2f5a0e; }
+    .ob-btn:hover:not(:disabled) { background: #2f5a0e; }
+    .ob-btn:disabled {
+      background: #f0f0f0;
+      color: #B4B2A9;
+      cursor: default;
+    }
 
     .back-link {
       display: block;
@@ -208,7 +198,7 @@
         <div class="path-card-desc">Served in the armed forces</div>
       </div>
     </div>
-    <button class="btn-disabled" id="s1-btn">Continue</button>
+    <button class="ob-btn" disabled id="s1-btn">Continue</button>
   </div>
 
   <!-- ══ BOCES FLOW ══ -->
@@ -233,7 +223,7 @@
       <option>Welding Technology</option>
       <option>Other</option>
     </select>
-    <button class="btn-disabled" id="b2-btn">Continue</button>
+    <button class="ob-btn" disabled id="b2-btn">Continue</button>
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
@@ -244,7 +234,7 @@
     <select class="app-select" id="grad-year" onchange="checkB3()">
       <option value="" disabled selected>Choose your graduation year…</option>
     </select>
-    <button class="btn-disabled" id="b3-btn">Continue</button>
+    <button class="ob-btn" disabled id="b3-btn">Continue</button>
     <button class="back-link" onclick="showStep('boces-2', 2, 'boces')">← Back</button>
   </div>
 
@@ -263,7 +253,7 @@
       <option>Other upstate NY county</option>
       <option>Outside New York</option>
     </select>
-    <button class="btn-disabled" id="b4-btn">Continue</button>
+    <button class="ob-btn" disabled id="b4-btn">Continue</button>
     <button class="back-link" onclick="showStep('boces-3', 3, 'boces')">← Back</button>
   </div>
 
@@ -305,7 +295,7 @@
         <div class="industry-card-label">Technology</div>
       </div>
     </div>
-    <button class="btn-disabled" id="b5-btn">Continue</button>
+    <button class="ob-btn" disabled id="b5-btn">Continue</button>
     <button class="back-link" onclick="showStep('boces-4', 4, 'boces')">← Back</button>
   </div>
 
@@ -329,7 +319,7 @@
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
     </div>
     <div class="cert-note">Don't worry if you don't have any yet — we'll show you how to get them.</div>
-    <button class="btn-enabled" onclick="finishBoces()">See my jobs →</button>
+    <button class="ob-btn" onclick="finishBoces()">See my jobs →</button>
     <button class="back-link" onclick="showStep('boces-5', 5, 'boces')">← Back</button>
   </div>
 
@@ -350,7 +340,7 @@
       <option>Other upstate NY county</option>
       <option>Outside New York</option>
     </select>
-    <button class="btn-disabled" id="g2-btn">Continue</button>
+    <button class="ob-btn" disabled id="g2-btn">Continue</button>
     <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
@@ -392,7 +382,7 @@
         <div class="industry-card-label">Technology</div>
       </div>
     </div>
-    <button class="btn-disabled" id="g3-btn">Continue</button>
+    <button class="ob-btn" disabled id="g3-btn">Continue</button>
     <button class="back-link" onclick="showStep('gen-2', 2, 'gen')">← Back</button>
   </div>
 
@@ -416,7 +406,7 @@
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
     </div>
     <div class="cert-note">Learned a skill on the job but don't have a cert? Select it anyway — employers care about what you can do.</div>
-    <button class="btn-enabled" onclick="finishGeneral()">See my jobs →</button>
+    <button class="ob-btn" onclick="finishGeneral()">See my jobs →</button>
     <button class="back-link" onclick="showStep('gen-3', 3, 'gen')">← Back</button>
   </div>
 
@@ -480,8 +470,9 @@
     el.classList.add('selected');
     chosenPath = path;
     const btn = document.getElementById('s1-btn');
-    btn.className = 'btn-enabled';
+    btn.disabled = false;
     btn.onclick = goStep2;
+    btn.removeAttribute('disabled');
   }
 
   function goStep2() {
@@ -492,22 +483,22 @@
   function checkB2() {
     const val = document.getElementById('boces-program').value;
     const btn = document.getElementById('b2-btn');
-    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-3', 3, 'boces'); }
-    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+    if (val) { btn.disabled = false; btn.onclick = () => showStep('boces-3', 3, 'boces'); }
+    else { btn.disabled = true; btn.onclick = null; }
   }
 
   function checkB3() {
     const val = document.getElementById('grad-year').value;
     const btn = document.getElementById('b3-btn');
-    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-4', 4, 'boces'); }
-    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+    if (val) { btn.disabled = false; btn.onclick = () => showStep('boces-4', 4, 'boces'); }
+    else { btn.disabled = true; btn.onclick = null; }
   }
 
   function checkB4() {
     const val = document.getElementById('boces-county').value;
     const btn = document.getElementById('b4-btn');
-    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('boces-5', 5, 'boces'); }
-    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+    if (val) { btn.disabled = false; btn.onclick = () => showStep('boces-5', 5, 'boces'); }
+    else { btn.disabled = true; btn.onclick = null; }
   }
 
   function toggleIndustry(el, path) {
@@ -517,15 +508,15 @@
     const nextStep = path === 'boces' ? () => showStep('boces-6', 6, 'boces') : () => showStep('gen-4', 4, 'gen');
     const anySelected = document.querySelectorAll('#' + gridId + ' .industry-card.selected').length > 0;
     const btn = document.getElementById(btnId);
-    if (anySelected) { btn.className = 'btn-enabled'; btn.onclick = nextStep; }
-    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+    if (anySelected) { btn.disabled = false; btn.onclick = nextStep; }
+    else { btn.disabled = true; btn.onclick = null; }
   }
 
   function checkG2() {
     const val = document.getElementById('gen-county').value;
     const btn = document.getElementById('g2-btn');
-    if (val) { btn.className = 'btn-enabled'; btn.onclick = () => showStep('gen-3', 3, 'gen'); }
-    else { btn.className = 'btn-disabled'; btn.onclick = null; }
+    if (val) { btn.disabled = false; btn.onclick = () => showStep('gen-3', 3, 'gen'); }
+    else { btn.disabled = true; btn.onclick = null; }
   }
 
   function toggleCert(el) { el.classList.toggle('selected'); }
