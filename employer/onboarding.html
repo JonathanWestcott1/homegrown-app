@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Homegrown — Employer Onboarding</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
 </head>
 <body>
@@ -25,12 +26,13 @@
     </div>
   </div>
 
-  <!-- Step 1: Company info -->
+  <!-- Step 1: Company info + account creation -->
   <div class="app-content" id="step-1">
     <div class="app-step-title">Tell us about your company</div>
     <div class="app-step-sub">We'll match you with qualified local graduates</div>
     <input class="app-input" id="company-name" type="text" placeholder="Company name" />
-    <input class="app-input" id="company-email" type="email" placeholder="Your email" />
+    <input class="app-input" id="company-email" type="email" placeholder="Work email" />
+    <input class="app-input" id="company-password" type="password" placeholder="Password (min 6 characters)" />
     <select class="app-select" id="company-county">
       <option value="" disabled selected>County…</option>
       <option>Chenango</option>
@@ -48,8 +50,8 @@
       <option>Government</option>
       <option>Other</option>
     </select>
-    <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;">Please fill in all fields.</div>
-    <button class="app-btn-primary" onclick="goStep2()">Continue</button>
+    <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+    <button class="app-btn-primary" id="continue-btn" onclick="goStep2()">Continue</button>
   </div>
 
   <!-- Step 2: Add first job posting via chat -->
@@ -78,16 +80,57 @@
 
 </div>
 <script>
-  function goStep2() {
+  const _sb = window.supabase.createClient(
+    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+  );
+
+  async function goStep2() {
     const name = document.getElementById('company-name').value.trim();
     const email = document.getElementById('company-email').value.trim();
+    const password = document.getElementById('company-password').value;
     const county = document.getElementById('company-county').value;
     const industry = document.getElementById('company-industry').value;
-    if (!name || !email || !county || !industry) {
-      document.getElementById('s1-error').style.display = 'block';
+    const errEl = document.getElementById('s1-error');
+    const btn = document.getElementById('continue-btn');
+
+    if (!name || !email || !password || !county || !industry) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.style.display = 'block';
       return;
     }
-    document.getElementById('s1-error').style.display = 'none';
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    errEl.style.display = 'none';
+    btn.textContent = 'Creating account…';
+    btn.disabled = true;
+
+    const { data, error } = await _sb.auth.signUp({
+      email,
+      password,
+      options: { data: { user_type: 'employer' } }
+    });
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'Continue';
+      btn.disabled = false;
+      return;
+    }
+
+    const userId = data.user.id;
+    await _sb.from('employers').insert([{
+      id: userId,
+      company_name: name,
+      county,
+      industry
+    }]);
+
     showStep(2);
   }
 

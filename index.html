@@ -1101,6 +1101,19 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
+  // Redirect already-logged-in users to their dashboard
+  (async () => {
+    const { data: { session } } = await _db.auth.getSession();
+    if (session) {
+      const userType = session.user.user_metadata?.user_type;
+      if (userType === 'employer') {
+        window.location.href = '/employer/dashboard.html';
+      } else {
+        window.location.href = '/student/dashboard.html';
+      }
+    }
+  })();
+
   window.submitStudent = async function() {
     const name = document.getElementById('s-name').value.trim();
     const email = document.getElementById('s-email').value.trim();

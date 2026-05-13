@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Homegrown — Student Onboarding</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
 </head>
 <body>
@@ -66,7 +67,7 @@
     <button class="app-btn-primary" onclick="goStep3()">Continue</button>
   </div>
 
-  <!-- Step 3: Certifications -->
+  <!-- Step 3: Certifications + Account -->
   <div class="app-content" id="step-3" style="display:none;">
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
@@ -116,11 +117,22 @@
         <div class="app-check-label">Forklift Operator Certification</div>
       </div>
     </div>
-    <button class="app-btn-primary" onclick="finish()">See my jobs →</button>
+
+    <div style="margin-top:20px;margin-bottom:4px;font-size:14px;font-weight:500;color:#1a1a1a;">Create your account</div>
+    <div style="font-size:13px;color:#666;margin-bottom:14px;">You'll use this to log in and see your jobs.</div>
+    <input class="app-input" id="student-email" type="email" placeholder="Email address" />
+    <input class="app-input" id="student-password" type="password" placeholder="Password (min 6 characters)" />
+    <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+    <button class="app-btn-primary" id="finish-btn" onclick="finish()">See my jobs →</button>
   </div>
 
 </div>
 <script>
+  const _sb = window.supabase.createClient(
+    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+  );
+
   let selectedYear = '';
 
   function goStep2() {
@@ -136,7 +148,53 @@
     showStep(3);
   }
 
-  function finish() {
+  async function finish() {
+    const email = document.getElementById('student-email').value.trim();
+    const password = document.getElementById('student-password').value;
+    const errEl = document.getElementById('s3-error');
+    const btn = document.getElementById('finish-btn');
+
+    if (!email || !password) {
+      errEl.textContent = 'Please enter your email and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    errEl.style.display = 'none';
+    btn.textContent = 'Creating account…';
+    btn.disabled = true;
+
+    const program = document.getElementById('program-select').value;
+    const certifications = Array.from(document.querySelectorAll('.app-check-row.selected'))
+      .map(row => row.querySelector('.app-check-label').textContent);
+
+    const { data, error } = await _sb.auth.signUp({
+      email,
+      password,
+      options: { data: { user_type: 'student' } }
+    });
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'See my jobs →';
+      btn.disabled = false;
+      return;
+    }
+
+    const userId = data.user.id;
+    await _sb.from('students').insert([{
+      id: userId,
+      program,
+      graduation_year: selectedYear,
+      certifications
+    }]);
+
     window.location.href = '/student/dashboard.html';
   }
 
@@ -146,7 +204,6 @@
     document.getElementById('step-3').style.display = 'none';
     document.getElementById('step-' + n).style.display = 'block';
     document.getElementById('step-num').textContent = n;
-    // Update progress circles
     for (let i = 1; i <= 3; i++) {
       const c = document.getElementById('p' + i);
       c.classList.remove('active', 'done');
