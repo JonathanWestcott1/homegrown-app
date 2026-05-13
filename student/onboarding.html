@@ -120,23 +120,7 @@
       </div>
     </div>
 
-    <div style="margin-top:20px;margin-bottom:4px;font-size:14px;font-weight:500;color:#1a1a1a;">Create your account</div>
-    <div style="font-size:13px;color:#666;margin-bottom:14px;">You'll use this to log in and see your jobs.</div>
-    <input class="app-input" id="student-email" type="email" placeholder="Email address" />
-    <div style="position:relative;margin-bottom:10px;">
-      <input class="app-input" id="student-password" type="password" placeholder="Password" oninput="checkPw('student-password','pw-rules-s')" style="margin-bottom:0;padding-right:42px;" />
-      <button type="button" onclick="togglePw('student-password',this)" tabindex="-1" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#bbb;padding:0;display:flex;align-items:center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-    <div class="pw-rules" id="pw-rules-s">
-      <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
-      <div class="pw-rule" id="pr-s-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
-      <div class="pw-rule" id="pr-s-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
-      <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
-      <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
-    </div>
-    <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+    <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-top:12px;margin-bottom:8px;"></div>
     <button class="app-btn-primary" id="finish-btn" onclick="finish()">See my jobs →</button>
     <button type="button" onclick="showStep(2)" style="width:100%;padding:13px;font-size:14px;font-weight:500;background:transparent;color:#666660;border:none;cursor:pointer;font-family:inherit;margin-top:4px;">← Back</button>
   </div>
@@ -203,61 +187,31 @@
   async function finish() {
     const errEl = document.getElementById('s3-error');
     const btn = document.getElementById('finish-btn');
+
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { window.location.href = '/'; return; }
+
     const program = document.getElementById('program-select').value;
     const certifications = Array.from(document.querySelectorAll('.app-check-row.selected'))
       .map(row => row.querySelector('.app-check-label').textContent);
 
-    // Check if user already signed up from the landing page
-    const { data: { session: existing } } = await _sb.auth.getSession();
-    let userId;
-
-    if (existing) {
-      userId = existing.user.id;
-    } else {
-      const email = document.getElementById('student-email').value.trim();
-      const password = document.getElementById('student-password').value;
-
-      if (!email || !password) {
-        errEl.textContent = 'Please enter your email and password.';
-        errEl.style.display = 'block';
-        return;
-      }
-      if (!pwStrong('student-password', 'pw-rules-s')) {
-        errEl.textContent = 'Password does not meet all requirements.';
-        errEl.style.display = 'block';
-        document.getElementById('pw-rules-s').classList.add('visible');
-        return;
-      }
-
-      errEl.style.display = 'none';
-      btn.textContent = 'Creating account…';
-      btn.disabled = true;
-
-      const { data, error } = await _sb.auth.signUp({
-        email, password,
-        options: { data: { user_type: 'student' } }
-      });
-
-      if (error) {
-        errEl.textContent = error.message;
-        errEl.style.display = 'block';
-        btn.textContent = 'See my jobs →';
-        btn.disabled = false;
-        return;
-      }
-      userId = data.user.id;
-    }
-
-    errEl.style.display = 'none';
     btn.textContent = 'Setting up your profile…';
     btn.disabled = true;
 
-    await _sb.from('students').upsert([{
-      id: userId,
+    const { error } = await _sb.from('students').upsert([{
+      id: session.user.id,
       program,
       graduation_year: selectedYear,
       certifications
     }]);
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'See my jobs →';
+      btn.disabled = false;
+      return;
+    }
 
     window.location.href = '/student/dashboard.html';
   }
