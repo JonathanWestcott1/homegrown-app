@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown.ai — Local talent. Local opportunity.</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    .hg-wrap {
+      max-width: 390px;
+      margin: 0 auto;
+      background: #ffffff;
+      min-height: 100vh;
+    }
+
+    .hg-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 0.5px solid #e5e5e5;
+    }
+
+    .hg-logo {
+      font-size: 18px;
+      font-weight: 500;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+
+    .hg-logo span { color: #3B6D11; }
+
+    .hg-nav-tag {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .hg-hero {
+      padding: 40px 20px 32px;
+      text-align: left;
+    }
+
+    .hg-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #3B6D11;
+      background: #EAF3DE;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .hg-headline {
+      font-size: 30px;
+      font-weight: 500;
+      color: #1a1a1a;
+      line-height: 1.2;
+      letter-spacing: -0.8px;
+      margin-bottom: 14px;
+    }
+
+    .hg-headline em {
+      font-style: normal;
+      color: #3B6D11;
+    }
+
+    .hg-sub {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .hg-toggle {
+      display: flex;
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 16px;
+      border: 0.5px solid #e5e5e5;
+    }
+
+    .hg-toggle-btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: #999;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .hg-toggle-btn.active {
+      background: #ffffff;
+      color: #1a1a1a;
+      border: 0.5px solid #ddd;
+    }
+
+    .hg-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .hg-form input {
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #1a1a1a;
+      width: 100%;
+      outline: none;
+    }
+
+    .hg-form input::placeholder { color: #bbb; }
+    .hg-form input:focus { border-color: #3B6D11; }
+
+    .hg-btn-primary {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      background: #3B6D11;
+      color: #EAF3DE;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+    }
+
+    .hg-btn-primary:hover { background: #2f5a0e; }
+
+    .hg-divider {
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+      margin: 10px 0;
+    }
+
+    .hg-btn-secondary {
+      width: 100%;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      color: #1a1a1a;
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .hg-btn-secondary:hover { background: #f5f5f5; }
+
+    .hg-section {
+      padding: 32px 20px;
+      border-top: 0.5px solid #e5e5e5;
+    }
+
+    .hg-section-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #bbb;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hg-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .hg-stat {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .hg-stat-num {
+      font-size: 22px;
+      font-weight: 500;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+      margin-bottom: 2px;
+    }
+
+    .hg-stat-label {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    .hg-feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .hg-feature {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .hg-feature-icon {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 8px;
+      background: #EAF3DE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .hg-feature-text h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .hg-feature-text p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .hg-testimonial {
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .hg-testimonial p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .hg-testimonial-author {
+      font-size: 12px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .hg-footer {
+      padding: 20px;
+      text-align: center;
+      border-top: 0.5px solid #e5e5e5;
+    }
+
+    .hg-footer p {
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .hg-footer span { color: #3B6D11; }
+
+    .hg-demo-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: #3B6D11;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 12px;
+      background: none;
+      border: none;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .hg-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .hg-modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .hg-modal {
+      background: #fff;
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .hg-modal-nav {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 0.5px solid #e5e5e5;
+    }
+
+    .hg-modal-back {
+      font-size: 20px;
+      cursor: pointer;
+      color: #1a1a1a;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-right: 12px;
+      line-height: 1;
+    }
+
+    .hg-modal-header { padding: 24px 20px 16px; }
+
+    .hg-modal-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .hg-modal-sub { font-size: 13px; color: #666; }
+
+    .hg-county-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #3B6D11;
+      background: #EAF3DE;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .hg-job-card {
+      margin: 0 20px 20px;
+      border: 0.5px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .hg-job-company { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .hg-job-role { font-size: 18px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.4px; margin-bottom: 6px; }
+    .hg-job-meta { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .hg-job-pay { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .hg-job-type { font-size: 12px; color: #999; margin-bottom: 16px; }
+
+    .hg-skills-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #bbb;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hg-skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .hg-skill-box {
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hg-skill-green { background: #EAF3DE; color: #3B6D11; }
+    .hg-skill-gray { background: #f0f0f0; color: #999; cursor: pointer; }
+
+    .hg-apply-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      background: #ccc;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: not-allowed;
+      letter-spacing: -0.2px;
+    }
+
+    .hg-apply-note {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .hg-teacher-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .hg-teacher-overlay.open { display: flex; }
+
+    .hg-teacher-popup {
+      background: #fff;
+      width: 100%;
+      max-width: 390px;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .hg-teacher-header { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+
+    .hg-teacher-close {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      line-height: 1;
+    }
+
+    .hg-teacher-profile { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+
+    .hg-avatar {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .hg-teacher-name { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .hg-teacher-title { font-size: 13px; color: #666; margin-bottom: 2px; }
+    .hg-teacher-loc { font-size: 12px; color: #999; }
+
+    .hg-teacher-bio { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 14px; }
+
+    .hg-teacher-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+
+    .hg-pill {
+      font-size: 12px;
+      font-weight: 500;
+      color: #3B6D11;
+      background: #EAF3DE;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .hg-message-label { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; }
+
+    .hg-message-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 13px;
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      color: #1a1a1a;
+      resize: none;
+      height: 80px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .hg-message-input:focus { border-color: #3B6D11; }
+
+    .hg-send-btn {
+      width: 100%;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 500;
+      background: #3B6D11;
+      color: #EAF3DE;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .hg-send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .hg-confirm-msg {
+      font-size: 13px;
+      color: #3B6D11;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Progress bar */
+    .hg-progress {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 20px 0;
+      gap: 0;
+    }
+    .hg-progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .hg-progress-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: center;
+    }
+    .hg-progress-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .hg-progress-circle.done { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .hg-progress-circle.current { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .hg-progress-line {
+      flex: 1;
+      height: 2px;
+      background: #ddd;
+    }
+    .hg-progress-line.done { background: #3B6D11; }
+    .hg-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 20px 0;
+    }
+    .hg-progress-label {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+    }
+    .hg-progress-label.current { color: #1a1a1a; font-weight: 600; }
+    .hg-progress-sublabel {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 20px 16px;
+    }
+    .hg-progress-sublabel span {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      color: #bbb;
+    }
+
+    /* Demo tab switcher */
+    .hg-demo-tabs {
+      display: flex;
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 4px;
+      margin: 12px 20px 0;
+      border: 0.5px solid #e5e5e5;
+    }
+    .hg-demo-tab {
+      flex: 1;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: #999;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .hg-demo-tab.active {
+      background: #ffffff;
+      color: #1a1a1a;
+      border: 0.5px solid #ddd;
+    }
+
+    /* Employer demo sections */
+    .hg-emp-section { padding: 20px 20px 0; }
+    .hg-emp-section + .hg-emp-section { border-top: 0.5px solid #e5e5e5; margin-top: 20px; padding-top: 20px; }
+    .hg-emp-section-title { font-size: 16px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.3px; margin-bottom: 2px; }
+    .hg-emp-section-sub { font-size: 12px; color: #999; margin-bottom: 14px; }
+
+    .hg-posting-card {
+      border: 0.5px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    .hg-posting-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .hg-posting-role { font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .hg-posting-status { font-size: 11px; font-weight: 500; color: #3B6D11; background: #EAF3DE; padding: 3px 8px; border-radius: 20px; }
+    .hg-posting-pay { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .hg-posting-stats { font-size: 12px; color: #999; }
+
+    .hg-pipeline-box {
+      background: #f5f5f5;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .hg-pipeline-intro { font-size: 13px; color: #1a1a1a; margin-bottom: 12px; }
+    .hg-pipeline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 0.5px solid #e5e5e5;
+      font-size: 13px;
+    }
+    .hg-pipeline-row-left { color: #1a1a1a; }
+    .hg-pipeline-row-count { color: #999; font-size: 12px; }
+    .hg-pipeline-row-cert { color: #3B6D11; font-size: 12px; font-weight: 500; }
+    .hg-pipeline-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      color: #3B6D11;
+      border: 1.5px solid #3B6D11;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 4px;
+    }
+
+    /* Chat UI */
+    .hg-chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .hg-chat-msg { display: flex; flex-direction: column; max-width: 80%; }
+    .hg-chat-msg.employer { align-self: flex-end; align-items: flex-end; }
+    .hg-chat-msg.agent { align-self: flex-start; align-items: flex-start; }
+    .hg-chat-label { font-size: 10px; color: #999; margin-bottom: 3px; }
+    .hg-chat-bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .hg-chat-msg.employer .hg-chat-bubble { background: #3B6D11; color: #fff; border-bottom-right-radius: 4px; }
+    .hg-chat-msg.agent .hg-chat-bubble { background: #f5f5f5; color: #1a1a1a; border-bottom-left-radius: 4px; }
+    .hg-chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-top: 0.5px solid #e5e5e5;
+      padding-top: 12px;
+      margin-bottom: 20px;
+    }
+    .hg-chat-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 0.5px solid #ddd;
+      border-radius: 20px;
+      font-family: inherit;
+      outline: none;
+      color: #1a1a1a;
+    }
+    .hg-chat-hidden {
+      display: none;
+    }
+    .hg-chat-visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .hg-chat-showing {
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .hg-typing-bubble {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px !important;
+    }
+    .hg-typing-bubble span {
+      width: 7px;
+      height: 7px;
+      background: #999;
+      border-radius: 50%;
+      animation: typingDot 1.2s infinite ease-in-out;
+    }
+    .hg-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .hg-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingDot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .hg-chat-send {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3B6D11;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Signing day banner */
+    .hg-signing-banner {
+      margin: 0 20px 12px;
+      background: #EAF3DE;
+      color: #3B6D11;
+      font-size: 12px;
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: center;
+    }
+
+    /* Fit pills */
+    .hg-fit-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .hg-fit-pill {
+      font-size: 11px;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      padding: 4px 8px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hg-wrap">
+
+  <nav class="hg-nav">
+    <div class="hg-logo">home<span>grown</span>.ai</div>
+    <div class="hg-nav-tag">Beta</div>
+  </nav>
+
+  <div class="hg-hero">
+    <div class="hg-badge">Built for rural communities</div>
+    <h1 class="hg-headline">Your path to a <em>local career</em> starts here</h1>
+    <p class="hg-sub">See exactly what local employers need, what roles pay, and how your BOCES training connects to real jobs in your county.</p>
+
+    <div class="hg-toggle">
+      <button class="hg-toggle-btn active" id="btn-student" onclick="switchMode('student')">I'm a student</button>
+      <button class="hg-toggle-btn" id="btn-employer" onclick="switchMode('employer')">I'm an employer</button>
+    </div>
+
+    <div id="student-section">
+      <div id="student-form-wrap">
+        <div class="hg-form">
+          <input id="s-name" type="text" placeholder="Full name" />
+          <input id="s-email" type="email" placeholder="Email address" />
+          <input id="s-program" type="text" placeholder="Your BOCES program (e.g. Electrical)" />
+          <input id="s-year" type="text" placeholder="Graduation year" />
+        </div>
+        <div id="s-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+        <button class="hg-btn-primary" onclick="submitStudent()">Create student account</button>
+      </div>
+      <div id="s-success" style="display:none;background:#EAF3DE;color:#3B6D11;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;text-align:center;"></div>
+      <div class="hg-divider">Already have an account?</div>
+      <button class="hg-btn-secondary">Sign in</button>
+      <button class="hg-demo-link" onclick="openDemo()">Try Demo</button>
+    </div>
+
+    <div id="employer-section" style="display:none;">
+      <div id="employer-form-wrap">
+        <div class="hg-form">
+          <input id="e-company" type="text" placeholder="Company name" />
+          <input id="e-email" type="email" placeholder="Work email" />
+          <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
+          <input id="e-industry" type="text" placeholder="Industry (e.g. Manufacturing)" />
+        </div>
+        <div id="e-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
+        <button class="hg-btn-primary" onclick="submitEmployer()">Get early employer access</button>
+      </div>
+      <div id="e-success" style="display:none;background:#EAF3DE;color:#3B6D11;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;text-align:center;"></div>
+      <div class="hg-divider">Already have an account?</div>
+      <button class="hg-btn-secondary">Sign in</button>
+      <button class="hg-demo-link" onclick="openDemo()">Try Demo</button>
+    </div>
+  </div>
+
+  <div class="hg-section" id="student-features">
+    <div class="hg-section-label">For students</div>
+    <div class="hg-stat-grid">
+      <div class="hg-stat">
+        <div class="hg-stat-num">4,800+</div>
+        <div class="hg-stat-label">Open roles in Chenango County</div>
+      </div>
+      <div class="hg-stat">
+        <div class="hg-stat-num">$28/hr</div>
+        <div class="hg-stat-label">Median electrician wage, year 3</div>
+      </div>
+      <div class="hg-stat">
+        <div class="hg-stat-num">2.1M</div>
+        <div class="hg-stat-label">Skilled trades jobs unfilled by 2030</div>
+      </div>
+      <div class="hg-stat">
+        <div class="hg-stat-num">33%</div>
+        <div class="hg-stat-label">Rise in NY BOCES enrollment since 2018</div>
+      </div>
+    </div>
+    <div class="hg-feature-list">
+      <div class="hg-feature">
+        <div class="hg-feature-icon">📍</div>
+        <div class="hg-feature-text">
+          <h4>Hyperlocal job intelligence</h4>
+          <p>See what employers in your county actually need and what they pay — updated daily by AI agents.</p>
+        </div>
+      </div>
+      <div class="hg-feature">
+        <div class="hg-feature-icon">🛤</div>
+        <div class="hg-feature-text">
+          <h4>Your path, made clear</h4>
+          <p>Know exactly what skills your BOCES program gives you and which local roles you're already qualified for.</p>
+        </div>
+      </div>
+      <div class="hg-feature">
+        <div class="hg-feature-icon">🤝</div>
+        <div class="hg-feature-text">
+          <h4>Direct employer connections</h4>
+          <p>Get matched to employers before graduation — no cold applications, no guessing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hg-section" id="employer-features" style="display:none;">
+    <div class="hg-section-label">For employers</div>
+    <div class="hg-stat-grid">
+      <div class="hg-stat">
+        <div class="hg-stat-num">50–100</div>
+        <div class="hg-stat-label">Avg open roles at rural manufacturers</div>
+      </div>
+      <div class="hg-stat">
+        <div class="hg-stat-num">$9k</div>
+        <div class="hg-stat-label">Avg cost per hire via staffing agency</div>
+      </div>
+    </div>
+    <div class="hg-feature-list">
+      <div class="hg-feature">
+        <div class="hg-feature-icon">🎯</div>
+        <div class="hg-feature-text">
+          <h4>Reach local talent first</h4>
+          <p>Access BOCES graduates and skilled workers in your county before they're gone — no staffing agency markup.</p>
+        </div>
+      </div>
+      <div class="hg-feature">
+        <div class="hg-feature-icon">⚡</div>
+        <div class="hg-feature-text">
+          <h4>AI-powered matching</h4>
+          <p>Tell our agent what you need. We surface warm candidates from the local talent pipeline automatically.</p>
+        </div>
+      </div>
+      <div class="hg-feature">
+        <div class="hg-feature-icon">📊</div>
+        <div class="hg-feature-text">
+          <h4>Local labor market intelligence</h4>
+          <p>See wage benchmarks, skills availability, and hiring trends specific to your county — not national averages.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hg-footer">
+    <p>Built in Greene, NY.</p>
+  </div>
+
+</div>
+
+<!-- Demo Modal -->
+<div class="hg-modal-overlay" id="demo-overlay">
+  <div class="hg-modal">
+    <div class="hg-modal-nav">
+      <button class="hg-modal-back" onclick="closeDemo()">←</button>
+      <div class="hg-logo">home<span style="color:#3B6D11">grown</span>.ai</div>
+    </div>
+
+    <div class="hg-demo-tabs">
+      <button class="hg-demo-tab active" id="demo-tab-student" onclick="switchDemoTab('student')">Student</button>
+      <button class="hg-demo-tab" id="demo-tab-employer" onclick="switchDemoTab('employer')">Employer</button>
+    </div>
+
+    <!-- Student demo -->
+    <div id="demo-student">
+      <div class="hg-modal-header">
+        <div class="hg-modal-title">Available in your area</div>
+      </div>
+      <div class="hg-job-card">
+        <div class="hg-job-company">Raymond Corporation</div>
+        <div class="hg-job-role">Mechanical Assembler</div>
+        <div class="hg-job-meta">📍 Greene, NY</div>
+        <div class="hg-job-pay">$22–$26/hr</div>
+        <div class="hg-fit-pills">
+          <span class="hg-fit-pill">🏛 Union position</span>
+          <span class="hg-fit-pill">🌙 First shift available</span>
+          <span class="hg-fit-pill">☀️ Paid time off + holidays</span>
+        </div>
+        <div class="hg-skills-label">Certifications required</div>
+        <div class="hg-skills-grid">
+          <div class="hg-skill-box hg-skill-green">✓ OSHA 10 Certification</div>
+          <div class="hg-skill-box hg-skill-green">✓ Blueprint Reading</div>
+          <div class="hg-skill-box hg-skill-green">✓ Hand Tool Safety</div>
+          <div class="hg-skill-box hg-skill-gray" onclick="openTeacher('IBEW Apprenticeship Application')">+ IBEW Apprenticeship Application</div>
+          <div class="hg-skill-box hg-skill-gray" onclick="openTeacher('Industrial Wiring Module 3')">+ Industrial Wiring Module 3</div>
+          <div class="hg-skill-box hg-skill-gray" onclick="openTeacher('Hydraulic Systems Certification')">+ Hydraulic Systems Certification</div>
+        </div>
+        <button class="hg-apply-btn">Complete certifications to apply</button>
+        <div class="hg-apply-note">You're missing 3 certifications. Tap any gray box to connect with the instructor who can help you get it before graduation.</div>
+      </div>
+    </div>
+
+    <!-- Employer demo -->
+    <div id="demo-employer" style="display:none; padding-bottom: 20px;">
+
+      <div class="hg-emp-section">
+        <div class="hg-emp-section-title">My Jobs</div>
+        <div class="hg-emp-section-sub">2 active postings</div>
+        <div class="hg-posting-card">
+          <div class="hg-posting-header">
+            <div class="hg-posting-role">Mechanical Assembler</div>
+            <span class="hg-posting-status">Open</span>
+          </div>
+          <div class="hg-posting-pay">$22–$26/hr · First shift</div>
+          <div class="hg-posting-stats">👁 34 students viewed · ✓ 8 qualified · ◎ 6 close</div>
+        </div>
+        <div class="hg-posting-card">
+          <div class="hg-posting-header">
+            <div class="hg-posting-role">Maintenance Technician</div>
+            <span class="hg-posting-status">Open</span>
+          </div>
+          <div class="hg-posting-pay">$24–$28/hr · Rotating shifts</div>
+          <div class="hg-posting-stats">👁 19 students viewed · ✓ 3 qualified · ◎ 4 close</div>
+        </div>
+      </div>
+
+      <div class="hg-emp-section">
+        <div class="hg-emp-section-title">Local Talent Pipeline</div>
+        <div class="hg-emp-section-sub">Chenango County · Class of 2026</div>
+        <div class="hg-pipeline-box">
+          <div class="hg-pipeline-intro">🎓 23 students graduating this June from relevant BOCES programs</div>
+          <div class="hg-pipeline-row">
+            <div>
+              <div class="hg-pipeline-row-left">Electrical Program</div>
+              <div class="hg-pipeline-row-count">8 students</div>
+            </div>
+            <div class="hg-pipeline-row-cert">6 OSHA certified</div>
+          </div>
+          <div class="hg-pipeline-row">
+            <div>
+              <div class="hg-pipeline-row-left">Mechanical/Manufacturing</div>
+              <div class="hg-pipeline-row-count">9 students</div>
+            </div>
+            <div class="hg-pipeline-row-cert">4 blueprint certified</div>
+          </div>
+          <div class="hg-pipeline-row">
+            <div>
+              <div class="hg-pipeline-row-left">Carpentry & Construction</div>
+              <div class="hg-pipeline-row-count">6 students</div>
+            </div>
+            <div class="hg-pipeline-row-cert">All have hand tool safety</div>
+          </div>
+        </div>
+        <button class="hg-pipeline-btn" onclick="alert('This feature lets you send a message to all qualifying students in a program. Coming soon in the full version.')">Message this cohort →</button>
+      </div>
+
+      <div class="hg-emp-section">
+        <div class="hg-emp-section-title">Update Your Postings</div>
+        <div class="hg-emp-section-sub">Just tell us what you need</div>
+        <div class="hg-chat" id="demo-chat">
+          <div class="hg-chat-msg employer hg-chat-hidden" data-chat="employer">
+            <div class="hg-chat-bubble">Update the pay on the mechanical assembler role to $26/hr</div>
+          </div>
+          <div class="hg-chat-msg agent hg-chat-hidden" data-chat="agent">
+            <div class="hg-chat-label">🌱 Homegrown</div>
+            <div class="hg-chat-bubble">Done! Mechanical Assembler is now showing $26/hr. 3 more students just became eligible based on the new rate.</div>
+          </div>
+          <div class="hg-chat-msg employer hg-chat-hidden" data-chat="employer">
+            <div class="hg-chat-bubble">Which students are closest to qualifying for my electrician role?</div>
+          </div>
+          <div class="hg-chat-msg agent hg-chat-hidden" data-chat="agent">
+            <div class="hg-chat-label">🌱 Homegrown</div>
+            <div class="hg-chat-bubble">6 students are 1 certification away from qualifying for your Maintenance Technician role. The most common missing cert is Hydraulic Systems. Want me to notify them about the opening?</div>
+          </div>
+          <div class="hg-chat-msg employer hg-chat-hidden" data-chat="employer">
+            <div class="hg-chat-bubble">Yes, send them a message</div>
+          </div>
+          <div class="hg-chat-msg agent hg-chat-hidden" data-chat="agent">
+            <div class="hg-chat-label">🌱 Homegrown</div>
+            <div class="hg-chat-bubble">Done! 6 students have been notified. You'll see replies here when they respond.</div>
+          </div>
+          <div class="hg-chat-msg employer hg-chat-hidden" data-chat="employer">
+            <div class="hg-chat-bubble">Show me hiring trends for mechanical assemblers in the last 6 months</div>
+          </div>
+          <div class="hg-chat-msg agent hg-chat-hidden" data-chat="agent">
+            <div class="hg-chat-label">🌱 Homegrown</div>
+            <div class="hg-chat-bubble" style="max-width:90%;">
+              <div style="margin-bottom:10px;line-height:1.5;">Demand for mechanical assemblers in Chenango County is up 34% since January. Local candidate supply has stayed flat. 8 students in relevant BOCES programs graduate in June — your earliest opportunity to close this gap.</div>
+              <div style="position:relative;width:100%;max-width:280px;height:160px;">
+                <canvas id="trend-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="hg-chat-msg agent" id="chat-typing" style="display:none;">
+            <div class="hg-chat-label">🌱 Homegrown</div>
+            <div class="hg-chat-bubble hg-typing-bubble"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="hg-chat-input-row">
+          <input class="hg-chat-input" type="text" placeholder="Message Homegrown..." />
+          <button class="hg-chat-send">↑</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Teacher Popup -->
+<div class="hg-teacher-overlay" id="teacher-overlay">
+  <div class="hg-teacher-popup">
+    <div class="hg-teacher-header">
+      <button class="hg-teacher-close" onclick="closeTeacher()">×</button>
+    </div>
+    <div class="hg-teacher-profile">
+      <div class="hg-avatar">JM</div>
+      <div>
+        <div class="hg-teacher-name">James Moretti</div>
+        <div class="hg-teacher-title">Electrical & Industrial Systems Instructor</div>
+        <div class="hg-teacher-loc">DCMO BOCES · Norwich, NY</div>
+      </div>
+    </div>
+    <div class="hg-teacher-bio">20 years in industrial manufacturing before joining BOCES. I help students get hands-on experience and prep for industry certifications before they enter the workforce — including IBEW applications, OSHA 10, and hydraulic systems training.</div>
+    <div class="hg-teacher-pills">
+      <span class="hg-pill">IBEW Certified</span>
+      <span class="hg-pill">OSHA Trainer</span>
+      <span class="hg-pill">Open to students</span>
+    </div>
+    <div class="hg-message-label">Send a message</div>
+    <textarea class="hg-message-input" id="message-input" placeholder="Hi James, I'm a junior in the electrical program at DCMO BOCES and I'm missing the IBEW Apprenticeship Application requirement for the Raymond's role. Would you be open to helping me prep for that?"></textarea>
+    <button class="hg-send-btn" id="send-btn" onclick="sendMessage()">Send message</button>
+    <div class="hg-confirm-msg" id="send-confirm">Message sent! James typically replies within 24 hours.</div>
+  </div>
+</div>
+
+<script>
+  const _db = window.supabase.createClient(
+    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+  );
+
+  window.submitStudent = async function() {
+    const name = document.getElementById('s-name').value.trim();
+    const email = document.getElementById('s-email').value.trim();
+    const program = document.getElementById('s-program').value.trim();
+    const graduation_year = document.getElementById('s-year').value.trim();
+    const errEl = document.getElementById('s-error');
+
+    if (!name || !email || !program || !graduation_year) {
+      errEl.textContent = 'Please fill in all fields';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const { error } = await _db.from('students').insert([{ name, email, program, graduation_year }]);
+    if (error) {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    } else {
+      document.getElementById('student-form-wrap').style.display = 'none';
+      setTimeout(() => { window.location.href = '/student/onboarding.html'; }, 800);
+    }
+  };
+
+  window.submitEmployer = async function() {
+    const company_name = document.getElementById('e-company').value.trim();
+    const email = document.getElementById('e-email').value.trim();
+    const county = document.getElementById('e-county').value.trim();
+    const industry = document.getElementById('e-industry').value.trim();
+    const errEl = document.getElementById('e-error');
+
+    if (!company_name || !email || !county || !industry) {
+      errEl.textContent = 'Please fill in all fields';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const { error } = await _db.from('employers').insert([{ company_name, email, county, industry }]);
+    if (error) {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    } else {
+      document.getElementById('employer-form-wrap').style.display = 'none';
+      setTimeout(() => { window.location.href = '/employer/onboarding.html'; }, 800);
+    }
+  };
+
+  // Web Audio sounds
+  function playSound(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      if (type === 'send') {
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.start(); osc.stop(ctx.currentTime + 0.15);
+      } else {
+        osc.frequency.setValueAtTime(620, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(820, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        osc.start(); osc.stop(ctx.currentTime + 0.2);
+      }
+    } catch(e) {}
+  }
+
+  // Chat animation sequence
+  let chatAnimated = false;
+  function animateChat() {
+    if (chatAnimated) return;
+    chatAnimated = true;
+    const messages = document.querySelectorAll('#demo-chat .hg-chat-hidden');
+    const typing = document.getElementById('chat-typing');
+    const modal = document.querySelector('.hg-modal');
+    let delay = 0;
+    messages.forEach((msg, i) => {
+      const isAgent = msg.dataset.chat === 'agent';
+      if (isAgent) {
+        // Show typing indicator before agent message
+        setTimeout(() => {
+          typing.style.display = 'flex';
+          modal.scrollTo({ top: modal.scrollHeight, behavior: 'smooth' });
+        }, delay);
+        delay += 2800;
+        setTimeout(() => {
+          typing.style.display = 'none';
+          msg.classList.remove('hg-chat-hidden');
+          msg.classList.add('hg-chat-showing');
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            msg.classList.remove('hg-chat-showing');
+            msg.classList.add('hg-chat-visible');
+            if (msg.querySelector('#trend-chart')) renderTrendChart();
+          }));
+          playSound('receive');
+          modal.scrollTo({ top: modal.scrollHeight, behavior: 'smooth' });
+        }, delay);
+      } else {
+        setTimeout(() => {
+          msg.classList.remove('hg-chat-hidden');
+          msg.classList.add('hg-chat-showing');
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            msg.classList.remove('hg-chat-showing');
+            msg.classList.add('hg-chat-visible');
+          }));
+          playSound('send');
+          modal.scrollTo({ top: modal.scrollHeight, behavior: 'smooth' });
+        }, delay);
+      }
+      delay += isAgent ? 2200 : 1200;
+    });
+  }
+
+  function renderTrendChart() {
+    const canvas = document.getElementById('trend-chart');
+    if (!canvas || canvas._rendered) return;
+    canvas._rendered = true;
+    new Chart(canvas, {
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Open Roles',
+            data: [4, 5, 6, 7, 8, 11],
+            backgroundColor: '#3B6D11',
+            borderRadius: 4,
+            order: 2
+          },
+          {
+            type: 'line',
+            label: 'Local Candidates',
+            data: [5, 5, 4, 5, 5, 5],
+            borderColor: '#999',
+            borderDash: [4, 4],
+            borderWidth: 2,
+            pointRadius: 2,
+            backgroundColor: 'transparent',
+            tension: 0.3,
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
+          },
+          title: {
+            display: true,
+            text: 'Mechanical Assembler Demand vs. Supply · Chenango County',
+            font: { size: 10 },
+            color: '#666',
+            padding: { bottom: 8 }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: {
+            min: 0, max: 12,
+            grid: { display: false },
+            ticks: { font: { size: 10 }, stepSize: 4, precision: 0 }
+          }
+        }
+      }
+    });
+  }
+
+  // Trigger chat animation when chat scrolls into view inside the modal
+  function checkChatVisible() {
+    const chatEl = document.getElementById('demo-chat');
+    const modal = document.querySelector('.hg-modal');
+    if (!chatEl || !modal) return;
+    const chatRect = chatEl.getBoundingClientRect();
+    const modalRect = modal.getBoundingClientRect();
+    if (chatRect.top < modalRect.bottom - 60) {
+      animateChat();
+      modal.removeEventListener('scroll', checkChatVisible);
+    }
+  }
+
+  document.querySelector('.hg-modal').addEventListener('scroll', checkChatVisible);
+
+  function switchDemoTab(tab) {
+    document.getElementById('demo-student').style.display = tab === 'student' ? 'block' : 'none';
+    document.getElementById('demo-employer').style.display = tab === 'employer' ? 'block' : 'none';
+    document.getElementById('demo-tab-student').classList.toggle('active', tab === 'student');
+    document.getElementById('demo-tab-employer').classList.toggle('active', tab === 'employer');
+  }
+
+  function openDemo() {
+    document.getElementById('demo-overlay').classList.add('open');
+  }
+
+  function closeDemo() {
+    document.getElementById('demo-overlay').classList.remove('open');
+    // Reset chat so it animates again next open
+    chatAnimated = false;
+    document.querySelectorAll('#demo-chat [data-chat]').forEach(m => {
+      m.classList.remove('hg-chat-visible', 'hg-chat-showing');
+      m.classList.add('hg-chat-hidden');
+    });
+    document.getElementById('chat-typing').style.display = 'none';
+    document.querySelector('.hg-modal').scrollTop = 0;
+    document.querySelector('.hg-modal').addEventListener('scroll', checkChatVisible);
+  }
+
+  function openTeacher(skill) {
+    document.getElementById('teacher-overlay').classList.add('open');
+  }
+
+  function closeTeacher() {
+    document.getElementById('teacher-overlay').classList.remove('open');
+  }
+
+  function sendMessage() {
+    const btn = document.getElementById('send-btn');
+    const input = document.getElementById('message-input');
+    const confirm = document.getElementById('send-confirm');
+    btn.disabled = true;
+    input.disabled = true;
+    confirm.style.display = 'block';
+  }
+
+  function switchMode(mode) {
+    const studentSection = document.getElementById('student-section');
+    const employerSection = document.getElementById('employer-section');
+    const studentFeatures = document.getElementById('student-features');
+    const employerFeatures = document.getElementById('employer-features');
+    const btnStudent = document.getElementById('btn-student');
+    const btnEmployer = document.getElementById('btn-employer');
+
+    if (mode === 'student') {
+      studentSection.style.display = 'block';
+      employerSection.style.display = 'none';
+      studentFeatures.style.display = 'block';
+      employerFeatures.style.display = 'none';
+      btnStudent.classList.add('active');
+      btnEmployer.classList.remove('active');
+    } else {
+      studentSection.style.display = 'none';
+      employerSection.style.display = 'block';
+      studentFeatures.style.display = 'none';
+      employerFeatures.style.display = 'block';
+      btnStudent.classList.remove('active');
+      btnEmployer.classList.add('active');
+    }
+  }
+</script>
+
+</body>
+</html>

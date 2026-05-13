@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown — Employer Onboarding</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+</head>
+<body>
+<div class="app-wrap">
+
+  <div class="app-header">
+    <div class="app-logo">home<span>grown</span>.ai</div>
+    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 2</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="app-progress">
+    <div class="app-progress-step">
+      <div class="app-progress-circle active" id="p1">1</div>
+      <div class="app-progress-line" id="l1"></div>
+    </div>
+    <div class="app-progress-step">
+      <div class="app-progress-circle" id="p2">2</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Company info -->
+  <div class="app-content" id="step-1">
+    <div class="app-step-title">Tell us about your company</div>
+    <div class="app-step-sub">We'll match you with qualified local graduates</div>
+    <input class="app-input" id="company-name" type="text" placeholder="Company name" />
+    <input class="app-input" id="company-email" type="email" placeholder="Your email" />
+    <select class="app-select" id="company-county">
+      <option value="" disabled selected>County…</option>
+      <option>Chenango</option>
+      <option>Delaware</option>
+      <option>Otsego</option>
+      <option>Madison</option>
+      <option>Other</option>
+    </select>
+    <select class="app-select" id="company-industry">
+      <option value="" disabled selected>Industry…</option>
+      <option>Manufacturing</option>
+      <option>Healthcare</option>
+      <option>Construction / Trades</option>
+      <option>Food Production</option>
+      <option>Government</option>
+      <option>Other</option>
+    </select>
+    <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;">Please fill in all fields.</div>
+    <button class="app-btn-primary" onclick="goStep2()">Continue</button>
+  </div>
+
+  <!-- Step 2: Add first job posting via chat -->
+  <div class="app-content" id="step-2" style="display:none;">
+    <div class="app-step-title">Add your first job posting</div>
+    <div class="app-step-sub">Describe the role naturally — we'll set it up for you.</div>
+
+    <div class="app-chat" id="chat-messages">
+      <div class="app-chat-msg agent">
+        <div class="app-chat-label">Homegrown Assistant</div>
+        <div class="app-chat-bubble">Hi! I'm your Homegrown hiring assistant. Tell me about a role you're looking to fill — just describe it naturally and I'll set it up for you.</div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <div class="app-chat-input-row">
+        <input class="app-chat-input" id="job-input" type="text" placeholder="e.g. We need a mechanical assembler, $24/hr, first shift, needs OSHA 10…" />
+        <button class="app-chat-send" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+
+    <div id="dashboard-btn" style="display:none;margin-top:16px;">
+      <button class="app-btn-primary" onclick="window.location.href='/employer/dashboard.html'">Go to your dashboard →</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  function goStep2() {
+    const name = document.getElementById('company-name').value.trim();
+    const email = document.getElementById('company-email').value.trim();
+    const county = document.getElementById('company-county').value;
+    const industry = document.getElementById('company-industry').value;
+    if (!name || !email || !county || !industry) {
+      document.getElementById('s1-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('s1-error').style.display = 'none';
+    showStep(2);
+  }
+
+  function showStep(n) {
+    document.getElementById('step-1').style.display = 'none';
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-' + n).style.display = 'block';
+    document.getElementById('step-num').textContent = n;
+    const p1 = document.getElementById('p1');
+    const p2 = document.getElementById('p2');
+    const l1 = document.getElementById('l1');
+    if (n === 2) {
+      p1.classList.remove('active');
+      p1.classList.add('done');
+      p1.textContent = '✓';
+      l1.classList.add('done');
+      p2.classList.add('active');
+      p2.textContent = '2';
+    }
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('job-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const chat = document.getElementById('chat-messages');
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'app-chat-msg user';
+    userMsg.innerHTML = `<div class="app-chat-bubble">${escapeHtml(text)}</div>`;
+    chat.appendChild(userMsg);
+    input.value = '';
+    input.disabled = true;
+    document.querySelector('.app-chat-send').disabled = true;
+
+    setTimeout(() => {
+      const agentMsg = document.createElement('div');
+      agentMsg.className = 'app-chat-msg agent';
+      agentMsg.innerHTML = `<div class="app-chat-label">Homegrown Assistant</div><div class="app-chat-bubble">Got it! I'll get that set up. In the full version, your posting will be live to local BOCES graduates immediately. For now, our team will review and confirm within 24 hours. Welcome to Homegrown 🌱</div>`;
+      chat.appendChild(agentMsg);
+      document.getElementById('dashboard-btn').style.display = 'block';
+      agentMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 1000);
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('job-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+</body>
+</html>

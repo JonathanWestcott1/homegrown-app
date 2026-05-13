@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown — Employer Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    .hg-typing-bubble {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px !important;
+    }
+    .hg-typing-bubble span {
+      width: 7px;
+      height: 7px;
+      background: #999;
+      border-radius: 50%;
+      animation: typingDot 1.2s infinite ease-in-out;
+    }
+    .hg-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .hg-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingDot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+    .chat-hidden { display: none; }
+    .chat-showing {
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .chat-visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <div class="app-header">
+    <div class="app-logo">home<span>grown</span>.ai</div>
+    <div class="app-profile">RC</div>
+  </div>
+
+  <!-- My Jobs -->
+  <div class="app-section">
+    <div class="app-section-title">My Jobs</div>
+    <div class="app-section-sub">2 active postings</div>
+    <div class="app-posting-card">
+      <div class="app-posting-header">
+        <div class="app-posting-role">Mechanical Assembler</div>
+        <span class="app-posting-status">Open</span>
+      </div>
+      <div class="app-posting-pay">$22–$26/hr · First shift</div>
+      <div class="app-posting-stats">👁 34 students viewed · ✓ 8 qualified · ◎ 6 close</div>
+    </div>
+    <div class="app-posting-card">
+      <div class="app-posting-header">
+        <div class="app-posting-role">Maintenance Technician</div>
+        <span class="app-posting-status">Open</span>
+      </div>
+      <div class="app-posting-pay">$24–$28/hr · Rotating shifts</div>
+      <div class="app-posting-stats">👁 19 students viewed · ✓ 3 qualified · ◎ 4 close</div>
+    </div>
+  </div>
+
+  <!-- Local Talent Pipeline -->
+  <div class="app-section">
+    <div class="app-section-title">Local Talent Pipeline</div>
+    <div class="app-section-sub">Chenango County · Class of 2026</div>
+    <div class="app-pipeline-box">
+      <div class="app-pipeline-intro">🎓 23 students graduating this June from relevant BOCES programs</div>
+      <div class="app-pipeline-row">
+        <div>
+          <div class="app-pipeline-row-name">Electrical Program</div>
+          <div class="app-pipeline-row-count">8 students</div>
+        </div>
+        <div class="app-pipeline-row-cert">6 OSHA certified</div>
+      </div>
+      <div class="app-pipeline-row">
+        <div>
+          <div class="app-pipeline-row-name">Mechanical/Manufacturing</div>
+          <div class="app-pipeline-row-count">9 students</div>
+        </div>
+        <div class="app-pipeline-row-cert">4 blueprint certified</div>
+      </div>
+      <div class="app-pipeline-row">
+        <div>
+          <div class="app-pipeline-row-name">Carpentry &amp; Construction</div>
+          <div class="app-pipeline-row-count">6 students</div>
+        </div>
+        <div class="app-pipeline-row-cert">All have hand tool safety</div>
+      </div>
+    </div>
+    <button class="app-pipeline-btn" onclick="alert('Message cohort — coming in the full version.')">Message this cohort →</button>
+  </div>
+
+  <!-- Chat -->
+  <div class="app-section">
+    <div class="app-section-title">Update Your Postings</div>
+    <div class="app-section-sub">Just tell us what you need</div>
+    <div class="app-chat" id="dash-chat">
+      <div class="app-chat-msg user chat-hidden" data-chat="employer">
+        <div class="app-chat-bubble">Update the pay on the mechanical assembler role to $26/hr</div>
+      </div>
+      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
+        <div class="app-chat-label">🌱 Homegrown</div>
+        <div class="app-chat-bubble">Done! Mechanical Assembler is now showing $26/hr. 3 more students just became eligible based on the new rate.</div>
+      </div>
+      <div class="app-chat-msg user chat-hidden" data-chat="employer">
+        <div class="app-chat-bubble">Which students are closest to qualifying for my electrician role?</div>
+      </div>
+      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
+        <div class="app-chat-label">🌱 Homegrown</div>
+        <div class="app-chat-bubble">6 students are 1 certification away from qualifying for your Maintenance Technician role. The most common missing cert is Hydraulic Systems. Want me to notify them about the opening?</div>
+      </div>
+      <div class="app-chat-msg user chat-hidden" data-chat="employer">
+        <div class="app-chat-bubble">Yes, send them a message</div>
+      </div>
+      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
+        <div class="app-chat-label">🌱 Homegrown</div>
+        <div class="app-chat-bubble">Done! 6 students have been notified. You'll see replies here when they respond.</div>
+      </div>
+      <div class="app-chat-msg user chat-hidden" data-chat="employer">
+        <div class="app-chat-bubble">Show me hiring trends for mechanical assemblers in the last 6 months</div>
+      </div>
+      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
+        <div class="app-chat-label">🌱 Homegrown</div>
+        <div class="app-chat-bubble" style="max-width:90%;">
+          <div style="margin-bottom:10px;line-height:1.5;">Demand for mechanical assemblers in Chenango County is up 34% since January. Local candidate supply has stayed flat. 8 students in relevant BOCES programs graduate in June — your earliest opportunity to close this gap.</div>
+          <div style="position:relative;width:100%;max-width:280px;height:160px;">
+            <canvas id="trend-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="app-chat-msg agent" id="chat-typing" style="display:none;">
+        <div class="app-chat-label">🌱 Homegrown</div>
+        <div class="app-chat-bubble hg-typing-bubble"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="app-chat-input-row">
+      <input class="app-chat-input" type="text" placeholder="Message Homegrown..." />
+      <button class="app-chat-send">↑</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  function playSound(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      if (type === 'send') {
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.start(); osc.stop(ctx.currentTime + 0.15);
+      } else {
+        osc.frequency.setValueAtTime(620, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(820, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        osc.start(); osc.stop(ctx.currentTime + 0.2);
+      }
+    } catch(e) {}
+  }
+
+  function renderTrendChart() {
+    const canvas = document.getElementById('trend-chart');
+    if (!canvas || canvas._rendered) return;
+    canvas._rendered = true;
+    new Chart(canvas, {
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Open Roles',
+            data: [4, 5, 6, 7, 8, 11],
+            backgroundColor: '#3B6D11',
+            borderRadius: 4,
+            order: 2
+          },
+          {
+            type: 'line',
+            label: 'Local Candidates',
+            data: [5, 5, 4, 5, 5, 5],
+            borderColor: '#999',
+            borderDash: [4, 4],
+            borderWidth: 2,
+            pointRadius: 2,
+            backgroundColor: 'transparent',
+            tension: 0.3,
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } },
+          title: {
+            display: true,
+            text: 'Mechanical Assembler Demand vs. Supply · Chenango County',
+            font: { size: 10 },
+            color: '#666',
+            padding: { bottom: 8 }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { min: 0, max: 12, grid: { display: false }, ticks: { font: { size: 10 }, stepSize: 4, precision: 0 } }
+        }
+      }
+    });
+  }
+
+  let chatAnimated = false;
+  function animateChat() {
+    if (chatAnimated) return;
+    chatAnimated = true;
+    const messages = document.querySelectorAll('#dash-chat .chat-hidden');
+    const typing = document.getElementById('chat-typing');
+    const page = document.documentElement;
+    let delay = 0;
+    messages.forEach((msg) => {
+      const isAgent = msg.dataset.chat === 'agent';
+      if (isAgent) {
+        setTimeout(() => {
+          typing.style.display = 'flex';
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }, delay);
+        delay += 2800;
+        setTimeout(() => {
+          typing.style.display = 'none';
+          msg.classList.remove('chat-hidden');
+          msg.classList.add('chat-showing');
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            msg.classList.remove('chat-showing');
+            msg.classList.add('chat-visible');
+            if (msg.querySelector('#trend-chart')) renderTrendChart();
+          }));
+          playSound('receive');
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }, delay);
+      } else {
+        setTimeout(() => {
+          msg.classList.remove('chat-hidden');
+          msg.classList.add('chat-showing');
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            msg.classList.remove('chat-showing');
+            msg.classList.add('chat-visible');
+          }));
+          playSound('send');
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }, delay);
+      }
+      delay += isAgent ? 2200 : 1200;
+    });
+  }
+
+  function checkChatVisible() {
+    const chatEl = document.getElementById('dash-chat');
+    if (!chatEl) return;
+    const rect = chatEl.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 60) {
+      animateChat();
+      window.removeEventListener('scroll', checkChatVisible);
+    }
+  }
+
+  window.addEventListener('scroll', checkChatVisible);
+  checkChatVisible();
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homegrown — Student Onboarding</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+</head>
+<body>
+<div class="app-wrap">
+
+  <div class="app-header">
+    <div class="app-logo">home<span>grown</span>.ai</div>
+    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 3</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="app-progress">
+    <div class="app-progress-step">
+      <div class="app-progress-circle active" id="p1">1</div>
+      <div class="app-progress-line" id="l1"></div>
+    </div>
+    <div class="app-progress-step">
+      <div class="app-progress-circle" id="p2">2</div>
+      <div class="app-progress-line" id="l2"></div>
+    </div>
+    <div class="app-progress-step">
+      <div class="app-progress-circle" id="p3">3</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Program -->
+  <div class="app-content" id="step-1">
+    <div class="app-step-title">What program are you in?</div>
+    <div class="app-step-sub">Select your DCMO BOCES program</div>
+    <select class="app-select" id="program-select">
+      <option value="" disabled selected>Choose your program…</option>
+      <option>Automotive Collision &amp; Refinishing</option>
+      <option>Automotive Technology</option>
+      <option>Carpentry &amp; Building Construction</option>
+      <option>Computer Technology &amp; Networking</option>
+      <option>Conservation &amp; Heavy Equipment</option>
+      <option>Cosmetology</option>
+      <option>Culinary Arts</option>
+      <option>Electrical / IBEW Prep</option>
+      <option>Nurse Assisting (CNA)</option>
+      <option>Security &amp; Law Enforcement</option>
+      <option>Visual Communications</option>
+      <option>Welding Technology</option>
+    </select>
+    <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;">Please select a program.</div>
+    <button class="app-btn-primary" onclick="goStep2()">Continue</button>
+  </div>
+
+  <!-- Step 2: Graduation year -->
+  <div class="app-content" id="step-2" style="display:none;">
+    <div class="app-step-title">When do you graduate?</div>
+    <div class="app-step-sub">Tap your expected graduation year</div>
+    <div class="app-year-grid">
+      <div class="app-year-card" onclick="selectYear(this, '2025')">2025</div>
+      <div class="app-year-card" onclick="selectYear(this, '2026')">2026</div>
+      <div class="app-year-card" onclick="selectYear(this, '2027')">2027</div>
+      <div class="app-year-card" onclick="selectYear(this, '2028')">2028</div>
+    </div>
+    <div id="s2-error" style="display:none;color:#c0392b;font-size:13px;margin:8px 0;">Please select a year.</div>
+    <button class="app-btn-primary" onclick="goStep3()">Continue</button>
+  </div>
+
+  <!-- Step 3: Certifications -->
+  <div class="app-content" id="step-3" style="display:none;">
+    <div class="app-step-title">What certifications do you have?</div>
+    <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
+    <div class="app-checklist">
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">OSHA 10 Certification</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Blueprint Reading</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Hand Tool Safety</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">IBEW Apprenticeship Application</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Hydraulic Systems Certification</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">ServSafe Certification</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">NYS CNA License</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Adobe Certified Professional</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">CDL License</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Security Guard Certification</div>
+      </div>
+      <div class="app-check-row" onclick="toggleCert(this)">
+        <div class="app-check-box">✓</div>
+        <div class="app-check-label">Forklift Operator Certification</div>
+      </div>
+    </div>
+    <button class="app-btn-primary" onclick="finish()">See my jobs →</button>
+  </div>
+
+</div>
+<script>
+  let selectedYear = '';
+
+  function goStep2() {
+    const prog = document.getElementById('program-select').value;
+    if (!prog) { document.getElementById('s1-error').style.display = 'block'; return; }
+    document.getElementById('s1-error').style.display = 'none';
+    showStep(2);
+  }
+
+  function goStep3() {
+    if (!selectedYear) { document.getElementById('s2-error').style.display = 'block'; return; }
+    document.getElementById('s2-error').style.display = 'none';
+    showStep(3);
+  }
+
+  function finish() {
+    window.location.href = '/student/dashboard.html';
+  }
+
+  function showStep(n) {
+    document.getElementById('step-1').style.display = 'none';
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-3').style.display = 'none';
+    document.getElementById('step-' + n).style.display = 'block';
+    document.getElementById('step-num').textContent = n;
+    // Update progress circles
+    for (let i = 1; i <= 3; i++) {
+      const c = document.getElementById('p' + i);
+      c.classList.remove('active', 'done');
+      if (i < n) { c.classList.add('done'); c.textContent = '✓'; }
+      else if (i === n) { c.classList.add('active'); c.textContent = i; }
+      else { c.textContent = i; }
+      if (i < 3) {
+        document.getElementById('l' + i).classList.toggle('done', i < n);
+      }
+    }
+  }
+
+  function selectYear(el, year) {
+    document.querySelectorAll('.app-year-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedYear = year;
+  }
+
+  function toggleCert(el) {
+    el.classList.toggle('selected');
+  }
+</script>
+</body>
+</html>

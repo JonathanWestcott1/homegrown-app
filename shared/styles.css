@@ -1,0 +1,300 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+.app-wrap {
+  max-width: 390px;
+  margin: 0 auto;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 0.5px solid #e5e5e5;
+}
+
+.app-logo {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+.app-logo span { color: #3B6D11; }
+
+.app-profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #EAF3DE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #3B6D11;
+  font-weight: 500;
+}
+
+/* Progress indicator */
+.app-progress {
+  display: flex;
+  align-items: center;
+  padding: 20px 20px 0;
+  gap: 0;
+}
+
+.app-progress-step { display: flex; align-items: center; flex: 1; }
+
+.app-progress-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.app-progress-circle.done { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+.app-progress-circle.active { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+
+.app-progress-line { flex: 1; height: 2px; background: #ddd; }
+.app-progress-line.done { background: #3B6D11; }
+
+/* Content */
+.app-content { padding: 24px 20px; }
+
+.app-step-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.app-step-sub {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Form elements */
+.app-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 0.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.app-input:focus { border-color: #3B6D11; }
+
+.app-select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 0.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: inherit;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  margin-bottom: 10px;
+}
+
+.app-select:focus { border-color: #3B6D11; }
+
+/* Buttons */
+.app-btn-primary {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  background: #3B6D11;
+  color: #EAF3DE;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.2px;
+  margin-top: 8px;
+}
+
+.app-btn-primary:hover { background: #2f5a0e; }
+
+.app-btn-secondary {
+  width: 100%;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: #1a1a1a;
+  border: 0.5px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+}
+
+.app-btn-gray {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  background: #ccc;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: not-allowed;
+  font-family: inherit;
+}
+
+/* Year cards */
+.app-year-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.app-year-card {
+  padding: 20px;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #1a1a1a;
+  transition: all 0.15s;
+}
+
+.app-year-card.selected {
+  border-color: #3B6D11;
+  background: #EAF3DE;
+  color: #3B6D11;
+}
+
+/* Checklist */
+.app-checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+
+.app-check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 0.5px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.app-check-row.selected {
+  border-color: #3B6D11;
+  background: #EAF3DE;
+}
+
+.app-check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #3B6D11;
+}
+
+.app-check-row.selected .app-check-box {
+  background: #3B6D11;
+  border-color: #3B6D11;
+  color: #fff;
+}
+
+.app-check-label { font-size: 14px; color: #1a1a1a; }
+
+/* Job cards */
+.app-job-card {
+  border: 0.5px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.app-job-company { font-size: 12px; color: #666; margin-bottom: 4px; }
+.app-job-role { font-size: 18px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.4px; margin-bottom: 4px; }
+.app-job-location { font-size: 13px; color: #666; margin-bottom: 4px; }
+.app-job-pay { font-size: 15px; font-weight: 500; color: #3B6D11; margin-bottom: 10px; }
+
+.app-fit-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.app-fit-pill { font-size: 11px; background: #f5f5f5; color: #1a1a1a; padding: 4px 8px; border-radius: 20px; }
+
+.app-cert-row { margin-bottom: 12px; }
+.app-cert-label { font-size: 10px; font-weight: 500; color: #bbb; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+.app-cert-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.app-cert-pill { font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; }
+.app-cert-green { background: #EAF3DE; color: #3B6D11; }
+.app-cert-gray { background: #f0f0f0; color: #999; }
+
+/* Chat UI (employer onboarding) */
+.app-chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.app-chat-msg { display: flex; flex-direction: column; max-width: 82%; }
+.app-chat-msg.agent { align-self: flex-start; }
+.app-chat-msg.user { align-self: flex-end; align-items: flex-end; }
+.app-chat-label { font-size: 10px; color: #999; margin-bottom: 3px; }
+.app-chat-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+.app-chat-msg.agent .app-chat-bubble { background: #f5f5f5; color: #1a1a1a; border-bottom-left-radius: 4px; }
+.app-chat-msg.user .app-chat-bubble { background: #3B6D11; color: #fff; border-bottom-right-radius: 4px; }
+
+.app-chat-input-row { display: flex; gap: 8px; align-items: center; }
+.app-chat-input { flex: 1; padding: 10px 14px; font-size: 14px; border: 0.5px solid #ddd; border-radius: 20px; font-family: inherit; outline: none; color: #1a1a1a; }
+.app-chat-input:focus { border-color: #3B6D11; }
+.app-chat-send { width: 36px; height: 36px; border-radius: 50%; background: #3B6D11; border: none; cursor: pointer; color: #fff; font-size: 16px; flex-shrink: 0; }
+
+/* Section divider */
+.app-section { padding: 20px; border-top: 0.5px solid #e5e5e5; }
+.app-section-title { font-size: 16px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.3px; margin-bottom: 2px; }
+.app-section-sub { font-size: 12px; color: #999; margin-bottom: 14px; }
+
+/* Posting card (employer dashboard) */
+.app-posting-card { border: 0.5px solid #e5e5e5; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.app-posting-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.app-posting-role { font-size: 16px; font-weight: 500; color: #1a1a1a; }
+.app-posting-status { font-size: 11px; font-weight: 500; color: #3B6D11; background: #EAF3DE; padding: 3px 8px; border-radius: 20px; }
+.app-posting-pay { font-size: 13px; color: #666; margin-bottom: 8px; }
+.app-posting-stats { font-size: 12px; color: #999; }
+
+/* Pipeline */
+.app-pipeline-box { background: #f5f5f5; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+.app-pipeline-intro { font-size: 13px; color: #1a1a1a; margin-bottom: 12px; }
+.app-pipeline-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 0.5px solid #e5e5e5; font-size: 13px; }
+.app-pipeline-row-name { color: #1a1a1a; font-size: 13px; }
+.app-pipeline-row-count { color: #999; font-size: 12px; }
+.app-pipeline-row-cert { color: #3B6D11; font-size: 12px; font-weight: 500; }
+.app-pipeline-btn { width: 100%; padding: 12px; font-size: 14px; font-weight: 500; background: transparent; color: #3B6D11; border: 1.5px solid #3B6D11; border-radius: 8px; cursor: pointer; font-family: inherit; margin-top: 4px; }
