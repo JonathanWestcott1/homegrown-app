@@ -7,35 +7,224 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    .path-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .path-card {
+      background: #ffffff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .path-card.selected {
+      border: 2px solid #3B6D11;
+      background: #EAF3DE;
+    }
+    .path-card-emoji { font-size: 32px; margin-bottom: 8px; line-height: 1; }
+    .path-card-label { font-size: 14px; font-weight: 600; color: #1C1C1A; margin-bottom: 4px; }
+    .path-card-desc { font-size: 12px; color: #888780; line-height: 1.4; }
+
+    .industry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .industry-card {
+      background: #ffffff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .industry-card.selected {
+      border: 2px solid #3B6D11;
+      background: #EAF3DE;
+    }
+    .industry-card-emoji { font-size: 24px; margin-bottom: 6px; line-height: 1; }
+    .industry-card-label { font-size: 13px; font-weight: 600; color: #1C1C1A; }
+
+    .year-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .year-card {
+      background: #ffffff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+      color: #1C1C1A;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .year-card.selected {
+      border: 2px solid #3B6D11;
+      background: #EAF3DE;
+      color: #3B6D11;
+    }
+
+    .cert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    .cert-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cert-row.selected { background: #EAF3DE; border-color: #C0DD97; }
+    .cert-box {
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: transparent;
+      background: #fff;
+      transition: all 0.15s;
+    }
+    .cert-row.selected .cert-box { background: #3B6D11; border-color: #3B6D11; color: #fff; }
+    .cert-label { font-size: 14px; color: #1C1C1A; }
+
+    .btn-disabled {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      background: #f0f0f0;
+      color: #B4B2A9;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      margin-top: 8px;
+      cursor: default;
+      pointer-events: none;
+    }
+    .btn-enabled {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      background: #3B6D11;
+      color: #EAF3DE;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .btn-enabled:hover { background: #2f5a0e; }
+
+    .back-link {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      color: #666660;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .cert-note { font-size: 12px; color: #B4B2A9; margin-top: 8px; margin-bottom: 16px; line-height: 1.5; }
+  </style>
 </head>
 <body>
 <div class="app-wrap">
 
   <div class="app-header">
-    <div style="display:flex;align-items:center;gap:7px;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/><path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/><path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/></svg><span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span></div>
-    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 3</div>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
+    <div id="step-counter" style="font-size:12px;color:#999;display:none;">Step <span id="step-num">2</span> of 4</div>
   </div>
 
-  <!-- Progress bar -->
-  <div class="app-progress">
+  <!-- Progress bar (hidden on step 1) -->
+  <div class="app-progress" id="progress-bar" style="display:none;">
     <div class="app-progress-step">
-      <div class="app-progress-circle active" id="p1">1</div>
-      <div class="app-progress-line" id="l1"></div>
+      <div class="app-progress-circle" id="pb1">1</div>
+      <div class="app-progress-line" id="pl1"></div>
     </div>
     <div class="app-progress-step">
-      <div class="app-progress-circle" id="p2">2</div>
-      <div class="app-progress-line" id="l2"></div>
+      <div class="app-progress-circle" id="pb2">2</div>
+      <div class="app-progress-line" id="pl2"></div>
     </div>
     <div class="app-progress-step">
-      <div class="app-progress-circle" id="p3">3</div>
+      <div class="app-progress-circle" id="pb3">3</div>
+      <div class="app-progress-line" id="pl3"></div>
+    </div>
+    <div class="app-progress-step">
+      <div class="app-progress-circle" id="pb4">4</div>
     </div>
   </div>
 
-  <!-- Step 1: Program -->
+  <!-- ── STEP 1: Who are you? ── -->
   <div class="app-content" id="step-1">
+    <div class="app-step-title">How did you learn your skills?</div>
+    <div class="app-step-sub">We'll personalize your job feed based on your background.</div>
+    <div class="path-grid">
+      <div class="path-card" id="pc-boces" onclick="selectPath(this, 'boces')">
+        <div class="path-card-emoji">🎓</div>
+        <div class="path-card-label">BOCES Program</div>
+        <div class="path-card-desc">Career &amp; technical education</div>
+      </div>
+      <div class="path-card" id="pc-college" onclick="selectPath(this, 'general')">
+        <div class="path-card-emoji">🏫</div>
+        <div class="path-card-label">Community College</div>
+        <div class="path-card-desc">Two-year or technical college</div>
+      </div>
+      <div class="path-card" id="pc-job" onclick="selectPath(this, 'general')">
+        <div class="path-card-emoji">💼</div>
+        <div class="path-card-label">On the Job</div>
+        <div class="path-card-desc">Learned through work experience</div>
+      </div>
+      <div class="path-card" id="pc-mil" onclick="selectPath(this, 'general')">
+        <div class="path-card-emoji">🎖️</div>
+        <div class="path-card-label">Military / Veteran</div>
+        <div class="path-card-desc">Served in the armed forces</div>
+      </div>
+    </div>
+    <button class="btn-disabled" id="s1-btn">Continue</button>
+  </div>
+
+  <!-- ── BOCES STEP 2: Program ── -->
+  <div class="app-content" id="boces-2" style="display:none;">
     <div class="app-step-title">What program are you in?</div>
     <div class="app-step-sub">Select your DCMO BOCES program</div>
-    <select class="app-select" id="program-select">
+    <select class="app-select" id="boces-program" onchange="checkB2()">
       <option value="" disabled selected>Choose your program…</option>
       <option>Automotive Collision &amp; Refinishing</option>
       <option>Automotive Technology</option>
@@ -49,80 +238,133 @@
       <option>Security &amp; Law Enforcement</option>
       <option>Visual Communications</option>
       <option>Welding Technology</option>
+      <option>Other</option>
     </select>
-    <div id="s1-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;">Please select a program.</div>
-    <button class="app-btn-primary" onclick="goStep2()">Continue</button>
+    <button class="btn-disabled" id="b2-btn" onclick="showStep('boces-3', 3)">Continue</button>
+    <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
   </div>
 
-  <!-- Step 2: Graduation year -->
-  <div class="app-content" id="step-2" style="display:none;">
+  <!-- ── BOCES STEP 3: Graduation year ── -->
+  <div class="app-content" id="boces-3" style="display:none;">
     <div class="app-step-title">When do you graduate?</div>
     <div class="app-step-sub">Tap your expected graduation year</div>
-    <div class="app-year-grid">
-      <div class="app-year-card" onclick="selectYear(this, '2025')">2025</div>
-      <div class="app-year-card" onclick="selectYear(this, '2026')">2026</div>
-      <div class="app-year-card" onclick="selectYear(this, '2027')">2027</div>
-      <div class="app-year-card" onclick="selectYear(this, '2028')">2028</div>
+    <div class="year-grid">
+      <div class="year-card" onclick="selectYear(this, 'boces', '2025')">2025</div>
+      <div class="year-card" onclick="selectYear(this, 'boces', '2026')">2026</div>
+      <div class="year-card" onclick="selectYear(this, 'boces', '2027')">2027</div>
+      <div class="year-card" onclick="selectYear(this, 'boces', '2028')">2028</div>
     </div>
-    <div id="s2-error" style="display:none;color:#c0392b;font-size:13px;margin:8px 0;">Please select a year.</div>
-    <button class="app-btn-primary" onclick="goStep3()">Continue</button>
-    <button type="button" onclick="showStep(1)" style="width:100%;padding:13px;font-size:14px;font-weight:500;background:transparent;color:#666660;border:none;cursor:pointer;font-family:inherit;margin-top:4px;">← Back</button>
+    <button class="btn-disabled" id="b3-btn" onclick="showStep('boces-4', 4)">Continue</button>
+    <button class="back-link" onclick="showStep('boces-2', 2)">← Back</button>
   </div>
 
-  <!-- Step 3: Certifications + Account -->
-  <div class="app-content" id="step-3" style="display:none;">
+  <!-- ── BOCES STEP 4: Certifications ── -->
+  <div class="app-content" id="boces-4" style="display:none;">
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — we'll match you to jobs you're already qualified for.</div>
-    <div class="app-checklist">
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">OSHA 10 Certification</div>
+    <div class="cert-list" id="boces-cert-list">
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">OSHA 10 Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Blueprint Reading</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hand Tool Safety</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">IBEW Apprenticeship Application</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hydraulic Systems Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Adobe Certified Professional</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS Cosmetology License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
+    </div>
+    <div class="cert-note">Don't worry if you don't have any yet — we'll show you how to get them.</div>
+    <button class="btn-enabled" onclick="finishBoces()">See my jobs →</button>
+    <button class="back-link" onclick="showStep('boces-3', 3)">← Back</button>
+  </div>
+
+  <!-- ── GENERAL STEP 2: County ── -->
+  <div class="app-content" id="gen-2" style="display:none;">
+    <div class="app-step-title">Where are you located?</div>
+    <div class="app-step-sub">We'll show you jobs close to home.</div>
+    <select class="app-select" id="gen-county" onchange="checkG2()">
+      <option value="" disabled selected>Select your county…</option>
+      <option>Chenango County</option>
+      <option>Delaware County</option>
+      <option>Madison County</option>
+      <option>Otsego County</option>
+      <option>Broome County</option>
+      <option>Cortland County</option>
+      <option>Other upstate NY county</option>
+      <option>Outside New York</option>
+    </select>
+    <button class="btn-disabled" id="g2-btn" onclick="showStep('gen-3', 3)">Continue</button>
+    <button class="back-link" onclick="showStep('step-1', null)">← Back</button>
+  </div>
+
+  <!-- ── GENERAL STEP 3: Industries ── -->
+  <div class="app-content" id="gen-3" style="display:none;">
+    <div class="app-step-title">What kind of work are you looking for?</div>
+    <div class="app-step-sub">Tap all that interest you.</div>
+    <div class="industry-grid">
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🔧</div>
+        <div class="industry-card-label">Manufacturing</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Blueprint Reading</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🏥</div>
+        <div class="industry-card-label">Healthcare</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Hand Tool Safety</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🏗️</div>
+        <div class="industry-card-label">Construction &amp; Trades</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">IBEW Apprenticeship Application</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🍕</div>
+        <div class="industry-card-label">Food Production</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Hydraulic Systems Certification</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🌲</div>
+        <div class="industry-card-label">Agriculture &amp; Conservation</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">ServSafe Certification</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🏛️</div>
+        <div class="industry-card-label">Government &amp; Public Works</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">NYS CNA License</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">🚛</div>
+        <div class="industry-card-label">Transportation &amp; Logistics</div>
       </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Adobe Certified Professional</div>
-      </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">CDL License</div>
-      </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Security Guard Certification</div>
-      </div>
-      <div class="app-check-row" onclick="toggleCert(this)">
-        <div class="app-check-box">✓</div>
-        <div class="app-check-label">Forklift Operator Certification</div>
+      <div class="industry-card" onclick="toggleIndustry(this)">
+        <div class="industry-card-emoji">💻</div>
+        <div class="industry-card-label">Technology</div>
       </div>
     </div>
+    <button class="btn-disabled" id="g3-btn" onclick="showStep('gen-4', 4)">Continue</button>
+    <button class="back-link" onclick="showStep('gen-2', 2)">← Back</button>
+  </div>
 
-    <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-top:12px;margin-bottom:8px;"></div>
-    <button class="app-btn-primary" id="finish-btn" onclick="finish()">See my jobs →</button>
-    <button type="button" onclick="showStep(2)" style="width:100%;padding:13px;font-size:14px;font-weight:500;background:transparent;color:#666660;border:none;cursor:pointer;font-family:inherit;margin-top:4px;">← Back</button>
+  <!-- ── GENERAL STEP 4: Skills ── -->
+  <div class="app-content" id="gen-4" style="display:none;">
+    <div class="app-step-title">What skills do you have?</div>
+    <div class="app-step-sub">Select all that apply — even if you learned them on the job.</div>
+    <div class="cert-list" id="gen-cert-list">
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">OSHA 10 Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Blueprint Reading</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hand Tool Safety</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">IBEW Apprenticeship Application</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hydraulic Systems Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Adobe Certified Professional</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS Cosmetology License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
+    </div>
+    <div class="cert-note">Learned a skill on the job but don't have a cert? Select it anyway — employers care about what you can do.</div>
+    <button class="btn-enabled" onclick="finishGeneral()">See my jobs →</button>
+    <button class="back-link" onclick="showStep('gen-3', 3)">← Back</button>
   </div>
 
 </div>
@@ -132,116 +374,164 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
-  const EYE = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-  const EYE_OFF = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-  function togglePw(id, btn) {
-    const inp = document.getElementById(id);
-    const show = inp.type === 'password';
-    inp.type = show ? 'text' : 'password';
-    btn.innerHTML = show ? EYE_OFF : EYE;
-    btn.style.color = show ? '#3B6D11' : '#bbb';
-  }
-
-  function checkPw(inputId, rulesId) {
-    const val = document.getElementById(inputId).value;
-    const rules = document.getElementById(rulesId);
-    rules.classList.toggle('visible', val.length > 0);
-    const checks = {
-      len:     val.length >= 8,
-      upper:   /[A-Z]/.test(val),
-      lower:   /[a-z]/.test(val),
-      num:     /[0-9]/.test(val),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
-    };
-    const prefix = rulesId === 'pw-rules-s' ? 'pr-s' : 'pr-e';
-    Object.entries(checks).forEach(([key, met]) => {
-      const el = document.getElementById(prefix + '-' + key);
-      if (!el) return;
-      el.classList.toggle('met', met);
-      el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
-    });
-    return Object.values(checks).every(Boolean);
-  }
-
-  function pwStrong(inputId, rulesId) {
-    document.getElementById(inputId).dispatchEvent(new Event('input'));
-    const val = document.getElementById(inputId).value;
-    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
-  }
-
-  let selectedYear = '';
-
-  function goStep2() {
-    const prog = document.getElementById('program-select').value;
-    if (!prog) { document.getElementById('s1-error').style.display = 'block'; return; }
-    document.getElementById('s1-error').style.display = 'none';
-    showStep(2);
-  }
-
-  function goStep3() {
-    if (!selectedYear) { document.getElementById('s2-error').style.display = 'block'; return; }
-    document.getElementById('s2-error').style.display = 'none';
-    showStep(3);
-  }
-
-  async function finish() {
-    const errEl = document.getElementById('s3-error');
-    const btn = document.getElementById('finish-btn');
-
+  (async () => {
     const { data: { session } } = await _sb.auth.getSession();
-    if (!session) { window.location.href = '/'; return; }
+    if (!session) { window.location.href = '/'; }
+  })();
 
-    const program = document.getElementById('program-select').value;
-    const certifications = Array.from(document.querySelectorAll('.app-check-row.selected'))
-      .map(row => row.querySelector('.app-check-label').textContent);
+  let chosenPath = null;
+  let bocesYear = null;
 
-    btn.textContent = 'Setting up your profile…';
-    btn.disabled = true;
+  const ALL_STEPS = ['step-1','boces-2','boces-3','boces-4','gen-2','gen-3','gen-4'];
 
-    const { error } = await _sb.from('students').upsert([{
-      id: session.user.id,
-      program,
-      graduation_year: selectedYear,
-      certifications
-    }]);
+  function showStep(id, progressStep) {
+    ALL_STEPS.forEach(s => {
+      document.getElementById(s).style.display = 'none';
+    });
+    document.getElementById(id).style.display = 'block';
 
-    if (error) {
-      errEl.textContent = error.message;
-      errEl.style.display = 'block';
-      btn.textContent = 'See my jobs →';
-      btn.disabled = false;
-      return;
+    const counter = document.getElementById('step-counter');
+    const bar = document.getElementById('progress-bar');
+
+    if (progressStep === null) {
+      counter.style.display = 'none';
+      bar.style.display = 'none';
+    } else {
+      counter.style.display = 'block';
+      document.getElementById('step-num').textContent = progressStep;
+      bar.style.display = 'flex';
+      updateProgress(progressStep);
     }
 
-    window.location.href = '/student/dashboard.html';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function showStep(n) {
-    document.getElementById('step-1').style.display = 'none';
-    document.getElementById('step-2').style.display = 'none';
-    document.getElementById('step-3').style.display = 'none';
-    document.getElementById('step-' + n).style.display = 'block';
-    document.getElementById('step-num').textContent = n;
-    for (let i = 1; i <= 3; i++) {
-      const c = document.getElementById('p' + i);
-      c.classList.remove('active', 'done');
-      if (i < n) { c.classList.add('done'); c.textContent = '✓'; }
-      else if (i === n) { c.classList.add('active'); c.textContent = i; }
-      else { c.textContent = i; }
-      if (i < 3) {
-        document.getElementById('l' + i).classList.toggle('done', i < n);
+  function updateProgress(active) {
+    for (let i = 1; i <= 4; i++) {
+      const circle = document.getElementById('pb' + i);
+      circle.classList.remove('active', 'done');
+      if (i < active) {
+        circle.classList.add('done');
+        circle.textContent = '✓';
+      } else if (i === active) {
+        circle.classList.add('active');
+        circle.textContent = i;
+      } else {
+        circle.textContent = i;
+      }
+      if (i < 4) {
+        document.getElementById('pl' + i).classList.toggle('done', i < active);
       }
     }
   }
 
-  function selectYear(el, year) {
-    document.querySelectorAll('.app-year-card').forEach(c => c.classList.remove('selected'));
+  function selectPath(el, path) {
+    document.querySelectorAll('.path-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    selectedYear = year;
+    chosenPath = path;
+    const btn = document.getElementById('s1-btn');
+    btn.className = 'btn-enabled';
+    btn.onclick = goStep2;
+  }
+
+  function goStep2() {
+    if (!chosenPath) return;
+    if (chosenPath === 'boces') {
+      showStep('boces-2', 2);
+    } else {
+      showStep('gen-2', 2);
+    }
+  }
+
+  function checkB2() {
+    const val = document.getElementById('boces-program').value;
+    const btn = document.getElementById('b2-btn');
+    if (val) {
+      btn.className = 'btn-enabled';
+      btn.onclick = () => showStep('boces-3', 3);
+    } else {
+      btn.className = 'btn-disabled';
+      btn.onclick = null;
+    }
+  }
+
+  function selectYear(el, flow, year) {
+    const grid = el.parentElement;
+    grid.querySelectorAll('.year-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    bocesYear = year;
+    const btnId = flow === 'boces' ? 'b3-btn' : null;
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      btn.className = 'btn-enabled';
+      btn.onclick = () => showStep('boces-4', 4);
+    }
   }
 
   function toggleCert(el) {
     el.classList.toggle('selected');
+  }
+
+  function toggleIndustry(el) {
+    el.classList.toggle('selected');
+    const anySelected = document.querySelectorAll('#gen-3 .industry-card.selected').length > 0;
+    const btn = document.getElementById('g3-btn');
+    if (anySelected) {
+      btn.className = 'btn-enabled';
+      btn.onclick = () => showStep('gen-4', 4);
+    } else {
+      btn.className = 'btn-disabled';
+      btn.onclick = null;
+    }
+  }
+
+  function checkG2() {
+    const val = document.getElementById('gen-county').value;
+    const btn = document.getElementById('g2-btn');
+    if (val) {
+      btn.className = 'btn-enabled';
+      btn.onclick = () => showStep('gen-3', 3);
+    } else {
+      btn.className = 'btn-disabled';
+      btn.onclick = null;
+    }
+  }
+
+  function getCerts(listId) {
+    return Array.from(document.querySelectorAll('#' + listId + ' .cert-row.selected'))
+      .map(row => row.querySelector('.cert-label').textContent);
+  }
+
+  function finishBoces() {
+    const program = document.getElementById('boces-program').value;
+    const certifications = getCerts('boces-cert-list');
+    const profile = {
+      path: 'boces',
+      program: program || null,
+      graduation_year: bocesYear || null,
+      county: null,
+      industries: null,
+      certifications
+    };
+    localStorage.setItem('hg_profile', JSON.stringify(profile));
+    window.location.href = '/student/dashboard.html';
+  }
+
+  function finishGeneral() {
+    const county = document.getElementById('gen-county').value;
+    const industries = Array.from(document.querySelectorAll('#gen-3 .industry-card.selected'))
+      .map(c => c.querySelector('.industry-card-label').textContent);
+    const certifications = getCerts('gen-cert-list');
+    const profile = {
+      path: 'general',
+      program: null,
+      graduation_year: null,
+      county: county || null,
+      industries,
+      certifications
+    };
+    localStorage.setItem('hg_profile', JSON.stringify(profile));
+    window.location.href = '/student/dashboard.html';
   }
 </script>
 </body>
