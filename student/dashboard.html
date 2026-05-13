@@ -117,6 +117,23 @@
     }
     .sheet-cert-none { font-size: 13px; color: #B4B2A9; }
 
+    .sheet-edit {
+      display: block;
+      width: calc(100% - 40px);
+      margin: 16px 20px 0;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #3B6D11;
+      background: transparent;
+      border: 0.5px solid #3B6D11;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+    }
+    .sheet-edit:hover { background: #EAF3DE; }
+
     .sheet-logout {
       display: block;
       width: calc(100% - 40px);
@@ -202,6 +219,7 @@
       <div id="sheet-certs"><span class="sheet-cert-none">None selected</span></div>
     </div>
 
+    <button class="sheet-edit" onclick="window.location.href='/student/onboarding.html'">Edit my information</button>
     <button class="sheet-logout" onclick="logout()">Log out</button>
   </div>
 </div>
