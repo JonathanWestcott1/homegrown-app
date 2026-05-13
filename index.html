@@ -4,22 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Homegrown.ai — Local talent. Local opportunity.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #ffffff;
-      color: #1a1a1a;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFAF8;
+      color: #1C1C1A;
       min-height: 100vh;
     }
 
     .hg-wrap {
       max-width: 390px;
       margin: 0 auto;
-      background: #ffffff;
+      background: #FAFAF8;
       min-height: 100vh;
     }
 
@@ -28,13 +29,13 @@
       align-items: center;
       justify-content: space-between;
       padding: 16px 20px;
-      border-bottom: 0.5px solid #e5e5e5;
+      border-bottom: 0.5px solid #D3D1C7;
     }
 
     .hg-logo {
       font-size: 18px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
       letter-spacing: -0.5px;
     }
 
@@ -65,7 +66,7 @@
     .hg-headline {
       font-size: 30px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
       line-height: 1.2;
       letter-spacing: -0.8px;
       margin-bottom: 14px;
@@ -78,18 +79,18 @@
 
     .hg-sub {
       font-size: 15px;
-      color: #666;
+      color: #666660;
       line-height: 1.6;
       margin-bottom: 32px;
     }
 
     .hg-toggle {
       display: flex;
-      background: #f5f5f5;
+      background: #EEEEE9;
       border-radius: 12px;
       padding: 4px;
       margin-bottom: 16px;
-      border: 0.5px solid #e5e5e5;
+      border: 0.5px solid #D3D1C7;
     }
 
     .hg-toggle-btn {
@@ -107,8 +108,8 @@
 
     .hg-toggle-btn.active {
       background: #ffffff;
-      color: #1a1a1a;
-      border: 0.5px solid #ddd;
+      color: #1C1C1A;
+      border: 0.5px solid #D3D1C7;
     }
 
     .hg-form {
@@ -121,15 +122,15 @@
     .hg-form input {
       padding: 12px 14px;
       font-size: 15px;
-      border: 0.5px solid #ddd;
+      border: 0.5px solid #D3D1C7;
       border-radius: 8px;
       background: #ffffff;
-      color: #1a1a1a;
+      color: #1C1C1A;
       width: 100%;
       outline: none;
     }
 
-    .hg-form input::placeholder { color: #bbb; }
+    .hg-form input::placeholder { color: #B4B2A9; }
     .hg-form input:focus { border-color: #3B6D11; }
 
     .hg-btn-primary {
@@ -150,7 +151,7 @@
     .hg-divider {
       text-align: center;
       font-size: 12px;
-      color: #bbb;
+      color: #B4B2A9;
       margin: 10px 0;
     }
 
@@ -160,8 +161,8 @@
       font-size: 14px;
       font-weight: 500;
       background: transparent;
-      color: #1a1a1a;
-      border: 0.5px solid #ddd;
+      color: #1C1C1A;
+      border: 0.5px solid #D3D1C7;
       border-radius: 8px;
       cursor: pointer;
     }
@@ -170,13 +171,13 @@
 
     .hg-section {
       padding: 32px 20px;
-      border-top: 0.5px solid #e5e5e5;
+      border-top: 0.5px solid #D3D1C7;
     }
 
     .hg-section-label {
       font-size: 11px;
       font-weight: 500;
-      color: #bbb;
+      color: #B4B2A9;
       letter-spacing: 0.8px;
       text-transform: uppercase;
       margin-bottom: 20px;
@@ -198,14 +199,14 @@
     .hg-stat-num {
       font-size: 22px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
       letter-spacing: -0.5px;
       margin-bottom: 2px;
     }
 
     .hg-stat-label {
       font-size: 12px;
-      color: #666;
+      color: #666660;
       line-height: 1.3;
     }
 
@@ -236,13 +237,13 @@
     .hg-feature-text h4 {
       font-size: 14px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
       margin-bottom: 2px;
     }
 
     .hg-feature-text p {
       font-size: 13px;
-      color: #666;
+      color: #666660;
       line-height: 1.5;
     }
 
@@ -255,7 +256,7 @@
 
     .hg-testimonial p {
       font-size: 13px;
-      color: #666;
+      color: #666660;
       line-height: 1.6;
       margin-bottom: 10px;
       font-style: italic;
@@ -264,23 +265,23 @@
     .hg-testimonial-author {
       font-size: 12px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
     }
 
     .hg-footer {
       padding: 20px;
       text-align: center;
-      border-top: 0.5px solid #e5e5e5;
+      border-top: 0.5px solid #D3D1C7;
     }
 
     .hg-footer p {
       font-size: 12px;
-      color: #bbb;
+      color: #B4B2A9;
     }
 
     .hg-footer span { color: #3B6D11; }
 
-    .pw-rules { display: none; flex-direction: column; gap: 5px; margin-bottom: 10px; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border: 0.5px solid #e5e5e5; }
+    .pw-rules { display: none; flex-direction: column; gap: 5px; margin-bottom: 10px; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border: 0.5px solid #D3D1C7; }
     .pw-rules.visible { display: flex; }
     .pw-rule { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #aaa; transition: color 0.15s; }
     .pw-rule.met { color: #3B6D11; }
@@ -326,13 +327,13 @@
       display: flex;
       align-items: center;
       padding: 16px 20px;
-      border-bottom: 0.5px solid #e5e5e5;
+      border-bottom: 0.5px solid #D3D1C7;
     }
 
     .hg-modal-back {
       font-size: 20px;
       cursor: pointer;
-      color: #1a1a1a;
+      color: #1C1C1A;
       background: none;
       border: none;
       padding: 0;
@@ -345,12 +346,12 @@
     .hg-modal-title {
       font-size: 20px;
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1C1C1A;
       letter-spacing: -0.5px;
       margin-bottom: 8px;
     }
 
-    .hg-modal-sub { font-size: 13px; color: #666; }
+    .hg-modal-sub { font-size: 13px; color: #666660; }
 
     .hg-county-badge {
       display: inline-block;
@@ -366,21 +367,21 @@
 
     .hg-job-card {
       margin: 0 20px 20px;
-      border: 0.5px solid #e5e5e5;
+      border: 0.5px solid #D3D1C7;
       border-radius: 12px;
       padding: 16px;
     }
 
-    .hg-job-company { font-size: 12px; color: #666; margin-bottom: 4px; }
-    .hg-job-role { font-size: 18px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.4px; margin-bottom: 6px; }
-    .hg-job-meta { font-size: 13px; color: #666; margin-bottom: 4px; }
-    .hg-job-pay { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .hg-job-company { font-size: 12px; color: #666660; margin-bottom: 4px; }
+    .hg-job-role { font-size: 18px; font-weight: 500; color: #1C1C1A; letter-spacing: -0.4px; margin-bottom: 6px; }
+    .hg-job-meta { font-size: 13px; color: #666660; margin-bottom: 4px; }
+    .hg-job-pay { font-size: 15px; font-weight: 500; color: #1C1C1A; margin-bottom: 4px; }
     .hg-job-type { font-size: 12px; color: #999; margin-bottom: 16px; }
 
     .hg-skills-label {
       font-size: 11px;
       font-weight: 500;
-      color: #bbb;
+      color: #B4B2A9;
       letter-spacing: 0.8px;
       text-transform: uppercase;
       margin-bottom: 10px;
@@ -456,7 +457,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #666;
+      color: #666660;
       line-height: 1;
     }
 
@@ -473,14 +474,14 @@
       justify-content: center;
       font-size: 15px;
       font-weight: 500;
-      color: #666;
+      color: #666660;
     }
 
-    .hg-teacher-name { font-size: 16px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
-    .hg-teacher-title { font-size: 13px; color: #666; margin-bottom: 2px; }
+    .hg-teacher-name { font-size: 16px; font-weight: 500; color: #1C1C1A; margin-bottom: 2px; }
+    .hg-teacher-title { font-size: 13px; color: #666660; margin-bottom: 2px; }
     .hg-teacher-loc { font-size: 12px; color: #999; }
 
-    .hg-teacher-bio { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 14px; }
+    .hg-teacher-bio { font-size: 13px; color: #666660; line-height: 1.6; margin-bottom: 14px; }
 
     .hg-teacher-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
 
@@ -493,15 +494,15 @@
       border-radius: 20px;
     }
 
-    .hg-message-label { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; }
+    .hg-message-label { font-size: 13px; font-weight: 500; color: #1C1C1A; margin-bottom: 8px; }
 
     .hg-message-input {
       width: 100%;
       padding: 12px 14px;
       font-size: 13px;
-      border: 0.5px solid #ddd;
+      border: 0.5px solid #D3D1C7;
       border-radius: 8px;
-      color: #1a1a1a;
+      color: #1C1C1A;
       resize: none;
       height: 80px;
       font-family: inherit;
@@ -584,7 +585,7 @@
       font-size: 11px;
       color: #999;
     }
-    .hg-progress-label.current { color: #1a1a1a; font-weight: 600; }
+    .hg-progress-label.current { color: #1C1C1A; font-weight: 600; }
     .hg-progress-sublabel {
       display: flex;
       justify-content: space-between;
@@ -594,17 +595,17 @@
       flex: 1;
       text-align: center;
       font-size: 10px;
-      color: #bbb;
+      color: #B4B2A9;
     }
 
     /* Demo tab switcher */
     .hg-demo-tabs {
       display: flex;
-      background: #f5f5f5;
+      background: #EEEEE9;
       border-radius: 12px;
       padding: 4px;
       margin: 12px 20px 0;
-      border: 0.5px solid #e5e5e5;
+      border: 0.5px solid #D3D1C7;
     }
     .hg-demo-tab {
       flex: 1;
@@ -621,27 +622,27 @@
     }
     .hg-demo-tab.active {
       background: #ffffff;
-      color: #1a1a1a;
-      border: 0.5px solid #ddd;
+      color: #1C1C1A;
+      border: 0.5px solid #D3D1C7;
     }
 
     /* Employer demo sections */
     .hg-emp-section { padding: 20px 20px 0; }
-    .hg-emp-section + .hg-emp-section { border-top: 0.5px solid #e5e5e5; margin-top: 20px; padding-top: 20px; }
-    .hg-emp-section-title { font-size: 16px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.3px; margin-bottom: 2px; }
+    .hg-emp-section + .hg-emp-section { border-top: 0.5px solid #D3D1C7; margin-top: 20px; padding-top: 20px; }
+    .hg-emp-section-title { font-size: 16px; font-weight: 500; color: #1C1C1A; letter-spacing: -0.3px; margin-bottom: 2px; }
     .hg-emp-section-sub { font-size: 12px; color: #999; margin-bottom: 14px; }
 
     .hg-posting-card {
-      border: 0.5px solid #e5e5e5;
+      border: 0.5px solid #D3D1C7;
       border-radius: 12px;
       padding: 14px;
       margin-bottom: 10px;
       background: #fff;
     }
     .hg-posting-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-    .hg-posting-role { font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .hg-posting-role { font-size: 16px; font-weight: 500; color: #1C1C1A; }
     .hg-posting-status { font-size: 11px; font-weight: 500; color: #3B6D11; background: #EAF3DE; padding: 3px 8px; border-radius: 20px; }
-    .hg-posting-pay { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .hg-posting-pay { font-size: 13px; color: #666660; margin-bottom: 8px; }
     .hg-posting-stats { font-size: 12px; color: #999; }
 
     .hg-pipeline-box {
@@ -650,16 +651,16 @@
       padding: 14px;
       margin-bottom: 12px;
     }
-    .hg-pipeline-intro { font-size: 13px; color: #1a1a1a; margin-bottom: 12px; }
+    .hg-pipeline-intro { font-size: 13px; color: #1C1C1A; margin-bottom: 12px; }
     .hg-pipeline-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 8px 0;
-      border-top: 0.5px solid #e5e5e5;
+      border-top: 0.5px solid #D3D1C7;
       font-size: 13px;
     }
-    .hg-pipeline-row-left { color: #1a1a1a; }
+    .hg-pipeline-row-left { color: #1C1C1A; }
     .hg-pipeline-row-count { color: #999; font-size: 12px; }
     .hg-pipeline-row-cert { color: #3B6D11; font-size: 12px; font-weight: 500; }
     .hg-pipeline-btn {
@@ -689,12 +690,12 @@
       line-height: 1.5;
     }
     .hg-chat-msg.employer .hg-chat-bubble { background: #3B6D11; color: #fff; border-bottom-right-radius: 4px; }
-    .hg-chat-msg.agent .hg-chat-bubble { background: #f5f5f5; color: #1a1a1a; border-bottom-left-radius: 4px; }
+    .hg-chat-msg.agent .hg-chat-bubble { background: #f5f5f5; color: #1C1C1A; border-bottom-left-radius: 4px; }
     .hg-chat-input-row {
       display: flex;
       gap: 8px;
       align-items: center;
-      border-top: 0.5px solid #e5e5e5;
+      border-top: 0.5px solid #D3D1C7;
       padding-top: 12px;
       margin-bottom: 20px;
     }
@@ -702,11 +703,11 @@
       flex: 1;
       padding: 10px 14px;
       font-size: 14px;
-      border: 0.5px solid #ddd;
+      border: 0.5px solid #D3D1C7;
       border-radius: 20px;
       font-family: inherit;
       outline: none;
-      color: #1a1a1a;
+      color: #1C1C1A;
     }
     .hg-chat-hidden {
       display: none;
@@ -778,7 +779,7 @@
     .hg-fit-pill {
       font-size: 11px;
       background: #f5f5f5;
-      color: #1a1a1a;
+      color: #1C1C1A;
       padding: 4px 8px;
       border-radius: 20px;
     }
@@ -789,12 +790,12 @@
 <div class="hg-wrap">
 
   <nav class="hg-nav">
-    <div class="hg-logo">home<span>grown</span>.ai</div>
-    <div class="hg-nav-tag">Beta</div>
+    <div style="display:flex;align-items:center;gap:7px;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/><path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/><path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/></svg><span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span></span></div>
+    <span style="font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;padding:3px 8px;border-radius:20px;border:0.5px solid #C0DD97;">Beta</span>
   </nav>
 
   <div class="hg-hero">
-    <div class="hg-badge">Built for rural communities</div>
+    <div style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:#27500A;background:#EAF3DE;padding:4px 10px;border-radius:20px;margin-bottom:16px;border:0.5px solid #C0DD97;letter-spacing:0.2px;"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3" fill="#3B6D11"/></svg>Built for rural communities</div>
     <h1 class="hg-headline">Your path to a <em>local career</em> starts here</h1>
     <p class="hg-sub">See exactly what local employers need, what roles pay, and how your BOCES training connects to real jobs in your county.</p>
 
@@ -814,7 +815,7 @@
           <input id="s-phone" type="tel" placeholder="Phone number" />
           <div style="position:relative;">
             <input id="s-password" type="password" placeholder="Password" oninput="checkPw('s-password','pw-rules-s','s')" style="padding-right:42px;" />
-            <button type="button" onclick="togglePw('s-password',this)" tabindex="-1" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#bbb;padding:0;display:flex;align-items:center;">
+            <button type="button" onclick="togglePw('s-password',this)" tabindex="-1" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#B4B2A9;padding:0;display:flex;align-items:center;">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -827,7 +828,7 @@
           <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
         </div>
         <div class="hg-form">
-          <select id="s-program" onchange="this.style.color=this.value?'#1a1a1a':'#bbb'" style="padding:12px 14px;font-size:15px;border:0.5px solid #ddd;border-radius:8px;background:#fff;color:#bbb;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
+          <select id="s-program" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Select your BOCES program</option>
             <option>Automotive Collision &amp; Refinishing</option>
             <option>Automotive Technology</option>
@@ -843,7 +844,7 @@
             <option>Welding Technology</option>
             <option>Other</option>
           </select>
-          <select id="s-year" onchange="this.style.color=this.value?'#1a1a1a':'#bbb'" style="padding:12px 14px;font-size:15px;border:0.5px solid #ddd;border-radius:8px;background:#fff;color:#bbb;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
+          <select id="s-year" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Graduation year</option>
           </select>
           <script>
@@ -873,7 +874,7 @@
           <input id="e-email" type="email" placeholder="Work email" />
           <div style="position:relative;">
             <input id="e-password" type="password" placeholder="Password" oninput="checkPw('e-password','pw-rules-e','e')" style="padding-right:42px;" />
-            <button type="button" onclick="togglePw('e-password',this)" tabindex="-1" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#bbb;padding:0;display:flex;align-items:center;">
+            <button type="button" onclick="togglePw('e-password',this)" tabindex="-1" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#B4B2A9;padding:0;display:flex;align-items:center;">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -887,7 +888,7 @@
         </div>
         <div class="hg-form">
           <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
-          <select id="e-industry" onchange="this.style.color=this.value?'#1a1a1a':'#bbb'" style="padding:12px 14px;font-size:15px;border:0.5px solid #ddd;border-radius:8px;background:#fff;color:#bbb;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
+          <select id="e-industry" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Industry</option>
             <option>Manufacturing</option>
             <option>Healthcare &amp; Nursing</option>
@@ -934,21 +935,21 @@
     </div>
     <div class="hg-feature-list">
       <div class="hg-feature">
-        <div class="hg-feature-icon">📍</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div class="hg-feature-text">
           <h4>Hyperlocal job intelligence</h4>
           <p>See what employers in your county actually need and what they pay — updated daily by AI agents.</p>
         </div>
       </div>
       <div class="hg-feature">
-        <div class="hg-feature-icon">🛤</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
         <div class="hg-feature-text">
           <h4>Your path, made clear</h4>
           <p>Know exactly what skills your BOCES program gives you and which local roles you're already qualified for.</p>
         </div>
       </div>
       <div class="hg-feature">
-        <div class="hg-feature-icon">🤝</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <div class="hg-feature-text">
           <h4>Direct employer connections</h4>
           <p>Get matched to employers before graduation — no cold applications, no guessing.</p>
@@ -971,21 +972,21 @@
     </div>
     <div class="hg-feature-list">
       <div class="hg-feature">
-        <div class="hg-feature-icon">🎯</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
         <div class="hg-feature-text">
           <h4>Reach local talent first</h4>
           <p>Access BOCES graduates and skilled workers in your county before they're gone — no staffing agency markup.</p>
         </div>
       </div>
       <div class="hg-feature">
-        <div class="hg-feature-icon">⚡</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <div class="hg-feature-text">
           <h4>AI-powered matching</h4>
           <p>Tell our agent what you need. We surface warm candidates from the local talent pipeline automatically.</p>
         </div>
       </div>
       <div class="hg-feature">
-        <div class="hg-feature-icon">📊</div>
+        <div class="hg-feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
         <div class="hg-feature-text">
           <h4>Local labor market intelligence</h4>
           <p>See wage benchmarks, skills availability, and hiring trends specific to your county — not national averages.</p>
@@ -1005,7 +1006,7 @@
   <div class="hg-modal">
     <div class="hg-modal-nav">
       <button class="hg-modal-back" onclick="closeDemo()">←</button>
-      <div class="hg-logo">home<span style="color:#3B6D11">grown</span>.ai</div>
+      <div style="display:flex;align-items:center;gap:7px;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/><path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/><path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/></svg><span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span></span></div>
     </div>
 
     <div class="hg-demo-tabs">
@@ -1188,7 +1189,7 @@
     const show = inp.type === 'password';
     inp.type = show ? 'text' : 'password';
     btn.innerHTML = show ? EYE_OFF : EYE;
-    btn.style.color = show ? '#3B6D11' : '#bbb';
+    btn.style.color = show ? '#3B6D11' : '#B4B2A9';
   }
 
   function checkPw(inputId, rulesId, prefix) {
