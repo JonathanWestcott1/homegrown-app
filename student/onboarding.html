@@ -121,7 +121,14 @@
     <div style="margin-top:20px;margin-bottom:4px;font-size:14px;font-weight:500;color:#1a1a1a;">Create your account</div>
     <div style="font-size:13px;color:#666;margin-bottom:14px;">You'll use this to log in and see your jobs.</div>
     <input class="app-input" id="student-email" type="email" placeholder="Email address" />
-    <input class="app-input" id="student-password" type="password" placeholder="Password (min 6 characters)" />
+    <input class="app-input" id="student-password" type="password" placeholder="Password" oninput="checkPw('student-password','pw-rules-s')" />
+    <div class="pw-rules" id="pw-rules-s">
+      <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
+      <div class="pw-rule" id="pr-s-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
+      <div class="pw-rule" id="pr-s-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
+      <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
+      <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+    </div>
     <div id="s3-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:8px;"></div>
     <button class="app-btn-primary" id="finish-btn" onclick="finish()">See my jobs →</button>
   </div>
@@ -132,6 +139,33 @@
     'https://mccrpgqtqtrxfifxvwbd.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
+
+  function checkPw(inputId, rulesId) {
+    const val = document.getElementById(inputId).value;
+    const rules = document.getElementById(rulesId);
+    rules.classList.toggle('visible', val.length > 0);
+    const checks = {
+      len:     val.length >= 8,
+      upper:   /[A-Z]/.test(val),
+      lower:   /[a-z]/.test(val),
+      num:     /[0-9]/.test(val),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
+    };
+    const prefix = rulesId === 'pw-rules-s' ? 'pr-s' : 'pr-e';
+    Object.entries(checks).forEach(([key, met]) => {
+      const el = document.getElementById(prefix + '-' + key);
+      if (!el) return;
+      el.classList.toggle('met', met);
+      el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
+    });
+    return Object.values(checks).every(Boolean);
+  }
+
+  function pwStrong(inputId, rulesId) {
+    document.getElementById(inputId).dispatchEvent(new Event('input'));
+    const val = document.getElementById(inputId).value;
+    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
+  }
 
   let selectedYear = '';
 
@@ -159,9 +193,10 @@
       errEl.style.display = 'block';
       return;
     }
-    if (password.length < 6) {
-      errEl.textContent = 'Password must be at least 6 characters.';
+    if (!pwStrong('student-password', 'pw-rules-s')) {
+      errEl.textContent = 'Password does not meet all requirements.';
       errEl.style.display = 'block';
+      document.getElementById('pw-rules-s').classList.add('visible');
       return;
     }
 

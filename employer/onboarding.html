@@ -32,7 +32,14 @@
     <div class="app-step-sub">We'll match you with qualified local graduates</div>
     <input class="app-input" id="company-name" type="text" placeholder="Company name" />
     <input class="app-input" id="company-email" type="email" placeholder="Work email" />
-    <input class="app-input" id="company-password" type="password" placeholder="Password (min 6 characters)" />
+    <input class="app-input" id="company-password" type="password" placeholder="Password" oninput="checkPw('company-password','pw-rules-e')" />
+    <div class="pw-rules" id="pw-rules-e">
+      <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
+      <div class="pw-rule" id="pr-e-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
+      <div class="pw-rule" id="pr-e-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
+      <div class="pw-rule" id="pr-e-num"><span class="pw-rule-icon">○</span>One number</div>
+      <div class="pw-rule" id="pr-e-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+    </div>
     <select class="app-select" id="company-county">
       <option value="" disabled selected>County…</option>
       <option>Chenango</option>
@@ -85,6 +92,31 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
+  function checkPw(inputId, rulesId) {
+    const val = document.getElementById(inputId).value;
+    const rules = document.getElementById(rulesId);
+    rules.classList.toggle('visible', val.length > 0);
+    const checks = {
+      len:     val.length >= 8,
+      upper:   /[A-Z]/.test(val),
+      lower:   /[a-z]/.test(val),
+      num:     /[0-9]/.test(val),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
+    };
+    Object.entries(checks).forEach(([key, met]) => {
+      const el = document.getElementById('pr-e-' + key);
+      if (!el) return;
+      el.classList.toggle('met', met);
+      el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
+    });
+    return Object.values(checks).every(Boolean);
+  }
+
+  function pwStrong(inputId, rulesId) {
+    const val = document.getElementById(inputId).value;
+    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
+  }
+
   async function goStep2() {
     const name = document.getElementById('company-name').value.trim();
     const email = document.getElementById('company-email').value.trim();
@@ -99,9 +131,10 @@
       errEl.style.display = 'block';
       return;
     }
-    if (password.length < 6) {
-      errEl.textContent = 'Password must be at least 6 characters.';
+    if (!pwStrong('company-password', 'pw-rules-e')) {
+      errEl.textContent = 'Password does not meet all requirements.';
       errEl.style.display = 'block';
+      document.getElementById('pw-rules-e').classList.add('visible');
       return;
     }
 

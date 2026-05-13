@@ -280,6 +280,12 @@
 
     .hg-footer span { color: #3B6D11; }
 
+    .pw-rules { display: none; flex-direction: column; gap: 5px; margin-bottom: 10px; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border: 0.5px solid #e5e5e5; }
+    .pw-rules.visible { display: flex; }
+    .pw-rule { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #aaa; transition: color 0.15s; }
+    .pw-rule.met { color: #3B6D11; }
+    .pw-rule-icon { font-size: 11px; width: 14px; text-align: center; }
+
     .hg-demo-link {
       display: block;
       text-align: center;
@@ -802,7 +808,16 @@
         <div class="hg-form">
           <input id="s-name" type="text" placeholder="Full name" />
           <input id="s-email" type="email" placeholder="Email address" />
-          <input id="s-password" type="password" placeholder="Password (min 6 characters)" />
+          <input id="s-password" type="password" placeholder="Password" oninput="checkPw('s-password','pw-rules-s','s')" />
+        </div>
+        <div class="pw-rules" id="pw-rules-s">
+          <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
+          <div class="pw-rule" id="pr-s-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
+          <div class="pw-rule" id="pr-s-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
+          <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
+          <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+        </div>
+        <div class="hg-form">
           <input id="s-program" type="text" placeholder="Your BOCES program (e.g. Electrical)" />
           <input id="s-year" type="text" placeholder="Graduation year" />
         </div>
@@ -819,7 +834,16 @@
         <div class="hg-form">
           <input id="e-company" type="text" placeholder="Company name" />
           <input id="e-email" type="email" placeholder="Work email" />
-          <input id="e-password" type="password" placeholder="Password (min 6 characters)" />
+          <input id="e-password" type="password" placeholder="Password" oninput="checkPw('e-password','pw-rules-e','e')" />
+        </div>
+        <div class="pw-rules" id="pw-rules-e">
+          <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
+          <div class="pw-rule" id="pr-e-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
+          <div class="pw-rule" id="pr-e-lower"><span class="pw-rule-icon">○</span>One lowercase letter</div>
+          <div class="pw-rule" id="pr-e-num"><span class="pw-rule-icon">○</span>One number</div>
+          <div class="pw-rule" id="pr-e-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
+        </div>
+        <div class="hg-form">
           <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
           <input id="e-industry" type="text" placeholder="Industry (e.g. Manufacturing)" />
         </div>
@@ -1101,6 +1125,29 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
+  function checkPw(inputId, rulesId, prefix) {
+    const val = document.getElementById(inputId).value;
+    document.getElementById(rulesId).classList.toggle('visible', val.length > 0);
+    const checks = {
+      len:     val.length >= 8,
+      upper:   /[A-Z]/.test(val),
+      lower:   /[a-z]/.test(val),
+      num:     /[0-9]/.test(val),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
+    };
+    Object.entries(checks).forEach(([key, met]) => {
+      const el = document.getElementById('pr-' + prefix + '-' + key);
+      if (!el) return;
+      el.classList.toggle('met', met);
+      el.querySelector('.pw-rule-icon').textContent = met ? '✓' : '○';
+    });
+  }
+
+  function pwStrong(inputId) {
+    const val = document.getElementById(inputId).value;
+    return val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val) && /[0-9]/.test(val) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val);
+  }
+
   // Redirect already-logged-in users to their dashboard
   (async () => {
     const { data: { session } } = await _db.auth.getSession();
@@ -1127,9 +1174,10 @@
       errEl.style.display = 'block';
       return;
     }
-    if (password.length < 6) {
-      errEl.textContent = 'Password must be at least 6 characters.';
+    if (!pwStrong('s-password')) {
+      errEl.textContent = 'Password does not meet all requirements.';
       errEl.style.display = 'block';
+      document.getElementById('pw-rules-s').classList.add('visible');
       return;
     }
     errEl.style.display = 'none';
@@ -1160,9 +1208,10 @@
       errEl.style.display = 'block';
       return;
     }
-    if (password.length < 6) {
-      errEl.textContent = 'Password must be at least 6 characters.';
+    if (!pwStrong('e-password')) {
+      errEl.textContent = 'Password does not meet all requirements.';
       errEl.style.display = 'block';
+      document.getElementById('pw-rules-e').classList.add('visible');
       return;
     }
     errEl.style.display = 'none';
