@@ -802,6 +802,7 @@
         <div class="hg-form">
           <input id="s-name" type="text" placeholder="Full name" />
           <input id="s-email" type="email" placeholder="Email address" />
+          <input id="s-password" type="password" placeholder="Password (min 6 characters)" />
           <input id="s-program" type="text" placeholder="Your BOCES program (e.g. Electrical)" />
           <input id="s-year" type="text" placeholder="Graduation year" />
         </div>
@@ -811,7 +812,6 @@
       <div id="s-success" style="display:none;background:#EAF3DE;color:#3B6D11;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;text-align:center;"></div>
       <div class="hg-divider">Already have an account?</div>
       <button class="hg-btn-secondary">Sign in</button>
-      <button class="hg-demo-link" onclick="openDemo()">Try Demo</button>
     </div>
 
     <div id="employer-section" style="display:none;">
@@ -819,6 +819,7 @@
         <div class="hg-form">
           <input id="e-company" type="text" placeholder="Company name" />
           <input id="e-email" type="email" placeholder="Work email" />
+          <input id="e-password" type="password" placeholder="Password (min 6 characters)" />
           <input id="e-county" type="text" placeholder="County (e.g. Chenango)" />
           <input id="e-industry" type="text" placeholder="Industry (e.g. Manufacturing)" />
         </div>
@@ -828,7 +829,6 @@
       <div id="e-success" style="display:none;background:#EAF3DE;color:#3B6D11;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;text-align:center;"></div>
       <div class="hg-divider">Already have an account?</div>
       <button class="hg-btn-secondary">Sign in</button>
-      <button class="hg-demo-link" onclick="openDemo()">Try Demo</button>
     </div>
   </div>
 
@@ -1117,49 +1117,67 @@
   window.submitStudent = async function() {
     const name = document.getElementById('s-name').value.trim();
     const email = document.getElementById('s-email').value.trim();
+    const password = document.getElementById('s-password').value;
     const program = document.getElementById('s-program').value.trim();
     const graduation_year = document.getElementById('s-year').value.trim();
     const errEl = document.getElementById('s-error');
 
-    if (!name || !email || !program || !graduation_year) {
-      errEl.textContent = 'Please fill in all fields';
+    if (!name || !email || !password || !program || !graduation_year) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
       errEl.style.display = 'block';
       return;
     }
     errEl.style.display = 'none';
 
-    const { error } = await _db.from('students').insert([{ name, email, program, graduation_year }]);
+    const { data, error } = await _db.auth.signUp({
+      email, password,
+      options: { data: { user_type: 'student' } }
+    });
     if (error) {
-      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.textContent = error.message;
       errEl.style.display = 'block';
-    } else {
-      document.getElementById('student-form-wrap').style.display = 'none';
-      setTimeout(() => { window.location.href = '/student/onboarding.html'; }, 800);
+      return;
     }
+    await _db.from('students').insert([{ id: data.user.id, program, graduation_year }]);
+    window.location.href = '/student/onboarding.html';
   };
 
   window.submitEmployer = async function() {
     const company_name = document.getElementById('e-company').value.trim();
     const email = document.getElementById('e-email').value.trim();
+    const password = document.getElementById('e-password').value;
     const county = document.getElementById('e-county').value.trim();
     const industry = document.getElementById('e-industry').value.trim();
     const errEl = document.getElementById('e-error');
 
-    if (!company_name || !email || !county || !industry) {
-      errEl.textContent = 'Please fill in all fields';
+    if (!company_name || !email || !password || !county || !industry) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
       errEl.style.display = 'block';
       return;
     }
     errEl.style.display = 'none';
 
-    const { error } = await _db.from('employers').insert([{ company_name, email, county, industry }]);
+    const { data, error } = await _db.auth.signUp({
+      email, password,
+      options: { data: { user_type: 'employer' } }
+    });
     if (error) {
-      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.textContent = error.message;
       errEl.style.display = 'block';
-    } else {
-      document.getElementById('employer-form-wrap').style.display = 'none';
-      setTimeout(() => { window.location.href = '/employer/onboarding.html'; }, 800);
+      return;
     }
+    await _db.from('employers').insert([{ id: data.user.id, company_name, county, industry }]);
+    window.location.href = '/employer/onboarding.html';
   };
 
   // Web Audio sounds
