@@ -258,10 +258,15 @@
       document.getElementById('feed-title').textContent = 'Jobs for you in ' + county;
     }
 
-    const [{ data: studentData }, { data: jobs }] = await Promise.all([
+    const [{ data: studentData }, { data: jobs, error: jobsError }] = await Promise.all([
       _sb.from('students').select('certifications').eq('id', session.user.id).single(),
       _sb.from('jobs').select('*').eq('is_active', true).order('created_at', { ascending: false })
     ]);
+
+    if (jobsError) {
+      console.error('[homegrown] jobs query error:', jobsError);
+    }
+    console.log('[homegrown] jobs returned:', jobs?.length ?? 0, jobs);
 
     const myCerts = studentData?.certifications || profile?.certifications || [];
     document.getElementById('jobs-loading').remove();
