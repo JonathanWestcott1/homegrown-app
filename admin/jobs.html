@@ -105,6 +105,7 @@
     /* ── Toast ── */
     .toast { position: fixed; bottom: 24px; right: 24px; background: #3B6D11; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15); transform: translateY(80px); opacity: 0; transition: all 0.3s ease; z-index: 9999; pointer-events: none; }
     .toast.show { transform: translateY(0); opacity: 1; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -216,6 +217,13 @@
         <input class="form-input" id="f-bonus" type="text" placeholder="e.g. $1,000 sign-on bonus — leave blank if none" />
       </div>
 
+      <div class="form-row">
+        <label class="form-label">WHAT DOES SUCCESS LOOK LIKE IN YEAR ONE?</label>
+        <div style="font-size:12px;color:#888780;margin-bottom:6px;">Describe what a great hire actually does day to day. Write naturally — we'll translate it for students automatically.</div>
+        <textarea class="form-input" id="f-description" rows="4" placeholder="e.g. We need someone who can learn our assembly process within 30 days, hit production targets consistently, and show up reliably every shift..." style="resize:vertical;line-height:1.5;"></textarea>
+        <div id="employer-profile-pills" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+      </div>
+
       <div class="toggle-row">
         <span class="toggle-label-text">Union position</span>
         <label class="toggle-wrap">
@@ -275,6 +283,10 @@
     sign_on_bonus           text,
     certifications_required text[],
     target_industries       text[],
+    employer_description    text,
+    student_description     text,
+    sponsors_certifications boolean DEFAULT false,
+    offers_apprenticeships  boolean DEFAULT false,
     is_active               boolean DEFAULT true
   );
 
@@ -303,6 +315,10 @@ CREATE TABLE public.jobs (
   sign_on_bonus           text,
   certifications_required text[],
   target_industries       text[],
+  employer_description    text,
+  student_description     text,
+  sponsors_certifications boolean DEFAULT false,
+  offers_apprenticeships  boolean DEFAULT false,
   is_active               boolean DEFAULT true
 );
 
@@ -434,6 +450,23 @@ function openModal() {
   document.getElementById('job-form').reset();
   document.getElementById('f-state').value = 'NY';
   document.getElementById('modal-error').style.display = 'none';
+
+  // Show employer profile pills from setup flow
+  const pillsEl = document.getElementById('employer-profile-pills');
+  pillsEl.innerHTML = '';
+  try {
+    const ep = JSON.parse(localStorage.getItem('employer_profile') || 'null');
+    if (ep) {
+      const pillStyle = 'display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;background:#EAF3DE;color:#3B6D11;border:0.5px solid #C0DD97;';
+      if (ep.sponsors_certifications) {
+        pillsEl.innerHTML += `<span style="${pillStyle}">✓ Sponsors certifications</span>`;
+      }
+      if (ep.offers_apprenticeships) {
+        pillsEl.innerHTML += `<span style="${pillStyle}">✓ Offers apprenticeships</span>`;
+      }
+    }
+  } catch (e) {}
+
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -462,16 +495,17 @@ function addCustomCert() {
 
 // ── Post job ───────────────────────────────────────────
 async function postJob() {
-  const company  = document.getElementById('f-company').value.trim();
-  const role     = document.getElementById('f-role').value.trim();
-  const city     = document.getElementById('f-city').value.trim();
-  const state    = document.getElementById('f-state').value.trim() || 'NY';
-  const distance = document.getElementById('f-distance').value.trim();
-  const pay      = document.getElementById('f-pay').value.trim();
-  const shift    = document.getElementById('f-shift').value;
-  const benefits = document.getElementById('f-benefits').value.trim();
-  const bonus    = document.getElementById('f-bonus').value.trim();
-  const isUnion  = document.getElementById('f-union').checked;
+  const company            = document.getElementById('f-company').value.trim();
+  const role               = document.getElementById('f-role').value.trim();
+  const city               = document.getElementById('f-city').value.trim();
+  const state              = document.getElementById('f-state').value.trim() || 'NY';
+  const distance           = document.getElementById('f-distance').value.trim();
+  const pay                = document.getElementById('f-pay').value.trim();
+  const shift              = document.getElementById('f-shift').value;
+  const benefits           = document.getElementById('f-benefits').value.trim();
+  const bonus              = document.getElementById('f-bonus').value.trim();
+  const isUnion            = document.getElementById('f-union').checked;
+  const employerDescription = document.getElementById('f-description').value.trim();
 
   const errEl = document.getElementById('modal-error');
   errEl.style.display = 'none';
@@ -482,10 +516,46 @@ async function postJob() {
     return;
   }
 
-  const certs = Array.from(document.querySelectorAll('#cert-checkboxes input[name="cert"]:checked')).map(el => el.value);
+  const certs      = Array.from(document.querySelectorAll('#cert-checkboxes input[name="cert"]:checked')).map(el => el.value);
   const industries = Array.from(document.querySelectorAll('#industry-checkboxes input[name="industry"]:checked')).map(el => el.value);
 
+  // Pull employer profile flags
+  let sponsorsCerts = false, offersApprenticeships = false;
+  try {
+    const ep = JSON.parse(localStorage.getItem('employer_profile') || 'null');
+    if (ep) {
+      sponsorsCerts        = ep.sponsors_certifications  || false;
+      offersApprenticeships = ep.offers_apprenticeships  || false;
+    }
+  } catch (e) {}
+
   const btn = document.getElementById('post-btn');
+
+  // ── AI transformation ──────────────────────────────
+  let studentDescription = null;
+  let aiWarning = false;
+
+  if (employerDescription) {
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite;vertical-align:middle;margin-right:6px;"><path d="M12 2a10 10 0 0 1 10 10"/></svg>Writing student description…';
+
+    try {
+      const res = await fetch('/api/transform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employerDescription, sponsorsCerts, offersApprenticeships })
+      });
+      const data = await res.json();
+      if (res.ok && data.studentDescription) {
+        studentDescription = data.studentDescription;
+      } else {
+        aiWarning = true;
+      }
+    } catch (e) {
+      aiWarning = true;
+    }
+  }
+
   btn.disabled = true;
   btn.textContent = 'Posting…';
 
@@ -502,6 +572,10 @@ async function postJob() {
     sign_on_bonus:           bonus || null,
     certifications_required: certs.length > 0 ? certs : null,
     target_industries:       industries.length > 0 ? industries : null,
+    employer_description:    employerDescription || null,
+    student_description:     studentDescription,
+    sponsors_certifications: sponsorsCerts,
+    offers_apprenticeships:  offersApprenticeships,
     is_active:               true
   });
 
@@ -512,6 +586,21 @@ async function postJob() {
     errEl.textContent = 'Error posting job: ' + error.message;
     errEl.style.display = 'block';
     return;
+  }
+
+  if (aiWarning) {
+    errEl.textContent = 'AI description failed — job was posted without it. You can edit and repost.';
+    errEl.style.display = 'block';
+    errEl.style.color = '#856404';
+    errEl.style.background = '#fff3cd';
+    errEl.style.padding = '8px 12px';
+    errEl.style.borderRadius = '6px';
+    setTimeout(() => {
+      errEl.style.display = 'none';
+      errEl.style.color = '';
+      errEl.style.background = '';
+      errEl.style.padding = '';
+    }, 6000);
   }
 
   closeModal();

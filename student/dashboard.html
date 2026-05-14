@@ -336,7 +336,7 @@
       return;
     }
 
-    feed.innerHTML = jobs.map(job => {
+    feed.innerHTML = jobs.map((job, idx) => {
       const reqCerts = job.certifications_required || [];
       const allMet = reqCerts.length === 0 || reqCerts.every(c => myCerts.includes(c));
 
@@ -350,6 +350,15 @@
         .filter(Boolean);
       const pills = pillValues.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
 
+      // Sponsorship badges
+      const sponsorBadges = [
+        job.sponsors_certifications ? '✓ Sponsors your certs' : null,
+        job.offers_apprenticeships  ? '✓ Apprenticeships available' : null
+      ].filter(Boolean);
+      const sponsorPills = sponsorBadges.map(b =>
+        `<span style="font-size:11px;font-weight:500;padding:4px 8px;border-radius:6px;background:#EAF3DE;color:#3B6D11;">${b}</span>`
+      ).join('');
+
       const certPills = reqCerts.map(c => {
         const has = myCerts.includes(c);
         return `<span class="app-cert-pill ${has ? 'app-cert-green' : 'app-cert-gray'}">${has ? '✓' : '+'} ${c}</span>`;
@@ -359,6 +368,9 @@
         ? `<button class="app-btn-primary">Apply Now</button>`
         : `<button class="app-btn-gray">Complete certs to apply</button>`;
 
+      const hasDesc = job.student_description && job.student_description.trim().length > 0;
+      const descId  = `desc-${idx}`;
+
       return `
         <div class="app-job-card">
           <div class="app-job-company">${esc(job.company_name)}</div>
@@ -366,17 +378,38 @@
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
           ${job.pay ? `<div class="app-job-pay">${esc(job.pay)}</div>` : ''}
           ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
+          ${sponsorBadges.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${sponsorPills}</div>` : ''}
           ${reqCerts.length > 0 ? `
             <div class="app-cert-row">
               <div class="app-cert-label">Certifications</div>
               <div class="app-cert-pills">${certPills}</div>
             </div>` : ''}
+          ${hasDesc ? `
+            <div class="job-desc-expand" id="${descId}" style="overflow:hidden;max-height:0;transition:max-height 0.35s ease;">
+              <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:10px;">
+                <div class="app-cert-label">What the job is actually like</div>
+                <div style="font-size:13px;color:#444441;line-height:1.6;font-style:italic;">${esc(job.student_description)}</div>
+              </div>
+            </div>
+            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;margin-top:10px;display:block;">What's it like? ↓</button>` : ''}
           ${btn}
         </div>`;
     }).join('') + `
       <div style="text-align:center;font-size:13px;color:#999;margin-top:8px;padding-bottom:32px;">
         More jobs coming soon as we onboard local employers.
       </div>`;
+  }
+
+  function toggleDesc(id, btn) {
+    const el = document.getElementById(id);
+    const isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
+    if (isOpen) {
+      el.style.maxHeight = '0';
+      btn.textContent = "What's it like? ↓";
+    } else {
+      el.style.maxHeight = el.scrollHeight + 'px';
+      btn.textContent = "Show less ↑";
+    }
   }
 
   function esc(str) {
