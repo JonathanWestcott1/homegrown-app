@@ -232,6 +232,73 @@
       margin-right: 6px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Dual-handle pay range slider ── */
+    .pay-slider-wrap { margin-bottom: 18px; }
+    .pay-display {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: #3B6D11;
+      margin-bottom: 18px;
+      letter-spacing: -0.3px;
+    }
+    .pay-slider-track {
+      position: relative;
+      height: 4px;
+      background: #ddd;
+      border-radius: 2px;
+      margin: 12px 0 8px;
+    }
+    .pay-slider-fill {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: #3B6D11;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .pay-range {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      pointer-events: none;
+      margin: 0;
+      padding: 0;
+      outline: none;
+    }
+    .pay-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #3B6D11;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.25);
+      cursor: pointer;
+      pointer-events: all;
+    }
+    .pay-range::-moz-range-thumb {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #3B6D11;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.25);
+      cursor: pointer;
+      pointer-events: all;
+    }
+    .pay-range:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(59,109,17,0.2); }
+    .pay-range:focus::-moz-range-thumb     { box-shadow: 0 0 0 3px rgba(59,109,17,0.2); }
+    .pay-slider-ends {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #999;
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -323,13 +390,14 @@
         <input class="app-input" id="f-role" type="text" placeholder="e.g. CNC Machinist" />
 
         <div class="field-label">Pay</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <span style="color:#666;font-size:14px;white-space:nowrap;">$</span>
-          <input class="app-input" id="f-pay-min" type="number" min="0" placeholder="20" style="margin-bottom:0;flex:1;" />
-          <span style="color:#999;font-size:14px;">–</span>
-          <span style="color:#666;font-size:14px;white-space:nowrap;">$</span>
-          <input class="app-input" id="f-pay-max" type="number" min="0" placeholder="28" style="margin-bottom:0;flex:1;" />
-          <span style="color:#666;font-size:14px;white-space:nowrap;">/hr</span>
+        <div class="pay-slider-wrap">
+          <div class="pay-display" id="pay-display">$18–$28/hr</div>
+          <div class="pay-slider-track">
+            <div class="pay-slider-fill" id="pay-fill"></div>
+            <input type="range" class="pay-range" id="f-pay-min" min="10" max="60" step="1" value="18" oninput="updatePaySlider()" />
+            <input type="range" class="pay-range" id="f-pay-max" min="10" max="60" step="1" value="28" oninput="updatePaySlider()" />
+          </div>
+          <div class="pay-slider-ends"><span>$10/hr</span><span>$60/hr</span></div>
         </div>
 
         <div class="field-label">Shift</div>
@@ -583,8 +651,9 @@
     document.getElementById('step1-error').style.display = 'none';
     document.getElementById('step2-error').style.display = 'none';
     document.getElementById('f-role').value = '';
-    document.getElementById('f-pay-min').value = '';
-    document.getElementById('f-pay-max').value = '';
+    document.getElementById('f-pay-min').value = 18;
+    document.getElementById('f-pay-max').value = 28;
+    updatePaySlider();
     document.getElementById('f-shift').selectedIndex = 0;
     document.getElementById('f-county').value = '';
     document.getElementById('f-extra').value = '';
@@ -600,6 +669,27 @@
     document.getElementById('sheet-title').textContent = 'Post a Job';
     document.getElementById('submit-btn').innerHTML = 'Post job →';
     document.getElementById('submit-btn').disabled = false;
+  }
+
+  function updatePaySlider() {
+    const minEl = document.getElementById('f-pay-min');
+    const maxEl = document.getElementById('f-pay-max');
+    let lo = parseInt(minEl.value);
+    let hi = parseInt(maxEl.value);
+    // Keep at least $1 gap; whichever thumb was just moved, push the other
+    if (lo >= hi) {
+      if (document.activeElement === minEl) { hi = lo + 1; maxEl.value = hi; }
+      else                                  { lo = hi - 1; minEl.value = lo; }
+    }
+    const SLIDER_MIN = 10, SLIDER_MAX = 60, RANGE = SLIDER_MAX - SLIDER_MIN;
+    const leftPct  = ((lo - SLIDER_MIN) / RANGE) * 100;
+    const rightPct = ((SLIDER_MAX - hi) / RANGE) * 100;
+    document.getElementById('pay-fill').style.left  = leftPct  + '%';
+    document.getElementById('pay-fill').style.right = rightPct + '%';
+    document.getElementById('pay-display').textContent = `$${lo}–$${hi}/hr`;
+    // z-index: bring the active thumb's input on top so it stays draggable
+    minEl.style.zIndex = document.activeElement === minEl ? 3 : 2;
+    maxEl.style.zIndex = document.activeElement === maxEl ? 3 : 2;
   }
 
   function toggleSwitch(which) {
@@ -620,10 +710,8 @@
 
   function goStep2() {
     const role = document.getElementById('f-role').value.trim();
-    const payMin = document.getElementById('f-pay-min').value.trim();
     const errEl = document.getElementById('step1-error');
     if (!role) { errEl.textContent = 'Please enter a role title.'; errEl.style.display = 'block'; return; }
-    if (!payMin) { errEl.textContent = 'Please enter a pay rate.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
     document.getElementById('post-step-1').style.display = 'none';
     document.getElementById('post-step-2').style.display = 'block';
@@ -637,8 +725,8 @@
 
   async function submitJob() {
     const role = document.getElementById('f-role').value.trim();
-    const payMin = document.getElementById('f-pay-min').value.trim();
-    const payMax = document.getElementById('f-pay-max').value.trim();
+    const payMin = parseInt(document.getElementById('f-pay-min').value);
+    const payMax = parseInt(document.getElementById('f-pay-max').value);
     const shift = document.getElementById('f-shift').value;
     const county = document.getElementById('f-county').value.trim();
     const extra = document.getElementById('f-extra').value.trim();
@@ -646,7 +734,7 @@
 
     errEl.style.display = 'none';
 
-    const pay = payMax ? `$${payMin}–$${payMax}/hr` : `$${payMin}/hr`;
+    const pay = `$${payMin}–$${payMax}/hr`;
     const certifications_required = Array.from(
       document.querySelectorAll('#cert-checklist .app-check-row.selected')
     ).map(r => r.querySelector('.app-check-label').textContent);
