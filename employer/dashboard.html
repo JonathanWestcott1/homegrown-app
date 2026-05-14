@@ -168,10 +168,19 @@
       window.location.href = '/';
       return;
     }
+
+    // Only redirect to setup for truly new employers (no DB row yet)
     if (localStorage.getItem('employer_setup_complete') !== 'true') {
-      window.location.href = '/employer/setup.html';
-      return;
+      const { data: empRow } = await _sb.from('employers').select('id').eq('id', session.user.id).single();
+      if (!empRow) {
+        // Brand new — no record at all
+        window.location.href = '/employer/setup.html';
+        return;
+      }
+      // Has a DB row → they've been through signup, mark complete and continue
+      localStorage.setItem('employer_setup_complete', 'true');
     }
+
     const email = session.user.email || '';
     document.getElementById('profile-icon').textContent = email.charAt(0).toUpperCase();
   })();
