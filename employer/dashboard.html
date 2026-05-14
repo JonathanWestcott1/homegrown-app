@@ -316,10 +316,10 @@
         <div class="sheet-step-tab" id="tab-2">2 · Job details</div>
       </div>
 
-      <!-- STEP 1: Raw description + AI transform -->
+      <!-- STEP 1: Description -->
       <div id="post-step-1">
-        <div class="field-label">Write a raw description of the role</div>
-        <textarea class="app-input" id="raw-description" rows="5" placeholder="e.g. We need someone to run our CNC machines, 5 days a week first shift, $24–$28/hr, union shop, OSHA 10 preferred. We'll sponsor forklift cert if needed."></textarea>
+        <div class="field-label">Describe the role</div>
+        <textarea class="app-input" id="raw-description" rows="6" placeholder="e.g. We need someone to run our CNC machines, 5 days a week first shift, $24–$28/hr, union shop, OSHA 10 preferred. We'll sponsor forklift cert if needed."></textarea>
 
         <div class="two-col" style="margin-bottom:12px;">
           <div>
@@ -338,14 +338,8 @@
           </div>
         </div>
 
-        <div id="ai-result-box" class="ai-result-box" style="display:none;">
-          <div class="ai-result-label">✦ Rewritten for locals</div>
-          <div class="ai-result-text" id="ai-result-text"></div>
-        </div>
-
         <div class="error-msg" id="step1-error"></div>
-        <button class="app-btn-primary" id="transform-btn" onclick="runTransform()">Rewrite for locals →</button>
-        <button class="app-btn-secondary" id="next-btn" onclick="goStep2()" style="display:none;">Looks good — add details →</button>
+        <button class="app-btn-primary" onclick="goStep2()">Next →</button>
       </div>
 
       <!-- STEP 2: Structured form -->
@@ -586,11 +580,6 @@
     document.getElementById('tab-1').className = 'sheet-step-tab active';
     document.getElementById('tab-2').className = 'sheet-step-tab';
     document.getElementById('raw-description').value = '';
-    document.getElementById('ai-result-box').style.display = 'none';
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('transform-btn').style.display = 'block';
-    document.getElementById('transform-btn').innerHTML = 'Rewrite for locals →';
-    document.getElementById('transform-btn').disabled = false;
     document.getElementById('step1-error').style.display = 'none';
     document.getElementById('step2-error').style.display = 'none';
     document.getElementById('f-role').value = '';
@@ -602,7 +591,7 @@
     document.getElementById('f-benefits').value = '';
     document.querySelectorAll('#cert-checklist .app-check-row.selected')
       .forEach(r => r.classList.remove('selected'));
-    sponsorsCerts = false; offersApprenticeships = false; studentDescription = '';
+    sponsorsCerts = false; offersApprenticeships = false;
     document.getElementById('toggle-sponsors').className = 'toggle-switch';
     document.getElementById('toggle-apprenticeships').className = 'toggle-switch';
     document.getElementById('sponsors-label').textContent = 'No';
@@ -624,38 +613,11 @@
     }
   }
 
-  async function runTransform() {
+  function goStep2() {
     const raw = document.getElementById('raw-description').value.trim();
     const errEl = document.getElementById('step1-error');
     if (!raw) { errEl.textContent = 'Please describe the role first.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
-
-    const btn = document.getElementById('transform-btn');
-    btn.innerHTML = '<span class="spinner"></span>Rewriting…';
-    btn.disabled = true;
-
-    try {
-      const res = await fetch('/api/transform', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employerDescription: raw, sponsorsCerts, offersApprenticeships })
-      });
-      if (!res.ok) throw new Error();
-      const json = await res.json();
-      studentDescription = json.studentDescription || raw;
-      document.getElementById('ai-result-text').textContent = studentDescription;
-      document.getElementById('ai-result-box').style.display = 'block';
-      btn.style.display = 'none';
-      document.getElementById('next-btn').style.display = 'block';
-    } catch {
-      errEl.textContent = 'Could not rewrite — check connection and try again.';
-      errEl.style.display = 'block';
-      btn.innerHTML = 'Rewrite for locals →';
-      btn.disabled = false;
-    }
-  }
-
-  function goStep2() {
     document.getElementById('post-step-1').style.display = 'none';
     document.getElementById('post-step-2').style.display = 'block';
     document.getElementById('tab-1').className = 'sheet-step-tab done';
@@ -710,7 +672,7 @@
       sponsors_certifications: sponsorsCerts,
       offers_apprenticeships: offersApprenticeships,
       employer_description: document.getElementById('raw-description').value.trim(),
-      student_description: studentDescription || document.getElementById('raw-description').value.trim(),
+      student_description: document.getElementById('raw-description').value.trim(),
       is_active: true
     }]);
 
