@@ -6,294 +6,757 @@
   <title>Homegrown — Employer Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
   <style>
-    .hg-typing-bubble {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      padding: 12px 16px !important;
+    /* Post-job sheet overlay */
+    .post-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
     }
-    .hg-typing-bubble span {
-      width: 7px;
-      height: 7px;
-      background: #999;
-      border-radius: 50%;
-      animation: typingDot 1.2s infinite ease-in-out;
-    }
-    .hg-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
-    .hg-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typingDot {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-4px); opacity: 1; }
-    }
-    .chat-hidden { display: none; }
-    .chat-showing {
+    .post-overlay.open { display: flex; }
+
+    .post-sheet {
+      width: 100%;
+      max-width: 390px;
+      max-height: 92vh;
+      background: #FAFAF8;
+      border-radius: 20px 20px 0 0;
       display: flex;
       flex-direction: column;
-      opacity: 0;
-      transform: translateY(8px);
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
     }
-    .chat-visible {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+    .post-overlay.open .post-sheet { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: #D3D1C7;
+      border-radius: 2px;
+      margin: 12px auto 0;
+      flex-shrink: 0;
     }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 12px;
+      border-bottom: 0.5px solid #D3D1C7;
+      flex-shrink: 0;
+    }
+    .sheet-title { font-size: 17px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.4px; }
+    .sheet-close {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #666; line-height: 1;
+    }
+
+    .sheet-body { overflow-y: auto; padding: 20px; flex: 1; }
+
+    .sheet-steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 0.5px solid #D3D1C7;
+    }
+    .sheet-step-tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #999;
+      background: #fff;
+    }
+    .sheet-step-tab.active { background: #3B6D11; color: #EAF3DE; }
+    .sheet-step-tab.done { background: #EAF3DE; color: #3B6D11; }
+
+    .ai-result-box {
+      background: #EAF3DE;
+      border: 0.5px solid #c8dfb0;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .ai-result-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #3B6D11;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .ai-result-text { font-size: 14px; color: #1C1C1A; line-height: 1.55; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 0.5px solid #f0f0f0;
+    }
+    .toggle-switch {
+      width: 44px; height: 24px;
+      border-radius: 12px;
+      background: #D3D1C7;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-switch.on { background: #3B6D11; }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px; left: 2px;
+      transition: left 0.2s;
+    }
+    .toggle-switch.on::after { left: 22px; }
+
+    /* Real job card */
+    .real-job-card {
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    .real-job-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3px; }
+    .real-job-role { font-size: 16px; font-weight: 500; color: #1C1C1A; letter-spacing: -0.3px; }
+    .real-job-pay { font-size: 13px; color: #666660; margin-bottom: 10px; }
+    .real-job-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .real-job-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .real-job-btn-pause { background: #fff; color: #666; border: 0.5px solid #D3D1C7; }
+    .real-job-btn-pause:hover { border-color: #999; color: #1C1C1A; }
+    .real-job-btn-activate { background: #EAF3DE; color: #3B6D11; border: 0.5px solid #c8dfb0; }
+    .real-job-btn-activate:hover { background: #d5ecb8; }
+
+    /* Empty state — shown when no jobs */
+    .empty-state-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; line-height: 1; }
+    .empty-state-headline {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1C1C1A;
+      letter-spacing: -0.4px;
+      margin-bottom: 8px;
+    }
+    .empty-state-sub {
+      font-size: 14px;
+      color: #999;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* Pipeline */
+    .app-pipeline-box { background: #f5f5f5; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .app-pipeline-intro { font-size: 13px; color: #1C1C1A; margin-bottom: 12px; }
+    .app-pipeline-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 0.5px solid #D3D1C7; font-size: 13px; }
+    .app-pipeline-row-name { color: #1C1C1A; font-size: 13px; }
+    .app-pipeline-row-count { color: #999; font-size: 12px; }
+    .app-pipeline-row-cert { color: #3B6D11; font-size: 12px; font-weight: 500; }
+
+    /* Chat */
+    .hg-typing-bubble { display: flex; gap: 4px; align-items: center; padding: 12px 16px !important; }
+    .hg-typing-bubble span { width: 7px; height: 7px; background: #999; border-radius: 50%; animation: typingDot 1.2s infinite ease-in-out; }
+    .hg-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .hg-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .add-job-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: #3B6D11;
+      background: #EAF3DE;
+      border: none;
+      border-radius: 20px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .add-job-btn:hover { background: #d5ecb8; }
+
+    textarea.app-input { resize: none; line-height: 1.5; }
+    .field-label { font-size: 12px; font-weight: 500; color: #666660; margin-bottom: 5px; margin-top: 6px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .two-col .app-input, .two-col .app-select { margin-bottom: 0; }
+    .error-msg { color: #c0392b; font-size: 13px; margin-bottom: 8px; display: none; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 <div class="app-wrap">
 
   <div class="app-header">
-    <div style="display:flex;align-items:center;gap:7px;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/><path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/><path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/></svg><span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span></div>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <button onclick="logout()" style="font-size:12px;color:#999;background:none;border:none;cursor:pointer;font-family:inherit;">Log out</button>
       <div class="app-profile" id="profile-icon">–</div>
     </div>
   </div>
 
-  <!-- My Jobs -->
-  <div class="app-section">
-    <div class="app-section-title">My Jobs</div>
-    <div class="app-section-sub">2 active postings</div>
-    <div class="app-posting-card">
-      <div class="app-posting-header">
-        <div class="app-posting-role">Mechanical Assembler</div>
-        <span class="app-posting-status">Open</span>
-      </div>
-      <div class="app-posting-pay">$22–$26/hr · First shift</div>
-      <div class="app-posting-stats">👁 34 locals viewed · ✓ 8 qualified · ◎ 6 close</div>
-    </div>
-    <div class="app-posting-card">
-      <div class="app-posting-header">
-        <div class="app-posting-role">Maintenance Technician</div>
-        <span class="app-posting-status">Open</span>
-      </div>
-      <div class="app-posting-pay">$24–$28/hr · Rotating shifts</div>
-      <div class="app-posting-stats">👁 19 locals viewed · ✓ 3 qualified · ◎ 4 close</div>
-    </div>
+  <!-- Empty state — shown when no jobs posted yet -->
+  <div id="empty-state" class="empty-state-wrap" style="display:none;">
+    <div class="empty-state-icon">🌱</div>
+    <div class="empty-state-headline">You haven't posted any jobs yet</div>
+    <div class="empty-state-sub">Post a role and locals in your area will see it right away.</div>
+    <button class="app-btn-primary" style="max-width:280px;" onclick="openPostSheet()">Post Your First Job</button>
   </div>
 
-  <!-- Local Talent Pipeline -->
-  <div class="app-section">
-    <div class="app-section-title">Local Talent Pipeline</div>
-    <div class="app-section-sub">Chenango County · Class of 2026</div>
-    <div class="app-pipeline-box">
-      <div class="app-pipeline-intro">🎓 23 locals graduating this June from relevant BOCES programs</div>
-      <div class="app-pipeline-row">
-        <div>
-          <div class="app-pipeline-row-name">Electrical Program</div>
-          <div class="app-pipeline-row-count">8 locals</div>
-        </div>
-        <div class="app-pipeline-row-cert">6 OSHA certified</div>
-      </div>
-      <div class="app-pipeline-row">
-        <div>
-          <div class="app-pipeline-row-name">Mechanical/Manufacturing</div>
-          <div class="app-pipeline-row-count">9 locals</div>
-        </div>
-        <div class="app-pipeline-row-cert">4 blueprint certified</div>
-      </div>
-      <div class="app-pipeline-row">
-        <div>
-          <div class="app-pipeline-row-name">Carpentry &amp; Construction</div>
-          <div class="app-pipeline-row-count">6 locals</div>
-        </div>
-        <div class="app-pipeline-row-cert">All have hand tool safety</div>
-      </div>
-    </div>
-    <button class="app-pipeline-btn" onclick="alert('Message cohort — coming in the full version.')">Message this cohort →</button>
-  </div>
+  <!-- Jobs state — shown once employer has at least one job -->
+  <div id="jobs-state" style="display:none;">
 
-  <!-- Chat -->
-  <div class="app-section">
-    <div class="app-section-title">Update Your Postings</div>
-    <div class="app-section-sub">Just tell us what you need</div>
-    <div class="app-chat" id="dash-chat">
-      <div class="app-chat-msg user chat-hidden" data-chat="employer">
-        <div class="app-chat-bubble">Update the pay on the mechanical assembler role to $26/hr</div>
+    <!-- My Jobs -->
+    <div class="app-section">
+      <div class="section-header-row">
+        <div class="app-section-title">My Jobs</div>
+        <button class="add-job-btn" onclick="openPostSheet()">+ Add Another</button>
       </div>
-      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
-        <div class="app-chat-label">🌱 Homegrown</div>
-        <div class="app-chat-bubble">Done! Mechanical Assembler is now showing $26/hr. 3 more locals just became eligible based on the new rate.</div>
-      </div>
-      <div class="app-chat-msg user chat-hidden" data-chat="employer">
-        <div class="app-chat-bubble">Which locals are closest to qualifying for my electrician role?</div>
-      </div>
-      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
-        <div class="app-chat-label">🌱 Homegrown</div>
-        <div class="app-chat-bubble">6 locals are 1 certification away from qualifying for your Maintenance Technician role. The most common missing cert is Hydraulic Systems. Want me to notify them about the opening?</div>
-      </div>
-      <div class="app-chat-msg user chat-hidden" data-chat="employer">
-        <div class="app-chat-bubble">Yes, send them a message</div>
-      </div>
-      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
-        <div class="app-chat-label">🌱 Homegrown</div>
-        <div class="app-chat-bubble">Done! 6 locals have been notified. You'll see replies here when they respond.</div>
-      </div>
-      <div class="app-chat-msg user chat-hidden" data-chat="employer">
-        <div class="app-chat-bubble">Show me hiring trends for mechanical assemblers in the last 6 months</div>
-      </div>
-      <div class="app-chat-msg agent chat-hidden" data-chat="agent">
-        <div class="app-chat-label">🌱 Homegrown</div>
-        <div class="app-chat-bubble" style="max-width:90%;">
-          <div style="margin-bottom:10px;line-height:1.5;">Demand for mechanical assemblers in Chenango County is up 34% since January. Local candidate supply has stayed flat. 8 locals in relevant BOCES programs graduate in June — your earliest opportunity to close this gap.</div>
-          <div style="position:relative;width:100%;max-width:280px;height:160px;">
-            <canvas id="trend-chart"></canvas>
-          </div>
+      <div class="app-section-sub" id="jobs-sub"></div>
+      <div id="jobs-list"></div>
+    </div>
+
+    <!-- Local Talent Pipeline -->
+    <div class="app-section" id="pipeline-section">
+      <div class="app-section-title">Local Talent Pipeline</div>
+      <div class="app-section-sub" id="pipeline-sub"></div>
+      <div class="app-pipeline-box" id="pipeline-box"></div>
+      <button class="app-pipeline-btn" onclick="alert('Message cohort — coming in the full version.')">Message this cohort →</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="app-section">
+      <div class="app-section-title">Update Your Postings</div>
+      <div class="app-section-sub">Just tell us what you need</div>
+      <div class="app-chat" id="dash-chat">
+        <div class="app-chat-msg agent">
+          <div class="app-chat-label">🌱 Homegrown</div>
+          <div class="app-chat-bubble">What would you like to update? You can ask me to change pay, shift, or pause a role.</div>
         </div>
       </div>
-      <div class="app-chat-msg agent" id="chat-typing" style="display:none;">
-        <div class="app-chat-label">🌱 Homegrown</div>
-        <div class="app-chat-bubble hg-typing-bubble"><span></span><span></span><span></span></div>
+      <div class="app-chat-input-row">
+        <input class="app-chat-input" id="chat-input" type="text" placeholder="Message Homegrown…" />
+        <button class="app-chat-send" onclick="sendChat()">↑</button>
       </div>
     </div>
-    <div class="app-chat-input-row">
-      <input class="app-chat-input" type="text" placeholder="Message Homegrown..." />
-      <button class="app-chat-send">↑</button>
-    </div>
+
   </div>
 
 </div>
+
+<!-- Post Job Sheet -->
+<div class="post-overlay" id="post-overlay" onclick="overlayClickClose(event)">
+  <div class="post-sheet" id="post-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title" id="sheet-title">Post a Job</div>
+      <button class="sheet-close" onclick="closePostSheet()">✕</button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="sheet-steps">
+        <div class="sheet-step-tab active" id="tab-1">1 · Describe role</div>
+        <div class="sheet-step-tab" id="tab-2">2 · Job details</div>
+      </div>
+
+      <!-- STEP 1: Raw description + AI transform -->
+      <div id="post-step-1">
+        <div class="field-label">Write a raw description of the role</div>
+        <textarea class="app-input" id="raw-description" rows="5" placeholder="e.g. We need someone to run our CNC machines, 5 days a week first shift, $24–$28/hr, union shop, OSHA 10 preferred. We'll sponsor forklift cert if needed."></textarea>
+
+        <div class="two-col" style="margin-bottom:12px;">
+          <div>
+            <div class="field-label">Sponsors certifications?</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+              <div class="toggle-switch" id="toggle-sponsors" onclick="toggleSwitch('sponsors')"></div>
+              <span style="font-size:13px;color:#666;" id="sponsors-label">No</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Offers apprenticeships?</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+              <div class="toggle-switch" id="toggle-apprenticeships" onclick="toggleSwitch('apprenticeships')"></div>
+              <span style="font-size:13px;color:#666;" id="apprenticeships-label">No</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="ai-result-box" class="ai-result-box" style="display:none;">
+          <div class="ai-result-label">✦ Rewritten for locals</div>
+          <div class="ai-result-text" id="ai-result-text"></div>
+        </div>
+
+        <div class="error-msg" id="step1-error"></div>
+        <button class="app-btn-primary" id="transform-btn" onclick="runTransform()">Rewrite for locals →</button>
+        <button class="app-btn-secondary" id="next-btn" onclick="goStep2()" style="display:none;">Looks good — add details →</button>
+      </div>
+
+      <!-- STEP 2: Structured form -->
+      <div id="post-step-2" style="display:none;">
+        <div class="field-label">Job title</div>
+        <input class="app-input" id="f-role" type="text" placeholder="e.g. CNC Machinist" />
+
+        <div class="two-col" style="margin-bottom:10px;">
+          <div>
+            <div class="field-label">City</div>
+            <input class="app-input" id="f-city" type="text" placeholder="Greene" />
+          </div>
+          <div>
+            <div class="field-label">State</div>
+            <input class="app-input" id="f-state" type="text" placeholder="NY" />
+          </div>
+        </div>
+
+        <div class="field-label">Pay range</div>
+        <input class="app-input" id="f-pay" type="text" placeholder="e.g. $24–$28/hr" />
+
+        <div class="field-label">Shift</div>
+        <select class="app-select" id="f-shift">
+          <option value="" disabled selected>Select shift…</option>
+          <option>First shift</option>
+          <option>Second shift</option>
+          <option>Third shift</option>
+          <option>Rotating shifts</option>
+          <option>Flexible / Days</option>
+        </select>
+
+        <div class="field-label">Position type</div>
+        <select class="app-select" id="f-type">
+          <option value="" disabled selected>Union or non-union…</option>
+          <option value="union">Union</option>
+          <option value="non-union">Non-union</option>
+          <option value="government">Government</option>
+        </select>
+
+        <div class="field-label">Benefits (comma-separated)</div>
+        <input class="app-input" id="f-benefits" type="text" placeholder="e.g. Health insurance, Paid holidays" />
+
+        <div class="field-label" style="margin-bottom:8px;">Certifications required</div>
+        <div class="app-checklist" id="cert-checklist" style="margin-bottom:14px;">
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">OSHA 10 Certification</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Blueprint Reading</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Hand Tool Safety</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">IBEW Apprenticeship Application</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Hydraulic Systems Certification</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">ServSafe Certification</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">NYS CNA License</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Adobe Certified Professional</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">CDL License</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Security Guard Certification</div></div>
+          <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Forklift Operator Certification</div></div>
+        </div>
+
+        <div class="error-msg" id="step2-error"></div>
+        <button class="app-btn-primary" id="submit-btn" onclick="submitJob()">Post job →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const _sb = window.supabase.createClient(
     'https://mccrpgqtqtrxfifxvwbd.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
 
+  let currentSession = null;
+  let employerProfile = null;
+  let sponsorsCerts = false;
+  let offersApprenticeships = false;
+  let studentDescription = '';
+
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
-    if (!session) {
-      window.location.href = '/';
-      return;
-    }
+    if (!session) { window.location.href = '/'; return; }
+    currentSession = session;
 
-    // Only redirect to setup for truly new employers (no DB row yet)
     if (localStorage.getItem('employer_setup_complete') !== 'true') {
       const { data: empRow } = await _sb.from('employers').select('id').eq('id', session.user.id).single();
-      if (!empRow) {
-        // Brand new — no record at all
-        window.location.href = '/employer/setup.html';
-        return;
-      }
-      // Has a DB row → they've been through signup, mark complete and continue
+      if (!empRow) { window.location.href = '/employer/setup.html'; return; }
       localStorage.setItem('employer_setup_complete', 'true');
     }
 
     const email = session.user.email || '';
     document.getElementById('profile-icon').textContent = email.charAt(0).toUpperCase();
+
+    const { data: emp } = await _sb.from('employers')
+      .select('company_name, county, industry')
+      .eq('id', currentSession.user.id)
+      .single();
+    if (emp) employerProfile = emp;
+
+    await loadJobs();
   })();
+
+  async function loadJobs() {
+    const companyName = employerProfile?.company_name
+      || currentSession.user.user_metadata?.company_name
+      || '';
+
+    const { data: jobs } = await _sb.from('jobs')
+      .select('*')
+      .eq('company_name', companyName)
+      .order('created_at', { ascending: false });
+
+    if (!jobs || jobs.length === 0) {
+      document.getElementById('empty-state').style.display = 'flex';
+      document.getElementById('jobs-state').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('jobs-state').style.display = 'block';
+
+    const active = jobs.filter(j => j.is_active).length;
+    document.getElementById('jobs-sub').textContent =
+      `${active} active · ${jobs.length - active} paused`;
+
+    document.getElementById('jobs-list').innerHTML =
+      jobs.map(renderJobCard).join('');
+
+    await renderPipeline(jobs);
+  }
+
+  function renderJobCard(job) {
+    const statusBadge = job.is_active
+      ? `<span class="app-posting-status">Active</span>`
+      : `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">Paused</span>`;
+
+    const meta = [job.pay, job.shift_type].filter(Boolean).join(' · ');
+
+    const certPills = job.certifications_required?.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
+          ${job.certifications_required.map(c =>
+            `<span style="font-size:11px;background:#f5f5f5;color:#666;padding:3px 8px;border-radius:20px;">${escapeHtml(c)}</span>`
+          ).join('')}
+        </div>` : '';
+
+    const toggleBtn = job.is_active
+      ? `<button class="real-job-btn real-job-btn-pause" onclick="toggleJob('${job.id}', false)">Pause</button>`
+      : `<button class="real-job-btn real-job-btn-activate" onclick="toggleJob('${job.id}', true)">Activate</button>`;
+
+    return `
+      <div class="real-job-card" id="job-card-${job.id}">
+        <div class="real-job-top">
+          <div class="real-job-role">${escapeHtml(job.role_title || '')}</div>
+          ${statusBadge}
+        </div>
+        <div class="real-job-pay">${escapeHtml(meta)}</div>
+        ${certPills}
+        <div class="real-job-actions">${toggleBtn}</div>
+      </div>`;
+  }
+
+  async function renderPipeline(jobs) {
+    const pipelineSection = document.getElementById('pipeline-section');
+
+    // Collect all unique certs required across active jobs
+    const allCerts = new Set();
+    jobs.filter(j => j.is_active).forEach(j => {
+      (j.certifications_required || []).forEach(c => allCerts.add(c));
+    });
+
+    if (allCerts.size === 0) { pipelineSection.style.display = 'none'; return; }
+
+    // Query real students from Supabase
+    const { data: students } = await _sb.from('students').select('certifications');
+    const studentList = students || [];
+
+    if (studentList.length === 0) { pipelineSection.style.display = 'none'; return; }
+
+    // Count how many students hold each required cert
+    const certRows = [...allCerts]
+      .map(cert => ({
+        cert,
+        count: studentList.filter(s => (s.certifications || []).includes(cert)).length
+      }))
+      .filter(r => r.count > 0)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    if (certRows.length === 0) { pipelineSection.style.display = 'none'; return; }
+
+    const county = employerProfile?.county || 'your county';
+    document.getElementById('pipeline-sub').textContent =
+      `${county} · ${studentList.length} local${studentList.length !== 1 ? 's' : ''} in the system`;
+
+    const rows = certRows.map(r => `
+      <div class="app-pipeline-row">
+        <div>
+          <div class="app-pipeline-row-name">${escapeHtml(r.cert)}</div>
+          <div class="app-pipeline-row-count">${r.count} local${r.count !== 1 ? 's' : ''} certified</div>
+        </div>
+        <div class="app-pipeline-row-cert">matches your role</div>
+      </div>`).join('');
+
+    document.getElementById('pipeline-box').innerHTML = `
+      <div class="app-pipeline-intro">🎓 Locals already certified for your open roles</div>
+      ${rows}`;
+
+    pipelineSection.style.display = 'block';
+  }
+
+  async function toggleJob(jobId, newActive) {
+    const card = document.getElementById('job-card-' + jobId);
+    const btn = card.querySelector('.real-job-btn');
+    const prev = btn.textContent;
+    btn.textContent = '…'; btn.disabled = true;
+    const { error } = await _sb.from('jobs').update({ is_active: newActive }).eq('id', jobId);
+    if (error) { btn.textContent = prev; btn.disabled = false; return; }
+    await loadJobs();
+  }
+
+  /* ── Post Job Sheet ── */
+
+  function openPostSheet() {
+    resetPostForm();
+    document.getElementById('post-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePostSheet() {
+    document.getElementById('post-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function overlayClickClose(e) {
+    if (e.target === document.getElementById('post-overlay')) closePostSheet();
+  }
+
+  function resetPostForm() {
+    document.getElementById('post-step-1').style.display = 'block';
+    document.getElementById('post-step-2').style.display = 'none';
+    document.getElementById('tab-1').className = 'sheet-step-tab active';
+    document.getElementById('tab-2').className = 'sheet-step-tab';
+    document.getElementById('raw-description').value = '';
+    document.getElementById('ai-result-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('transform-btn').style.display = 'block';
+    document.getElementById('transform-btn').innerHTML = 'Rewrite for locals →';
+    document.getElementById('transform-btn').disabled = false;
+    document.getElementById('step1-error').style.display = 'none';
+    document.getElementById('step2-error').style.display = 'none';
+    document.getElementById('f-role').value = '';
+    document.getElementById('f-city').value = '';
+    document.getElementById('f-state').value = 'NY';
+    document.getElementById('f-pay').value = '';
+    document.getElementById('f-shift').selectedIndex = 0;
+    document.getElementById('f-type').selectedIndex = 0;
+    document.getElementById('f-benefits').value = '';
+    document.querySelectorAll('#cert-checklist .app-check-row.selected')
+      .forEach(r => r.classList.remove('selected'));
+    sponsorsCerts = false; offersApprenticeships = false; studentDescription = '';
+    document.getElementById('toggle-sponsors').className = 'toggle-switch';
+    document.getElementById('toggle-apprenticeships').className = 'toggle-switch';
+    document.getElementById('sponsors-label').textContent = 'No';
+    document.getElementById('apprenticeships-label').textContent = 'No';
+    document.getElementById('sheet-title').textContent = 'Post a Job';
+    document.getElementById('submit-btn').innerHTML = 'Post job →';
+    document.getElementById('submit-btn').disabled = false;
+  }
+
+  function toggleSwitch(which) {
+    if (which === 'sponsors') {
+      sponsorsCerts = !sponsorsCerts;
+      document.getElementById('toggle-sponsors').className = 'toggle-switch' + (sponsorsCerts ? ' on' : '');
+      document.getElementById('sponsors-label').textContent = sponsorsCerts ? 'Yes' : 'No';
+    } else {
+      offersApprenticeships = !offersApprenticeships;
+      document.getElementById('toggle-apprenticeships').className = 'toggle-switch' + (offersApprenticeships ? ' on' : '');
+      document.getElementById('apprenticeships-label').textContent = offersApprenticeships ? 'Yes' : 'No';
+    }
+  }
+
+  async function runTransform() {
+    const raw = document.getElementById('raw-description').value.trim();
+    const errEl = document.getElementById('step1-error');
+    if (!raw) { errEl.textContent = 'Please describe the role first.'; errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+
+    const btn = document.getElementById('transform-btn');
+    btn.innerHTML = '<span class="spinner"></span>Rewriting…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/transform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employerDescription: raw, sponsorsCerts, offersApprenticeships })
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      studentDescription = json.studentDescription || raw;
+      document.getElementById('ai-result-text').textContent = studentDescription;
+      document.getElementById('ai-result-box').style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('next-btn').style.display = 'block';
+    } catch {
+      errEl.textContent = 'Could not rewrite — check connection and try again.';
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Rewrite for locals →';
+      btn.disabled = false;
+    }
+  }
+
+  function goStep2() {
+    document.getElementById('post-step-1').style.display = 'none';
+    document.getElementById('post-step-2').style.display = 'block';
+    document.getElementById('tab-1').className = 'sheet-step-tab done';
+    document.getElementById('tab-2').className = 'sheet-step-tab active';
+    document.getElementById('sheet-title').textContent = 'Job Details';
+    document.querySelector('.sheet-body').scrollTop = 0;
+  }
+
+  function toggleCert(el) { el.classList.toggle('selected'); }
+
+  async function submitJob() {
+    const role = document.getElementById('f-role').value.trim();
+    const city = document.getElementById('f-city').value.trim();
+    const state = document.getElementById('f-state').value.trim();
+    const pay = document.getElementById('f-pay').value.trim();
+    const shift = document.getElementById('f-shift').value;
+    const jobType = document.getElementById('f-type').value;
+    const benefitsRaw = document.getElementById('f-benefits').value.trim();
+    const errEl = document.getElementById('step2-error');
+
+    if (!role || !city || !pay) {
+      errEl.textContent = 'Please fill in job title, city, and pay.';
+      errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+
+    const benefits = benefitsRaw
+      ? benefitsRaw.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+    const certifications_required = Array.from(
+      document.querySelectorAll('#cert-checklist .app-check-row.selected')
+    ).map(r => r.querySelector('.app-check-label').textContent);
+
+    const companyName = employerProfile?.company_name
+      || currentSession.user.user_metadata?.company_name
+      || '';
+
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<span class="spinner"></span>Posting…';
+    btn.disabled = true;
+
+    const { error } = await _sb.from('jobs').insert([{
+      company_name: companyName,
+      role_title: role,
+      city,
+      state: state || 'NY',
+      pay,
+      shift_type: shift,
+      is_union: jobType === 'union',
+      benefits,
+      certifications_required,
+      sponsors_certifications: sponsorsCerts,
+      offers_apprenticeships: offersApprenticeships,
+      employer_description: document.getElementById('raw-description').value.trim(),
+      student_description: studentDescription || document.getElementById('raw-description').value.trim(),
+      is_active: true
+    }]);
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.innerHTML = 'Post job →';
+      btn.disabled = false;
+      return;
+    }
+
+    closePostSheet();
+    await loadJobs();
+  }
+
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const chat = document.getElementById('dash-chat');
+    const userMsg = document.createElement('div');
+    userMsg.className = 'app-chat-msg user';
+    userMsg.innerHTML = `<div class="app-chat-bubble">${escapeHtml(text)}</div>`;
+    chat.appendChild(userMsg);
+    input.value = '';
+    setTimeout(() => {
+      const reply = document.createElement('div');
+      reply.className = 'app-chat-msg agent';
+      reply.innerHTML = `<div class="app-chat-label">🌱 Homegrown</div><div class="app-chat-bubble">Got it — AI-powered updates are coming soon. For now, use the Pause/Activate buttons on your job cards.</div>`;
+      chat.appendChild(reply);
+      reply.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 900);
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendChat();
+  });
 
   async function logout() {
     await _sb.auth.signOut();
     window.location.href = '/';
   }
 
-  function renderTrendChart() {
-    const canvas = document.getElementById('trend-chart');
-    if (!canvas || canvas._rendered) return;
-    canvas._rendered = true;
-    new Chart(canvas, {
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          {
-            type: 'bar',
-            label: 'Open Roles',
-            data: [4, 5, 6, 7, 8, 11],
-            backgroundColor: '#3B6D11',
-            borderRadius: 4,
-            order: 2
-          },
-          {
-            type: 'line',
-            label: 'Local Candidates',
-            data: [5, 5, 4, 5, 5, 5],
-            borderColor: '#999',
-            borderDash: [4, 4],
-            borderWidth: 2,
-            pointRadius: 2,
-            backgroundColor: 'transparent',
-            tension: 0.3,
-            order: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } },
-          title: {
-            display: true,
-            text: 'Mechanical Assembler Demand vs. Supply · Chenango County',
-            font: { size: 10 },
-            color: '#666',
-            padding: { bottom: 8 }
-          }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { min: 0, max: 12, grid: { display: false }, ticks: { font: { size: 10 }, stepSize: 4, precision: 0 } }
-        }
-      }
-    });
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-
-  let chatAnimated = false;
-  function animateChat() {
-    if (chatAnimated) return;
-    chatAnimated = true;
-    const messages = document.querySelectorAll('#dash-chat .chat-hidden');
-    const typing = document.getElementById('chat-typing');
-    let delay = 0;
-    messages.forEach((msg) => {
-      const isAgent = msg.dataset.chat === 'agent';
-      if (isAgent) {
-        setTimeout(() => {
-          typing.style.display = 'flex';
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }, delay);
-        delay += 2800;
-        setTimeout(() => {
-          typing.style.display = 'none';
-          msg.classList.remove('chat-hidden');
-          msg.classList.add('chat-showing');
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            msg.classList.remove('chat-showing');
-            msg.classList.add('chat-visible');
-            if (msg.querySelector('#trend-chart')) renderTrendChart();
-          }));
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }, delay);
-      } else {
-        setTimeout(() => {
-          msg.classList.remove('chat-hidden');
-          msg.classList.add('chat-showing');
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            msg.classList.remove('chat-showing');
-            msg.classList.add('chat-visible');
-          }));
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }, delay);
-      }
-      delay += isAgent ? 2200 : 1200;
-    });
-  }
-
-  function checkChatVisible() {
-    const chatEl = document.getElementById('dash-chat');
-    if (!chatEl) return;
-    const rect = chatEl.getBoundingClientRect();
-    if (rect.top < window.innerHeight - 60) {
-      animateChat();
-      window.removeEventListener('scroll', checkChatVisible);
-    }
-  }
-
-  window.addEventListener('scroll', checkChatVisible);
-  checkChatVisible();
 </script>
 </body>
 </html>
