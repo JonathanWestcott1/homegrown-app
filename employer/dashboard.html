@@ -312,54 +312,25 @@
 
     <div class="sheet-body">
       <div class="sheet-steps">
-        <div class="sheet-step-tab active" id="tab-1">1 · Describe role</div>
-        <div class="sheet-step-tab" id="tab-2">2 · Job details</div>
+        <div class="sheet-step-tab active" id="tab-1">1 · Role details</div>
+        <div class="sheet-step-tab" id="tab-2">2 · Anything else?</div>
       </div>
 
-      <!-- STEP 1: Description -->
+      <!-- STEP 1: Role details -->
       <div id="post-step-1">
-        <div class="field-label">Describe the role</div>
-        <textarea class="app-input" id="raw-description" rows="6" placeholder="e.g. We need someone to run our CNC machines, 5 days a week first shift, $24–$28/hr, union shop, OSHA 10 preferred. We'll sponsor forklift cert if needed."></textarea>
 
-        <div class="two-col" style="margin-bottom:12px;">
-          <div>
-            <div class="field-label">Sponsors certifications?</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
-              <div class="toggle-switch" id="toggle-sponsors" onclick="toggleSwitch('sponsors')"></div>
-              <span style="font-size:13px;color:#666;" id="sponsors-label">No</span>
-            </div>
-          </div>
-          <div>
-            <div class="field-label">Offers apprenticeships?</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
-              <div class="toggle-switch" id="toggle-apprenticeships" onclick="toggleSwitch('apprenticeships')"></div>
-              <span style="font-size:13px;color:#666;" id="apprenticeships-label">No</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="error-msg" id="step1-error"></div>
-        <button class="app-btn-primary" onclick="goStep2()">Next →</button>
-      </div>
-
-      <!-- STEP 2: Structured form -->
-      <div id="post-step-2" style="display:none;">
-        <div class="field-label">Job title</div>
+        <div class="field-label">Role title</div>
         <input class="app-input" id="f-role" type="text" placeholder="e.g. CNC Machinist" />
 
-        <div class="two-col" style="margin-bottom:10px;">
-          <div>
-            <div class="field-label">City</div>
-            <input class="app-input" id="f-city" type="text" placeholder="Greene" />
-          </div>
-          <div>
-            <div class="field-label">State</div>
-            <input class="app-input" id="f-state" type="text" placeholder="NY" />
-          </div>
+        <div class="field-label">Pay</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="color:#666;font-size:14px;white-space:nowrap;">$</span>
+          <input class="app-input" id="f-pay-min" type="number" min="0" placeholder="20" style="margin-bottom:0;flex:1;" />
+          <span style="color:#999;font-size:14px;">–</span>
+          <span style="color:#666;font-size:14px;white-space:nowrap;">$</span>
+          <input class="app-input" id="f-pay-max" type="number" min="0" placeholder="28" style="margin-bottom:0;flex:1;" />
+          <span style="color:#666;font-size:14px;white-space:nowrap;">/hr</span>
         </div>
-
-        <div class="field-label">Pay range</div>
-        <input class="app-input" id="f-pay" type="text" placeholder="e.g. $24–$28/hr" />
 
         <div class="field-label">Shift</div>
         <select class="app-select" id="f-shift">
@@ -371,16 +342,23 @@
           <option>Flexible / daytime hours</option>
         </select>
 
-        <div class="field-label">Position type</div>
-        <select class="app-select" id="f-type">
-          <option value="" disabled selected>Union or non-union…</option>
-          <option value="union">Union</option>
-          <option value="non-union">Non-union</option>
-          <option value="government">Government</option>
-        </select>
+        <div class="field-label">Union shop?</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 14px;">
+          <div class="toggle-switch" id="toggle-union" onclick="toggleSwitch('union')"></div>
+          <span style="font-size:13px;color:#666;" id="union-label">No</span>
+        </div>
 
-        <div class="field-label">Benefits (comma-separated)</div>
-        <input class="app-input" id="f-benefits" type="text" placeholder="e.g. Health insurance, Paid holidays" />
+        <div class="field-label">Will you pay for training &amp; certifications?</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 14px;">
+          <div class="toggle-switch" id="toggle-sponsors" onclick="toggleSwitch('sponsors')"></div>
+          <span style="font-size:13px;color:#666;" id="sponsors-label">No</span>
+        </div>
+
+        <div class="field-label">Do you offer apprenticeships?</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 14px;">
+          <div class="toggle-switch" id="toggle-apprenticeships" onclick="toggleSwitch('apprenticeships')"></div>
+          <span style="font-size:13px;color:#666;" id="apprenticeships-label">No</span>
+        </div>
 
         <div class="field-label" style="margin-bottom:8px;">Certifications required</div>
         <div class="app-checklist" id="cert-checklist" style="margin-bottom:14px;">
@@ -397,6 +375,29 @@
           <div class="app-check-row" onclick="toggleCert(this)"><div class="app-check-box">✓</div><div class="app-check-label">Forklift Operator Certification</div></div>
         </div>
 
+        <div class="field-label">County</div>
+        <input class="app-input" id="f-county" type="text" list="county-list" placeholder="e.g. Chenango" autocomplete="off" />
+        <datalist id="county-list">
+          <option>Broome</option>
+          <option>Chenango</option>
+          <option>Cortland</option>
+          <option>Delaware</option>
+          <option>Madison</option>
+          <option>Otsego</option>
+          <option>Schoharie</option>
+          <option>Tioga</option>
+        </datalist>
+
+        <div class="error-msg" id="step1-error"></div>
+        <button class="app-btn-primary" onclick="goStep2()" style="margin-top:4px;">Next →</button>
+      </div>
+
+      <!-- STEP 2: Anything else? (optional) -->
+      <div id="post-step-2" style="display:none;">
+        <div class="field-label">Anything else locals should know? <span style="font-weight:400;color:#999;">(optional)</span></div>
+        <textarea class="app-input" id="f-extra" rows="6" placeholder='e.g. "We&#x27;re a family-owned shop, relaxed environment, good chance of going full-time after 90 days."'></textarea>
+        <div style="font-size:12px;color:#999;margin-bottom:16px;">Leave blank to skip — you can always edit later.</div>
+
         <div class="error-msg" id="step2-error"></div>
         <button class="app-btn-primary" id="submit-btn" onclick="submitJob()">Post job →</button>
       </div>
@@ -412,9 +413,9 @@
 
   let currentSession = null;
   let employerProfile = null;
+  let isUnion = false;
   let sponsorsCerts = false;
   let offersApprenticeships = false;
-  let studentDescription = '';
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
@@ -579,21 +580,21 @@
     document.getElementById('post-step-2').style.display = 'none';
     document.getElementById('tab-1').className = 'sheet-step-tab active';
     document.getElementById('tab-2').className = 'sheet-step-tab';
-    document.getElementById('raw-description').value = '';
     document.getElementById('step1-error').style.display = 'none';
     document.getElementById('step2-error').style.display = 'none';
     document.getElementById('f-role').value = '';
-    document.getElementById('f-city').value = '';
-    document.getElementById('f-state').value = 'NY';
-    document.getElementById('f-pay').value = '';
+    document.getElementById('f-pay-min').value = '';
+    document.getElementById('f-pay-max').value = '';
     document.getElementById('f-shift').selectedIndex = 0;
-    document.getElementById('f-type').selectedIndex = 0;
-    document.getElementById('f-benefits').value = '';
+    document.getElementById('f-county').value = '';
+    document.getElementById('f-extra').value = '';
     document.querySelectorAll('#cert-checklist .app-check-row.selected')
       .forEach(r => r.classList.remove('selected'));
-    sponsorsCerts = false; offersApprenticeships = false;
+    isUnion = false; sponsorsCerts = false; offersApprenticeships = false;
+    document.getElementById('toggle-union').className = 'toggle-switch';
     document.getElementById('toggle-sponsors').className = 'toggle-switch';
     document.getElementById('toggle-apprenticeships').className = 'toggle-switch';
+    document.getElementById('union-label').textContent = 'No';
     document.getElementById('sponsors-label').textContent = 'No';
     document.getElementById('apprenticeships-label').textContent = 'No';
     document.getElementById('sheet-title').textContent = 'Post a Job';
@@ -602,7 +603,11 @@
   }
 
   function toggleSwitch(which) {
-    if (which === 'sponsors') {
+    if (which === 'union') {
+      isUnion = !isUnion;
+      document.getElementById('toggle-union').className = 'toggle-switch' + (isUnion ? ' on' : '');
+      document.getElementById('union-label').textContent = isUnion ? 'Yes' : 'No';
+    } else if (which === 'sponsors') {
       sponsorsCerts = !sponsorsCerts;
       document.getElementById('toggle-sponsors').className = 'toggle-switch' + (sponsorsCerts ? ' on' : '');
       document.getElementById('sponsors-label').textContent = sponsorsCerts ? 'Yes' : 'No';
@@ -614,15 +619,17 @@
   }
 
   function goStep2() {
-    const raw = document.getElementById('raw-description').value.trim();
+    const role = document.getElementById('f-role').value.trim();
+    const payMin = document.getElementById('f-pay-min').value.trim();
     const errEl = document.getElementById('step1-error');
-    if (!raw) { errEl.textContent = 'Please describe the role first.'; errEl.style.display = 'block'; return; }
+    if (!role) { errEl.textContent = 'Please enter a role title.'; errEl.style.display = 'block'; return; }
+    if (!payMin) { errEl.textContent = 'Please enter a pay rate.'; errEl.style.display = 'block'; return; }
     errEl.style.display = 'none';
     document.getElementById('post-step-1').style.display = 'none';
     document.getElementById('post-step-2').style.display = 'block';
     document.getElementById('tab-1').className = 'sheet-step-tab done';
     document.getElementById('tab-2').className = 'sheet-step-tab active';
-    document.getElementById('sheet-title').textContent = 'Job Details';
+    document.getElementById('sheet-title').textContent = 'Anything else?';
     document.querySelector('.sheet-body').scrollTop = 0;
   }
 
@@ -630,23 +637,16 @@
 
   async function submitJob() {
     const role = document.getElementById('f-role').value.trim();
-    const city = document.getElementById('f-city').value.trim();
-    const state = document.getElementById('f-state').value.trim();
-    const pay = document.getElementById('f-pay').value.trim();
+    const payMin = document.getElementById('f-pay-min').value.trim();
+    const payMax = document.getElementById('f-pay-max').value.trim();
     const shift = document.getElementById('f-shift').value;
-    const jobType = document.getElementById('f-type').value;
-    const benefitsRaw = document.getElementById('f-benefits').value.trim();
+    const county = document.getElementById('f-county').value.trim();
+    const extra = document.getElementById('f-extra').value.trim();
     const errEl = document.getElementById('step2-error');
 
-    if (!role || !city || !pay) {
-      errEl.textContent = 'Please fill in job title, city, and pay.';
-      errEl.style.display = 'block'; return;
-    }
     errEl.style.display = 'none';
 
-    const benefits = benefitsRaw
-      ? benefitsRaw.split(',').map(s => s.trim()).filter(Boolean)
-      : [];
+    const pay = payMax ? `$${payMin}–$${payMax}/hr` : `$${payMin}/hr`;
     const certifications_required = Array.from(
       document.querySelectorAll('#cert-checklist .app-check-row.selected')
     ).map(r => r.querySelector('.app-check-label').textContent);
@@ -662,17 +662,17 @@
     const { error } = await _sb.from('jobs').insert([{
       company_name: companyName,
       role_title: role,
-      city,
-      state: state || 'NY',
+      city: county || null,
+      state: 'NY',
       pay,
-      shift_type: shift,
-      is_union: jobType === 'union',
-      benefits,
+      shift_type: shift || null,
+      is_union: isUnion,
+      benefits: [],
       certifications_required,
       sponsors_certifications: sponsorsCerts,
       offers_apprenticeships: offersApprenticeships,
-      employer_description: document.getElementById('raw-description').value.trim(),
-      student_description: document.getElementById('raw-description').value.trim(),
+      employer_description: extra || null,
+      student_description: extra || null,
       is_active: true
     }]);
 
