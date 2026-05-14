@@ -822,7 +822,6 @@
         </div>
         <div class="pw-rules" id="pw-rules-s">
           <div class="pw-rule" id="pr-s-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
-          <div class="pw-rule" id="pr-s-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
           <div class="pw-rule" id="pr-s-num"><span class="pw-rule-icon">○</span>One number</div>
           <div class="pw-rule" id="pr-s-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
         </div>
@@ -869,7 +868,6 @@
         </div>
         <div class="pw-rules" id="pw-rules-e">
           <div class="pw-rule" id="pr-e-len"><span class="pw-rule-icon">○</span>At least 8 characters</div>
-          <div class="pw-rule" id="pr-e-upper"><span class="pw-rule-icon">○</span>One uppercase letter</div>
           <div class="pw-rule" id="pr-e-num"><span class="pw-rule-icon">○</span>One number</div>
           <div class="pw-rule" id="pr-e-special"><span class="pw-rule-icon">○</span>One special character (!@#$%^&*)</div>
         </div>
@@ -1259,7 +1257,6 @@
     document.getElementById(rulesId).classList.toggle('visible', val.length > 0);
     const checks = {
       len:     val.length >= 8,
-      upper:   /[A-Z]/.test(val),
       num:     /[0-9]/.test(val),
       special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
     };
@@ -1273,7 +1270,7 @@
 
   function pwStrong(inputId) {
     const v = document.getElementById(inputId).value;
-    return v.length >= 8 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v);
+    return v.length >= 8 && /[0-9]/.test(v) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v);
   }
 
   function checkConfirm(confirmId, passwordId, errorId) {
