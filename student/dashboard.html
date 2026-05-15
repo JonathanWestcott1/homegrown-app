@@ -472,10 +472,11 @@
 
       return `
         <div class="app-job-card">
+          ${job.company_name ? `
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
             <div class="app-job-company">${esc(job.company_name)}</div>
-            <a href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="white-space:nowrap;font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;border:none;border-radius:20px;padding:4px 10px;text-decoration:none;flex-shrink:0;margin-top:1px;">About →</a>
-          </div>
+            <a href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="white-space:nowrap;font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;border:none;border-radius:20px;padding:4px 10px;text-decoration:none;flex-shrink:0;">About →</a>
+          </div>` : ''}
           <div class="app-job-role">${esc(roleTitle)}</div>
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
           ${job.pay ? `<div class="app-job-pay">${esc(formatPay(job.pay))}</div>` : ''}
