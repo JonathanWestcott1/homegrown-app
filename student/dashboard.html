@@ -351,13 +351,18 @@
       const shiftStr = job.shift_type || job.shift || '';
       const jobTypeStr = job.job_type || '';
 
-      const pillValues = [shiftStr, jobTypeStr, job.benefits, job.is_union ? 'Union' : null, job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null]
-        .filter(Boolean);
+      const pillValues = [
+        shiftStr,
+        jobTypeStr,
+        ...(Array.isArray(job.benefits) ? job.benefits : []),
+        job.is_union ? 'Union' : null,
+        job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null
+      ].filter(s => s && String(s).trim().length > 0);
       const pills = pillValues.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
 
       // Sponsorship badges
       const sponsorBadges = [
-        job.sponsors_certifications ? '✓ Sponsors your certs' : null,
+        job.sponsors_certifications ? '✓ Will pay for your training & certs' : null,
         job.offers_apprenticeships  ? '✓ Apprenticeships available' : null
       ].filter(Boolean);
       const sponsorPills = sponsorBadges.map(b =>
@@ -381,7 +386,7 @@
           <div class="app-job-company">${esc(job.company_name)}</div>
           <div class="app-job-role">${esc(roleTitle)}</div>
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
-          ${job.pay ? `<div class="app-job-pay">${esc(job.pay)}</div>` : ''}
+          ${job.pay ? `<div class="app-job-pay">${esc(formatPay(job.pay))}</div>` : ''}
           ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
           ${sponsorBadges.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${sponsorPills}</div>` : ''}
           ${reqCerts.length > 0 ? `
@@ -420,6 +425,15 @@
   function esc(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatPay(pay) {
+    if (!pay) return '';
+    const s = String(pay).trim();
+    if (s.startsWith('$')) return s;          // already formatted
+    const n = parseFloat(s);
+    if (!isNaN(n)) return `$${n}/hr`;         // bare number → $24/hr
+    return s;                                  // unexpected format, show as-is
   }
 
   async function logout() {

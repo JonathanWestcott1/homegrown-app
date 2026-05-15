@@ -542,7 +542,7 @@
       ? `<span class="app-posting-status">Active</span>`
       : `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">Paused</span>`;
 
-    const meta = [job.pay, job.shift_type].filter(Boolean).join(' · ');
+    const meta = [formatPay(job.pay), job.shift_type].filter(Boolean).join(' · ');
 
     const certPills = job.certifications_required?.length
       ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
@@ -806,6 +806,15 @@
 
   function escapeHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatPay(pay) {
+    if (!pay) return '';
+    const s = String(pay).trim();
+    if (s.startsWith('$')) return s;
+    const n = parseFloat(s);
+    if (!isNaN(n)) return `$${n}/hr`;
+    return s;
   }
 </script>
 </body>
