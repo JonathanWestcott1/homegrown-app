@@ -150,6 +150,71 @@
       text-align: center;
     }
     .sheet-logout:hover { background: #fdf2f1; }
+
+    /* ── Photo upload ── */
+    .photo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 20px 16px;
+      border-bottom: 0.5px solid #D3D1C7;
+    }
+    .photo-circle {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: #EAF3DE;
+      border: 2px dashed #C0DD97;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .photo-circle:hover { border-color: #3B6D11; }
+    .photo-circle.has-photo { border: 2.5px solid #3B6D11; }
+    .photo-circle img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .photo-edit-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-circle.has-photo:hover .photo-edit-overlay { display: flex; }
+    .photo-label {
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #3B6D11;
+      cursor: pointer;
+    }
+    .photo-uploading {
+      font-size: 11px;
+      color: #999;
+      margin-top: 6px;
+      display: none;
+    }
+    /* Nav avatar with photo */
+    .profile-avatar img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
@@ -189,8 +254,31 @@
   <div class="sheet" id="profile-sheet">
     <div class="sheet-handle"></div>
 
-    <div class="sheet-header">
-      <div class="sheet-avatar" id="sheet-avatar">–</div>
+    <!-- Photo upload -->
+    <div class="photo-section">
+      <div class="photo-circle" id="photo-circle" onclick="document.getElementById('photo-input').click()">
+        <div id="photo-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <img id="photo-preview" src="" alt="Profile photo" style="display:none;" />
+        <div class="photo-edit-overlay">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="photo-label" id="photo-label" onclick="document.getElementById('photo-input').click()">Add a professional photo</div>
+      <div class="photo-uploading" id="photo-uploading">Uploading…</div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)" />
+
+    <!-- Name / email -->
+    <div class="sheet-header" style="border-top:none;">
+      <div id="sheet-avatar" style="display:none;"></div>
       <div>
         <div class="sheet-name" id="sheet-name">–</div>
         <div class="sheet-email" id="sheet-email">–</div>
@@ -246,9 +334,16 @@
 
     const email = session.user.email || '';
     const initial = email.charAt(0).toUpperCase();
-    document.getElementById('profile-btn').textContent = initial;
-    document.getElementById('sheet-avatar').textContent = initial;
     document.getElementById('sheet-email').textContent = email;
+
+    // Load existing avatar if present
+    const savedUrl = session.user.user_metadata?.avatar_url
+      || JSON.parse(localStorage.getItem('hg_profile') || '{}').avatar_url;
+    if (savedUrl) {
+      loadAvatar(savedUrl);
+    } else {
+      document.getElementById('profile-btn').textContent = initial;
+    }
 
     const profile = JSON.parse(localStorage.getItem('hg_profile') || 'null');
     populateSheet(session.user, profile);
@@ -433,6 +528,64 @@
     const n = parseFloat(s);
     if (!isNaN(n)) return `$${n}/hr`;         // bare number → $24/hr
     return s;                                  // unexpected format, show as-is
+  }
+
+  function loadAvatar(url) {
+    // Sheet circle
+    const circle = document.getElementById('photo-circle');
+    const preview = document.getElementById('photo-preview');
+    const placeholder = document.getElementById('photo-placeholder');
+    preview.src = url;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    circle.classList.add('has-photo');
+    document.getElementById('photo-label').textContent = 'Edit photo';
+    // Nav button
+    const btn = document.getElementById('profile-btn');
+    btn.textContent = '';
+    btn.innerHTML = `<img src="${url}" alt="Profile" onerror="this.parentElement.textContent='${(currentSession?.user?.email||'')[0].toUpperCase()}'" />`;
+  }
+
+  async function handlePhotoSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Instant local preview
+    const reader = new FileReader();
+    reader.onload = ev => loadAvatar(ev.target.result);
+    reader.readAsDataURL(file);
+
+    // Show uploading state
+    const uploadingEl = document.getElementById('photo-uploading');
+    uploadingEl.style.display = 'block';
+
+    try {
+      const userId = currentSession.user.id;
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${userId}/avatar.${ext}`;
+
+      const { error: uploadErr } = await _sb.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadErr) throw uploadErr;
+
+      const { data: { publicUrl } } = _sb.storage.from('avatars').getPublicUrl(path);
+
+      // Persist to auth metadata and localStorage
+      await _sb.auth.updateUser({ data: { avatar_url: publicUrl } });
+      const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
+      profile.avatar_url = publicUrl;
+      localStorage.setItem('hg_profile', JSON.stringify(profile));
+
+      // Switch preview from data URL to the real CDN URL
+      loadAvatar(publicUrl);
+    } catch (err) {
+      console.error('Photo upload failed:', err);
+    } finally {
+      uploadingEl.style.display = 'none';
+      e.target.value = '';   // allow re-selecting same file
+    }
   }
 
   async function logout() {
