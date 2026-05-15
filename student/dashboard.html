@@ -446,23 +446,17 @@
       const shiftStr = job.shift_type || job.shift || '';
       const jobTypeStr = job.job_type || '';
 
-      const pillValues = [
+      // All job attributes in one unified pill row
+      const allPills = [
         shiftStr,
         jobTypeStr,
         ...(Array.isArray(job.benefits) ? job.benefits : []),
-        job.is_union ? 'Union' : null,
-        job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null
+        job.is_union ? 'Union shop' : null,
+        job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null,
+        job.sponsors_certifications ? '✓ Will pay for your certs' : null,
+        job.offers_apprenticeships  ? '✓ Apprenticeships available' : null,
       ].filter(s => s && String(s).trim().length > 0);
-      const pills = pillValues.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
-
-      // Sponsorship badges
-      const sponsorBadges = [
-        job.sponsors_certifications ? '✓ Will pay for your training & certs' : null,
-        job.offers_apprenticeships  ? '✓ Apprenticeships available' : null
-      ].filter(Boolean);
-      const sponsorPills = sponsorBadges.map(b =>
-        `<span style="font-size:11px;font-weight:500;padding:4px 8px;border-radius:6px;background:#EAF3DE;color:#3B6D11;">${b}</span>`
-      ).join('');
+      const pills = allPills.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
 
       const certPills = reqCerts.map(c => {
         const has = myCerts.includes(c);
@@ -478,19 +472,21 @@
 
       return `
         <div class="app-job-card">
-          <a class="app-job-company" href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="text-decoration:none;color:inherit;display:block;">${esc(job.company_name)} <span style="font-size:11px;color:#3B6D11;">↗</span></a>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
+            <div class="app-job-company">${esc(job.company_name)}</div>
+            <a href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="white-space:nowrap;font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;border:none;border-radius:20px;padding:4px 10px;text-decoration:none;flex-shrink:0;margin-top:1px;">About →</a>
+          </div>
           <div class="app-job-role">${esc(roleTitle)}</div>
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
           ${job.pay ? `<div class="app-job-pay">${esc(formatPay(job.pay))}</div>` : ''}
           ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
-          ${sponsorBadges.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${sponsorPills}</div>` : ''}
           ${reqCerts.length > 0 ? `
             <div class="app-cert-row">
               <div class="app-cert-label">Certifications</div>
               <div class="app-cert-pills">${certPills}</div>
             </div>` : ''}
           ${hasDesc ? `
-            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:8px 0 0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;display:block;">What's it like? ↓</button>
+            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:8px 0 0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;display:block;">What's the job like? ↓</button>
             <div class="job-desc-expand" id="${descId}" style="overflow:hidden;max-height:0;transition:max-height 0.35s ease;">
               <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:8px;">
                 <div style="font-size:13px;color:#444441;line-height:1.6;font-style:italic;">${esc(job.student_description)}</div>
@@ -509,7 +505,7 @@
     const isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
     if (isOpen) {
       el.style.maxHeight = '0';
-      btn.textContent = "What's it like? ↓";
+      btn.textContent = "What's the job like? ↓";
     } else {
       el.style.maxHeight = el.scrollHeight + 'px';
       btn.textContent = "Show less ↑";
