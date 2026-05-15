@@ -376,7 +376,7 @@
 
       const btn = allMet
         ? `<button class="app-btn-primary">Apply Now</button>`
-        : `<button class="app-btn-gray">Complete certs to apply</button>`;
+        : `<div style="font-size:12px;color:#999;text-align:center;padding:10px 0 2px;">Get the certifications above to apply</div>`;
 
       const hasDesc = job.student_description && job.student_description.trim().length > 0;
       const descId  = `desc-${idx}`;
@@ -395,13 +395,12 @@
               <div class="app-cert-pills">${certPills}</div>
             </div>` : ''}
           ${hasDesc ? `
+            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:8px 0 0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;display:block;">What's it like? ↓</button>
             <div class="job-desc-expand" id="${descId}" style="overflow:hidden;max-height:0;transition:max-height 0.35s ease;">
-              <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:10px;">
-                <div class="app-cert-label">What the job is actually like</div>
+              <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:8px;">
                 <div style="font-size:13px;color:#444441;line-height:1.6;font-style:italic;">${esc(job.student_description)}</div>
               </div>
-            </div>
-            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;margin-top:10px;display:block;">What's it like? ↓</button>` : ''}
+            </div>` : ''}
           ${btn}
         </div>`;
     }).join('') + `
