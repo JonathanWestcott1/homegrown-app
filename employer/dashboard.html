@@ -645,21 +645,20 @@
     if (!session) { window.location.href = '/'; return; }
     currentSession = session;
 
-    if (localStorage.getItem('employer_setup_complete') !== 'true') {
-      const { data: empRow } = await _sb.from('employers').select('id').eq('id', session.user.id).single();
-      if (!empRow) { window.location.href = '/employer/setup.html'; return; }
-      localStorage.setItem('employer_setup_complete', 'true');
-    }
-
     const email = session.user.email || '';
     document.getElementById('profile-icon').textContent = email.charAt(0).toUpperCase();
 
+    // Fall back to localStorage while Supabase loads
+    const localProfile = JSON.parse(localStorage.getItem('employer_profile') || 'null');
+    if (localProfile) employerProfile = localProfile;
+
     const { data: emp } = await _sb.from('employers')
       .select('company_name, county, industry, logo_url, company_size, website, description')
-      .eq('id', currentSession.user.id)
+      .eq('email', email)
       .single();
     if (emp) {
       employerProfile = emp;
+      localStorage.setItem('employer_profile', JSON.stringify(emp));
       if (emp.logo_url) setProfileIcon(emp.logo_url);
     }
 
@@ -1068,16 +1067,16 @@
       logo_url: employerProfile?.logo_url || null,
     };
 
+    const userEmail = currentSession.user.email;
     const { error } = await _sb.from('employers')
-      .update(updates)
-      .eq('id', currentSession.user.id);
+      .upsert({ email: userEmail, ...updates }, { onConflict: 'email' });
 
     btn.textContent = 'Save profile'; btn.disabled = false;
 
     if (error) {
       statusEl.style.color = '#c0392b';
       statusEl.textContent = 'Error saving — try again.';
-      console.error(error);
+      console.error('[homegrown] saveProfile error:', error.code, error.message, error);
       return;
     }
 
