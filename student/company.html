@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company — Homegrown</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    .co-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #3B6D11;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+    .co-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 20px;
+      border-bottom: 0.5px solid #E8E6DC;
+    }
+    .co-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #EAF3DE;
+      border: 1.5px solid #C0DD97;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #3B6D11;
+      overflow: hidden;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+    .co-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .co-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1C1C1A;
+      letter-spacing: -0.5px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .co-industry {
+      font-size: 14px;
+      color: #666660;
+      text-align: center;
+    }
+    .co-section {
+      padding: 20px 20px 0;
+    }
+    .co-desc {
+      font-size: 15px;
+      color: #1C1C1A;
+      line-height: 1.65;
+      padding: 20px;
+      border-bottom: 0.5px solid #E8E6DC;
+    }
+    .co-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 0.5px solid #E8E6DC;
+    }
+    .co-row-label {
+      font-size: 13px;
+      color: #999;
+    }
+    .co-row-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1C1C1A;
+    }
+    .co-website-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #3B6D11;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .co-website-link:hover { text-decoration: underline; }
+    .co-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      gap: 12px;
+      color: #B4B2A9;
+      font-size: 14px;
+    }
+    .co-not-found {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <div class="app-header">
+    <button class="co-back" onclick="history.back()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Jobs
+    </button>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+        <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+      </svg>
+      <span style="font-size:15px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
+    </div>
+  </div>
+
+  <div class="app-content" id="co-content">
+    <div class="co-loading">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite;">
+        <circle cx="12" cy="12" r="10" stroke="#D3D1C7" stroke-width="2.5"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      Loading…
+    </div>
+  </div>
+
+</div>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<script>
+  const _sb = window.supabase.createClient(
+    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
+  );
+
+  (async () => {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { window.location.href = '/'; return; }
+
+    const params = new URLSearchParams(window.location.search);
+    const companyName = params.get('name');
+    if (!companyName) { showNotFound(); return; }
+
+    document.title = companyName + ' — Homegrown';
+
+    const { data: co, error } = await _sb.from('employers')
+      .select('company_name, industry, county, company_size, website, description, logo_url')
+      .eq('company_name', companyName)
+      .single();
+
+    if (error || !co) { showNotFound(companyName); return; }
+    renderCompany(co);
+  })();
+
+  function renderCompany(co) {
+    const initial = (co.company_name || '?')[0].toUpperCase();
+    const logoHtml = co.logo_url
+      ? `<img src="${esc(co.logo_url)}" alt="${esc(co.company_name)}" />`
+      : initial;
+
+    const websiteRow = co.website
+      ? `<div class="co-row">
+           <span class="co-row-label">Website</span>
+           <a class="co-website-link" href="${esc(co.website)}" target="_blank" rel="noopener">
+             ${esc(co.website.replace(/^https?:\/\//, ''))}
+           </a>
+         </div>`
+      : '';
+
+    document.getElementById('co-content').innerHTML = `
+      <div class="co-hero">
+        <div class="co-logo">${logoHtml}</div>
+        <div class="co-name">${esc(co.company_name)}</div>
+        ${co.industry ? `<div class="co-industry">${esc(co.industry)}</div>` : ''}
+      </div>
+
+      ${co.description ? `<div class="co-desc">${esc(co.description)}</div>` : ''}
+
+      ${co.county    ? `<div class="co-row"><span class="co-row-label">County</span><span class="co-row-value">${esc(co.county)} County, NY</span></div>` : ''}
+      ${co.company_size ? `<div class="co-row"><span class="co-row-label">Company size</span><span class="co-row-value">${esc(co.company_size)} employees</span></div>` : ''}
+      ${websiteRow}
+    `;
+  }
+
+  function showNotFound(name) {
+    document.getElementById('co-content').innerHTML = `
+      <div class="co-not-found">
+        ${name ? `<strong>${esc(name)}</strong><br>` : ''}
+        No company profile found.<br>
+        <span style="font-size:13px;color:#bbb;">The employer may not have set up their profile yet.</span>
+      </div>`;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

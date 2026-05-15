@@ -478,7 +478,7 @@
 
       return `
         <div class="app-job-card">
-          <div class="app-job-company">${esc(job.company_name)}</div>
+          <a class="app-job-company" href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="text-decoration:none;color:inherit;display:block;">${esc(job.company_name)} <span style="font-size:11px;color:#3B6D11;">↗</span></a>
           <div class="app-job-role">${esc(roleTitle)}</div>
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
           ${job.pay ? `<div class="app-job-pay">${esc(formatPay(job.pay))}</div>` : ''}
