@@ -233,6 +233,80 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Employer profile sheet ── */
+    .ep-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .ep-overlay.open { display: flex; }
+    .ep-sheet {
+      width: 100%;
+      max-width: 390px;
+      max-height: 96vh;
+      background: #FAFAF8;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .ep-handle {
+      width: 36px; height: 4px;
+      background: #D3D1C7; border-radius: 2px;
+      margin: 12px auto 0; flex-shrink: 0;
+    }
+    .ep-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px 14px;
+      border-bottom: 0.5px solid #D3D1C7;
+      flex-shrink: 0;
+    }
+    .ep-title { font-size: 17px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.3px; }
+    .ep-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #EEEEE9; border: none; cursor: pointer;
+      font-size: 14px; color: #666; display: flex; align-items: center; justify-content: center;
+    }
+    .ep-body { overflow-y: auto; padding: 20px; flex: 1; }
+    .ep-logo-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+    .ep-logo-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #EAF3DE; border: 2px dashed #C0DD97;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.15s;
+    }
+    .ep-logo-circle:hover { border-color: #3B6D11; }
+    .ep-logo-circle.has-logo { border: 2.5px solid #3B6D11; }
+    .ep-logo-circle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .ep-logo-edit-overlay {
+      display: none; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.35); border-radius: 50%;
+      align-items: center; justify-content: center;
+    }
+    .ep-logo-circle.has-logo:hover .ep-logo-edit-overlay { display: flex; }
+    .ep-logo-label { margin-top: 9px; font-size: 12px; font-weight: 500; color: #3B6D11; cursor: pointer; }
+    .ep-logo-status { font-size: 11px; color: #999; margin-top: 4px; display: none; }
+    .ep-save-btn {
+      width: 100%; padding: 14px; background: #3B6D11; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+      font-family: inherit; cursor: pointer; margin-top: 8px;
+    }
+    .ep-save-btn:active { opacity: 0.85; }
+    .ep-logout-btn {
+      width: 100%; padding: 13px; background: transparent;
+      color: #c0392b; border: 0.5px solid #f5c6c2; border-radius: 10px;
+      font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; margin-top: 10px;
+    }
+    .ep-logout-btn:hover { background: #fdf2f1; }
+    .ep-save-status { font-size: 12px; text-align: center; margin-top: 10px; color: #3B6D11; min-height: 18px; }
+    /* Clickable profile icon */
+    .app-profile { cursor: pointer; }
+    .app-profile img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+
     /* ── Dual-handle pay range slider ── */
     .pay-slider-wrap { margin-bottom: 18px; }
     .pay-display {
@@ -315,7 +389,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <button onclick="logout()" style="font-size:12px;color:#999;background:none;border:none;cursor:pointer;font-family:inherit;">Log out</button>
-      <div class="app-profile" id="profile-icon">–</div>
+      <div class="app-profile" id="profile-icon" onclick="openProfileSheet()">–</div>
     </div>
   </div>
 
@@ -366,6 +440,88 @@
 
   </div>
 
+</div>
+
+<!-- Employer Profile Sheet -->
+<div class="ep-overlay" id="ep-overlay" onclick="epOverlayClose(event)">
+  <div class="ep-sheet">
+    <div class="ep-handle"></div>
+    <div class="ep-header">
+      <div class="ep-title">Edit Profile</div>
+      <button class="ep-close" onclick="closeProfileSheet()">✕</button>
+    </div>
+    <div class="ep-body">
+
+      <!-- Logo -->
+      <div class="ep-logo-section">
+        <div class="ep-logo-circle" id="ep-logo-circle" onclick="document.getElementById('ep-logo-input').click()">
+          <div id="ep-logo-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+          <img id="ep-logo-preview" src="" alt="Logo" style="display:none;" />
+          <div class="ep-logo-edit-overlay">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+        </div>
+        <div class="ep-logo-label" id="ep-logo-label" onclick="document.getElementById('ep-logo-input').click()">Add company logo</div>
+        <div class="ep-logo-status" id="ep-logo-status">Uploading…</div>
+      </div>
+      <input type="file" id="ep-logo-input" accept="image/*" style="display:none;" onchange="handleLogoSelect(event)" />
+
+      <div class="field-label">Company name</div>
+      <input class="app-input" id="ep-name" type="text" placeholder="e.g. Raymond's Corporation" />
+
+      <div class="field-label">Industry</div>
+      <select class="app-select" id="ep-industry">
+        <option value="" disabled selected>Select industry…</option>
+        <option>Manufacturing</option>
+        <option>Construction &amp; Trades</option>
+        <option>Healthcare</option>
+        <option>Transportation &amp; Logistics</option>
+        <option>Food &amp; Hospitality</option>
+        <option>Agriculture</option>
+        <option>Technology</option>
+        <option>Retail</option>
+        <option>Education</option>
+        <option>Government / Public Sector</option>
+        <option>Other</option>
+      </select>
+
+      <div class="field-label">County</div>
+      <input class="app-input" id="ep-county" type="text" list="ep-county-list" placeholder="e.g. Chenango" autocomplete="off" />
+      <datalist id="ep-county-list">
+        <option>Broome</option><option>Chenango</option><option>Cortland</option>
+        <option>Delaware</option><option>Madison</option><option>Otsego</option>
+        <option>Schoharie</option><option>Tioga</option>
+      </datalist>
+
+      <div class="field-label">Company size</div>
+      <select class="app-select" id="ep-size">
+        <option value="" disabled selected>Select size…</option>
+        <option>1–10</option>
+        <option>11–50</option>
+        <option>51–200</option>
+        <option>200+</option>
+      </select>
+
+      <div class="field-label">Website <span style="font-weight:400;color:#999;">(optional)</span></div>
+      <input class="app-input" id="ep-website" type="url" placeholder="https://yourcompany.com" />
+
+      <div class="field-label">What do you do? <span style="font-weight:400;color:#999;">(1–2 sentences)</span></div>
+      <textarea class="app-input" id="ep-description" rows="3" placeholder="e.g. We manufacture Toyota forklifts and have been a cornerstone employer in Greene, NY for over 40 years."></textarea>
+
+      <div class="ep-save-status" id="ep-save-status"></div>
+      <button class="ep-save-btn" onclick="saveProfile()">Save profile</button>
+      <button class="ep-logout-btn" onclick="logout()">Log out</button>
+      <div style="height:16px;"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Post Job Sheet -->
@@ -500,10 +656,13 @@
     document.getElementById('profile-icon').textContent = email.charAt(0).toUpperCase();
 
     const { data: emp } = await _sb.from('employers')
-      .select('company_name, county, industry')
+      .select('company_name, county, industry, logo_url, company_size, website, description')
       .eq('id', currentSession.user.id)
       .single();
-    if (emp) employerProfile = emp;
+    if (emp) {
+      employerProfile = emp;
+      if (emp.logo_url) setProfileIcon(emp.logo_url);
+    }
 
     await loadJobs();
   })();
@@ -802,6 +961,132 @@
   async function logout() {
     await _sb.auth.signOut();
     window.location.href = '/';
+  }
+
+  /* ── Profile sheet ── */
+
+  function setProfileIcon(url) {
+    const icon = document.getElementById('profile-icon');
+    icon.textContent = '';
+    icon.innerHTML = `<img src="${url}" alt="Logo" onerror="this.parentElement.textContent='${(currentSession?.user?.email||'')[0].toUpperCase()}'" />`;
+  }
+
+  function openProfileSheet() {
+    const p = employerProfile || {};
+    // Populate fields
+    document.getElementById('ep-name').value = p.company_name || '';
+    const indEl = document.getElementById('ep-industry');
+    [...indEl.options].forEach(o => o.selected = o.value === p.industry);
+    document.getElementById('ep-county').value = p.county || '';
+    const sizeEl = document.getElementById('ep-size');
+    [...sizeEl.options].forEach(o => o.selected = o.value === p.company_size);
+    document.getElementById('ep-website').value = p.website || '';
+    document.getElementById('ep-description').value = p.description || '';
+    document.getElementById('ep-save-status').textContent = '';
+    // Logo
+    if (p.logo_url) {
+      loadLogoPreview(p.logo_url);
+    } else {
+      document.getElementById('ep-logo-preview').style.display = 'none';
+      document.getElementById('ep-logo-placeholder').style.display = 'flex';
+      document.getElementById('ep-logo-circle').classList.remove('has-logo');
+      document.getElementById('ep-logo-label').textContent = 'Add company logo';
+    }
+    document.getElementById('ep-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeProfileSheet() {
+    document.getElementById('ep-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function epOverlayClose(e) {
+    if (e.target === document.getElementById('ep-overlay')) closeProfileSheet();
+  }
+
+  function loadLogoPreview(url) {
+    document.getElementById('ep-logo-preview').src = url;
+    document.getElementById('ep-logo-preview').style.display = 'block';
+    document.getElementById('ep-logo-placeholder').style.display = 'none';
+    document.getElementById('ep-logo-circle').classList.add('has-logo');
+    document.getElementById('ep-logo-label').textContent = 'Edit logo';
+  }
+
+  async function handleLogoSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    // Instant preview
+    const reader = new FileReader();
+    reader.onload = ev => loadLogoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+
+    const statusEl = document.getElementById('ep-logo-status');
+    statusEl.style.display = 'block';
+    try {
+      const userId = currentSession.user.id;
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${userId}/logo.${ext}`;
+      const { error: uploadErr } = await _sb.storage
+        .from('logos').upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadErr) throw uploadErr;
+      const { data: { publicUrl } } = _sb.storage.from('logos').getPublicUrl(path);
+      // Store on profile object so saveProfile picks it up
+      if (!employerProfile) employerProfile = {};
+      employerProfile.logo_url = publicUrl;
+      loadLogoPreview(publicUrl);
+      setProfileIcon(publicUrl);
+    } catch (err) {
+      console.error('Logo upload failed:', err);
+    } finally {
+      statusEl.style.display = 'none';
+      e.target.value = '';
+    }
+  }
+
+  async function saveProfile() {
+    const name    = document.getElementById('ep-name').value.trim();
+    const industry = document.getElementById('ep-industry').value;
+    const county  = document.getElementById('ep-county').value.trim();
+    const size    = document.getElementById('ep-size').value;
+    const website = document.getElementById('ep-website').value.trim();
+    const desc    = document.getElementById('ep-description').value.trim();
+    const statusEl = document.getElementById('ep-save-status');
+
+    if (!name) { statusEl.style.color = '#c0392b'; statusEl.textContent = 'Company name is required.'; return; }
+
+    const btn = document.querySelector('.ep-save-btn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    statusEl.textContent = '';
+
+    const updates = {
+      company_name: name,
+      industry: industry || null,
+      county: county || null,
+      company_size: size || null,
+      website: website || null,
+      description: desc || null,
+      logo_url: employerProfile?.logo_url || null,
+    };
+
+    const { error } = await _sb.from('employers')
+      .update(updates)
+      .eq('id', currentSession.user.id);
+
+    btn.textContent = 'Save profile'; btn.disabled = false;
+
+    if (error) {
+      statusEl.style.color = '#c0392b';
+      statusEl.textContent = 'Error saving — try again.';
+      console.error(error);
+      return;
+    }
+
+    employerProfile = { ...employerProfile, ...updates };
+    localStorage.setItem('employer_profile', JSON.stringify(employerProfile));
+    statusEl.style.color = '#3B6D11';
+    statusEl.textContent = '✓ Saved';
+    setTimeout(() => closeProfileSheet(), 900);
   }
 
   function escapeHtml(str) {
