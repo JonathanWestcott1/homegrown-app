@@ -215,20 +215,66 @@
       border-radius: 50%;
       object-fit: cover;
     }
+
+    /* Cert editor in profile sheet */
+    .cert-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid #F0EFE9;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cert-edit-row:last-of-type { border-bottom: none; }
+    .cert-edit-box {
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: transparent;
+      background: #fff;
+      flex-shrink: 0;
+      transition: all 0.12s;
+    }
+    .cert-edit-row.cert-edit-selected .cert-edit-box {
+      background: #3B6D11;
+      border-color: #3B6D11;
+      color: #fff;
+    }
+    .cert-edit-label { font-size: 13px; color: #1C1C1A; line-height: 1.35; }
+    .sponsor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #EAF3DE;
+      border: 0.5px solid #C0DD97;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #3B6D11;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 <div class="app-wrap">
 
   <div class="app-header">
-    <div style="display:flex;align-items:center;gap:7px;">
+    <button onclick="location.reload()" style="display:flex;align-items:center;gap:7px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
         <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
       </svg>
       <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
-    </div>
+    </button>
     <button class="profile-avatar" id="profile-btn" onclick="openSheet()">–</button>
   </div>
 
@@ -252,7 +298,7 @@
 <!-- Profile sheet -->
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheetOnOverlay(event)">
   <div class="sheet" id="profile-sheet">
-    <div class="sheet-handle"></div>
+    <div class="sheet-handle" id="sheet-drag-handle"></div>
 
     <!-- Photo upload -->
     <div class="photo-section">
@@ -277,12 +323,11 @@
     <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)" />
 
     <!-- Name / email -->
-    <div class="sheet-header" style="border-top:none;">
+    <div style="text-align:center;padding:20px 20px 20px;border-bottom:0.5px solid #D3D1C7;">
       <div id="sheet-avatar" style="display:none;"></div>
-      <div>
-        <div class="sheet-name" id="sheet-name">–</div>
-        <div class="sheet-email" id="sheet-email">–</div>
-      </div>
+      <div class="sheet-name" id="sheet-name" style="font-size:18px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">–</div>
+      <div class="sheet-email" id="sheet-email" style="font-size:13px;color:#666660;margin-top:3px;">–</div>
+      <div id="sheet-phone-display" style="font-size:13px;color:#666660;margin-top:2px;display:none;"></div>
     </div>
 
     <div class="sheet-section">
@@ -310,8 +355,23 @@
     </div>
 
     <div class="sheet-section">
-      <div class="sheet-section-label">Certifications</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="sheet-section-label" style="margin-bottom:0;">Certifications</div>
+        <button onclick="toggleCertEdit()" id="cert-edit-btn" style="font-size:12px;font-weight:500;color:#3B6D11;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">Edit</button>
+      </div>
       <div id="sheet-certs"><span class="sheet-cert-none">None selected</span></div>
+      <div id="cert-editor" style="display:none;margin-top:10px;"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-label">Contact</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input id="sheet-phone-input" type="tel" placeholder="Phone number"
+          style="flex:1;padding:10px 12px;font-size:14px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#1C1C1A;font-family:inherit;outline:none;"
+          onfocus="this.style.borderColor='#3B6D11'" onblur="this.style.borderColor='#D3D1C7'" />
+        <button onclick="savePhone()" style="padding:10px 16px;font-size:13px;font-weight:600;background:#3B6D11;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap;">Save</button>
+      </div>
+      <div id="phone-save-status" style="font-size:12px;color:#3B6D11;margin-top:6px;display:none;"></div>
     </div>
 
     <button class="sheet-edit" onclick="window.location.href='/student/onboarding.html'">Edit my information</button>
@@ -326,6 +386,9 @@
   );
 
   let currentSession = null;
+  let myCerts = [];
+  let currentJobs = [];
+  let employerMap = {};
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
@@ -335,6 +398,13 @@
     const email = session.user.email || '';
     const initial = email.charAt(0).toUpperCase();
     document.getElementById('sheet-email').textContent = email;
+
+    const phone = session.user.user_metadata?.phone || '';
+    if (phone) {
+      document.getElementById('sheet-phone-display').textContent = phone;
+      document.getElementById('sheet-phone-display').style.display = 'block';
+      document.getElementById('sheet-phone-input').value = phone;
+    }
 
     // Load existing avatar if present
     const savedUrl = session.user.user_metadata?.avatar_url
@@ -349,7 +419,7 @@
     populateSheet(session.user, profile);
 
     const county = profile?.county;
-    if (county) {
+    if (county && county !== 'Outside New York' && county !== 'Other upstate NY county') {
       document.getElementById('feed-title').textContent = 'Jobs for you in ' + county;
     }
 
@@ -363,14 +433,28 @@
     }
     console.log('[homegrown] jobs returned:', jobs?.length ?? 0, jobs);
 
-    const myCerts = studentData?.certifications || profile?.certifications || [];
+    myCerts = studentData?.certifications || profile?.certifications || [];
+    currentJobs = jobs || [];
+
+    // Fetch employer application methods for all companies in the feed
+    const companyNames = [...new Set(currentJobs.map(j => j.company_name).filter(Boolean))];
+    if (companyNames.length > 0) {
+      const { data: emps } = await _sb.from('employers')
+        .select('company_name, application_method, contact_name, contact_phone, ats_url')
+        .in('company_name', companyNames);
+      (emps || []).forEach(e => { employerMap[e.company_name] = e; });
+    }
+
+    updateCertDisplay(myCerts);
+    initCertEditor(myCerts);
     document.getElementById('jobs-loading').remove();
-    renderJobs(jobs || [], myCerts);
+    renderJobs(currentJobs, myCerts);
   })();
 
   function populateSheet(user, profile) {
     const meta = user.user_metadata || {};
-    const name = meta.full_name || meta.name || '';
+    const name = meta.full_name || meta.name
+      || ((meta.first_name || meta.last_name) ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : '');
     document.getElementById('sheet-name').textContent = name || user.email;
 
     if (!profile) return;
@@ -398,13 +482,7 @@
       document.getElementById('sheet-industries-row').style.display = 'flex';
     }
 
-    const certs = profile.certifications || [];
-    const certsEl = document.getElementById('sheet-certs');
-    if (certs.length > 0) {
-      certsEl.innerHTML = '<div class="sheet-cert-pills">' +
-        certs.map(c => `<span class="sheet-cert-pill">${esc(c)}</span>`).join('') +
-        '</div>';
-    }
+    updateCertDisplay(profile.certifications || []);
   }
 
   function openSheet() {
@@ -453,31 +531,62 @@
         ...(Array.isArray(job.benefits) ? job.benefits : []),
         job.is_union ? 'Union shop' : null,
         job.sign_on_bonus ? `${job.sign_on_bonus} sign-on` : null,
-        job.sponsors_certifications ? '✓ Will pay for your certs' : null,
         job.offers_apprenticeships  ? '✓ Apprenticeships available' : null,
       ].filter(s => s && String(s).trim().length > 0);
       const pills = allPills.map(p => `<span class="app-fit-pill">${esc(p)}</span>`).join('');
 
       const certPills = reqCerts.map(c => {
         const has = myCerts.includes(c);
-        return `<span class="app-cert-pill ${has ? 'app-cert-green' : 'app-cert-gray'}">${has ? '✓' : '+'} ${c}</span>`;
+        return `<span class="app-cert-pill ${has ? 'app-cert-green' : 'app-cert-gray'}">${has ? '✓' : '+'} ${esc(c)}</span>`;
       }).join('');
 
-      const btn = allMet
-        ? `<button class="app-btn-primary">Apply Now</button>`
-        : `<div style="font-size:12px;color:#999;text-align:center;padding:10px 0 2px;">Get the certifications above to apply</div>`;
+      const sponsorBadge = job.sponsors_certifications
+        ? `<div class="sponsor-badge">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+             Will pay for your training &amp; certs
+           </div>`
+        : '';
+
+      const dataCompany = `data-company="${esc(job.company_name || '')}"`;
+      const emp = employerMap[job.company_name] || {};
+      const appMethod = emp.application_method || 'homegrown';
+      const contactName  = emp.contact_name  || '';
+      const contactPhone = emp.contact_phone || '';
+      const atsUrl       = emp.ats_url       || '';
+      const cleanPhone   = contactPhone.replace(/\D/g, '');
+      const sponsored    = !!job.sponsors_certifications;
+      const anyway       = !allMet && sponsored;
+
+      let btn;
+      if (!allMet && !sponsored) {
+        // Blocked — missing certs, no sponsorship
+        btn = `<button disabled style="width:100%;padding:12px;font-size:14px;font-weight:500;background:#F5F4F0;color:#B4B2A9;border:0.5px solid #E0DED6;border-radius:8px;cursor:default;font-family:inherit;">Get the certifications above to apply</button>`;
+      } else if (appMethod === 'call' && cleanPhone) {
+        // Call to apply
+        const label = anyway ? 'Call anyway →' : 'Call to apply';
+        const subtext = [contactName ? 'Ask for ' + esc(contactName) : '', esc(contactPhone)].filter(Boolean).join(' · ');
+        btn = `<a href="tel:${cleanPhone}" class="app-btn-primary" style="display:block;text-align:center;text-decoration:none;${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${label}</a>
+               ${subtext ? `<div style="font-size:12px;color:#666660;text-align:center;margin-top:5px;">${subtext}</div>` : ''}
+               ${anyway ? `<div style="font-size:12px;color:#3B6D11;text-align:center;margin-top:2px;">They'll help you get certified</div>` : ''}`;
+      } else if (appMethod === 'ats' && atsUrl) {
+        // External ATS link
+        btn = `<a href="${esc(atsUrl)}" target="_blank" rel="noopener noreferrer" class="app-btn-primary" style="display:block;text-align:center;text-decoration:none;${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">Apply on their website →</a>
+               ${anyway ? `<div style="font-size:12px;color:#3B6D11;text-align:center;margin-top:4px;">They'll help you get certified</div>` : ''}`;
+      } else {
+        // Through Homegrown (default)
+        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="showApplyConfirm(this)" style="${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${anyway ? 'Apply anyway →' : 'Apply Now'}</button>`;
+      }
 
       const hasDesc = job.student_description && job.student_description.trim().length > 0;
       const descId  = `desc-${idx}`;
 
       return `
         <div class="app-job-card">
-          ${job.company_name ? `
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
-            <div class="app-job-company">${esc(job.company_name)}</div>
-            <a href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="white-space:nowrap;font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;border:none;border-radius:20px;padding:4px 10px;text-decoration:none;flex-shrink:0;">About →</a>
-          </div>` : ''}
-          <div class="app-job-role">${esc(roleTitle)}</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="app-job-role" style="margin-bottom:2px;">${esc(roleTitle)}</div>
+            ${job.company_name ? `<a href="/student/company.html?name=${encodeURIComponent(job.company_name)}" style="white-space:nowrap;font-size:11px;font-weight:500;color:#3B6D11;background:#EAF3DE;border-radius:20px;padding:4px 10px;text-decoration:none;flex-shrink:0;margin-top:3px;">About →</a>` : ''}
+          </div>
+          ${job.company_name ? `<div class="app-job-company" style="margin-bottom:6px;">${esc(job.company_name)}</div>` : ''}
           ${locationStr ? `<div class="app-job-location">📍 ${esc(locationStr)}</div>` : ''}
           ${job.pay ? `<div class="app-job-pay">${esc(formatPay(job.pay))}</div>` : ''}
           ${pills ? `<div class="app-fit-pills">${pills}</div>` : ''}
@@ -487,12 +596,15 @@
               <div class="app-cert-pills">${certPills}</div>
             </div>` : ''}
           ${hasDesc ? `
-            <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:8px 0 0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;display:block;">What's the job like? ↓</button>
-            <div class="job-desc-expand" id="${descId}" style="overflow:hidden;max-height:0;transition:max-height 0.35s ease;">
-              <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:8px;">
-                <div style="font-size:13px;color:#444441;line-height:1.6;font-style:italic;">${esc(job.student_description)}</div>
+            <div style="margin-bottom:10px;">
+              <button onclick="toggleDesc('${descId}',this)" style="background:none;border:none;padding:8px 0 0;font-size:12px;color:#3B6D11;text-decoration:underline;cursor:pointer;font-family:inherit;display:block;">What's the job like? ↓</button>
+              <div class="job-desc-expand" id="${descId}" style="overflow:hidden;max-height:0;transition:max-height 0.35s ease;">
+                <div style="padding-top:10px;border-top:0.5px solid #D3D1C7;margin-top:8px;">
+                  <div style="font-size:13px;color:#444441;line-height:1.6;font-style:italic;">${esc(job.student_description)}</div>
+                </div>
               </div>
             </div>` : ''}
+          ${sponsorBadge}
           ${btn}
         </div>`;
     }).join('') + `
@@ -577,18 +689,217 @@
 
       // Switch preview from data URL to the real CDN URL
       loadAvatar(publicUrl);
+      document.getElementById('photo-label').textContent = 'Photo saved ✓';
+      setTimeout(() => { document.getElementById('photo-label').textContent = 'Edit photo'; }, 2500);
     } catch (err) {
       console.error('Photo upload failed:', err);
+      document.getElementById('photo-label').textContent = 'Upload failed — try again';
     } finally {
       uploadingEl.style.display = 'none';
       e.target.value = '';   // allow re-selecting same file
     }
   }
 
+  async function savePhone() {
+    const phone = document.getElementById('sheet-phone-input').value.trim();
+    const statusEl = document.getElementById('phone-save-status');
+    if (!phone) return;
+    const { error } = await _sb.auth.updateUser({ data: { phone } });
+    if (error) {
+      statusEl.textContent = 'Could not save — try again.';
+      statusEl.style.color = '#c0392b';
+    } else {
+      statusEl.textContent = '✓ Saved';
+      statusEl.style.color = '#3B6D11';
+      document.getElementById('sheet-phone-display').textContent = phone;
+      document.getElementById('sheet-phone-display').style.display = 'block';
+    }
+    statusEl.style.display = 'block';
+    setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+  }
+
+  async function showApplyConfirm(btn) {
+    const companyName = btn.dataset.company || '';
+    const jobId = btn.dataset.jobId || null;
+    const card = btn.closest('.app-job-card');
+    btn.disabled = true;
+    btn.textContent = '✓ Interest sent!';
+    btn.style.background = '#5a9e20';
+    if (card) {
+      const note = document.createElement('div');
+      note.style.cssText = 'font-size:12px;color:#3B6D11;text-align:center;margin-top:6px;';
+      note.textContent = companyName
+        ? `${companyName} will be notified of your interest.`
+        : 'The employer will be notified of your interest.';
+      card.appendChild(note);
+    }
+    // Write application to Supabase
+    if (jobId && currentSession) {
+      const meta = currentSession.user.user_metadata || {};
+      const name = meta.full_name || meta.name
+        || ((meta.first_name || meta.last_name) ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : null);
+      const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
+      await _sb.from('applications').upsert({
+        job_id: jobId,
+        student_id: currentSession.user.id,
+        student_name: name || null,
+        student_email: currentSession.user.email || null,
+        student_phone: meta.phone || null,
+        student_county: profile.county || null,
+        certifications: myCerts.length > 0 ? myCerts : null,
+        status: 'new'
+      }, { onConflict: 'job_id,student_id', ignoreDuplicates: true });
+    }
+  }
+
+  // ── Cert matching constants ──
+  const ALL_CERTS = [
+    'OSHA 10 Certification',
+    'Blueprint Reading',
+    'Hand Tool Safety',
+    'IBEW Apprenticeship Application',
+    'Hydraulic Systems Certification',
+    'ServSafe Certification',
+    'NYS CNA License',
+    'Adobe Certified Professional',
+    'CDL License',
+    'Security Guard Certification',
+    'Forklift Operator Certification',
+    'NYS Cosmetology License',
+    'CPR / First Aid Certified',
+  ];
+
+  function updateCertDisplay(certs) {
+    const certsEl = document.getElementById('sheet-certs');
+    if (!certsEl) return;
+    if (certs && certs.length > 0) {
+      certsEl.innerHTML = '<div class="sheet-cert-pills">' +
+        certs.map(c => `<span class="sheet-cert-pill">${esc(c)}</span>`).join('') +
+        '</div>';
+    } else {
+      certsEl.innerHTML = '<span class="sheet-cert-none">None selected</span>';
+    }
+  }
+
+  function initCertEditor(currentCerts) {
+    const editor = document.getElementById('cert-editor');
+    if (!editor) return;
+    const saved = currentCerts || [];
+    editor.innerHTML = ALL_CERTS.map(cert => {
+      const has = saved.includes(cert);
+      return `<div class="cert-edit-row${has ? ' cert-edit-selected' : ''}" onclick="toggleCertRow(this)">
+        <div class="cert-edit-box">✓</div>
+        <div class="cert-edit-label">${esc(cert)}</div>
+      </div>`;
+    }).join('') +
+    `<button onclick="saveCerts()" style="width:100%;padding:10px;margin-top:12px;font-size:13px;font-weight:600;background:#3B6D11;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;">Save certifications</button>
+     <div id="cert-save-status" style="font-size:12px;color:#3B6D11;text-align:center;margin-top:6px;display:none;"></div>`;
+  }
+
+  function toggleCertEdit() {
+    const editor = document.getElementById('cert-editor');
+    const btn = document.getElementById('cert-edit-btn');
+    const isOpen = editor.style.display !== 'none';
+    editor.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? 'Edit' : 'Done';
+  }
+
+  function toggleCertRow(el) {
+    el.classList.toggle('cert-edit-selected');
+  }
+
+  async function saveCerts() {
+    const selectedCerts = Array.from(
+      document.querySelectorAll('#cert-editor .cert-edit-row.cert-edit-selected .cert-edit-label')
+    ).map(el => el.textContent);
+
+    const statusEl = document.getElementById('cert-save-status');
+    statusEl.style.display = 'none';
+
+    const { error } = await _sb.from('students').upsert({
+      id: currentSession.user.id,
+      certifications: selectedCerts.length > 0 ? selectedCerts : null
+    });
+
+    if (error) {
+      statusEl.textContent = 'Could not save — try again.';
+      statusEl.style.color = '#c0392b';
+      statusEl.style.display = 'block';
+      return;
+    }
+
+    // Update state
+    myCerts = selectedCerts;
+    const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
+    profile.certifications = selectedCerts;
+    localStorage.setItem('hg_profile', JSON.stringify(profile));
+
+    // Refresh cert display and job feed
+    updateCertDisplay(myCerts);
+    renderJobs(currentJobs, myCerts);  // employerMap already in scope
+
+    statusEl.textContent = '✓ Saved';
+    statusEl.style.color = '#3B6D11';
+    statusEl.style.display = 'block';
+
+    setTimeout(() => {
+      toggleCertEdit();
+      statusEl.style.display = 'none';
+    }, 1200);
+  }
+
   async function logout() {
     await _sb.auth.signOut();
     window.location.href = '/';
   }
+
+  // ── Swipe-down to close ──
+  (function initSwipe() {
+    const sheet = document.getElementById('profile-sheet');
+    const overlay = document.getElementById('sheet-overlay');
+    let startY = 0, currentY = 0, dragging = false;
+    const THRESHOLD = 140;
+
+    function onStart(e) {
+      if (!overlay.classList.contains('open')) return;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragging = true;
+      sheet.style.transition = 'none';
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      currentY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+      if (currentY < 0) currentY = 0;
+      sheet.style.transform = `translateY(${currentY}px)`;
+      overlay.style.background = `rgba(0,0,0,${Math.max(0, 0.35 - currentY / 800)})`;
+    }
+
+    function onEnd() {
+      if (!dragging) return;
+      dragging = false;
+      sheet.style.transition = 'transform 0.3s ease';
+      overlay.style.transition = 'background 0.3s ease';
+      if (currentY > THRESHOLD) {
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          closeSheet();
+          sheet.style.transform = '';
+          overlay.style.background = '';
+          overlay.style.transition = '';
+        }, 300);
+      } else {
+        sheet.style.transform = 'translateY(0)';
+        overlay.style.background = 'rgba(0,0,0,0.35)';
+        setTimeout(() => { overlay.style.transition = ''; }, 300);
+      }
+      currentY = 0;
+    }
+
+    sheet.addEventListener('touchstart', onStart, { passive: true });
+    sheet.addEventListener('touchmove', onMove, { passive: true });
+    sheet.addEventListener('touchend', onEnd);
+  })();
 </script>
 </body>
 </html>

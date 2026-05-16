@@ -1237,8 +1237,6 @@
     btn.textContent = 'Signing in…'; btn.disabled = true;
     const { data, error } = await _db.auth.signInWithPassword({ email, password: pw });
     if (error) { errEl.textContent = friendlyError(error.message); errEl.style.display = 'block'; btn.textContent = 'Sign in'; btn.disabled = false; return; }
-    // Returning employers have already completed setup — mark it so dashboard doesn't redirect
-    localStorage.setItem('employer_setup_complete', 'true');
     window.location.href = '/employer/dashboard.html';
   };
 
@@ -1369,7 +1367,7 @@
       errEl.style.display = 'block';
       return;
     }
-    await _db.from('employers').insert([{ id: data.user.id, company_name, county }]);
+    await _db.from('employers').upsert([{ email: data.user.email, company_name, county }], { onConflict: 'email' });
     window.location.href = '/employer/setup.html';
   };
 

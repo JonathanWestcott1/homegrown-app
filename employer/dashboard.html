@@ -307,6 +307,131 @@
     .app-profile { cursor: pointer; }
     .app-profile img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
+    /* Application method cards in Edit Profile */
+    .ep-method-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ep-method-card.selected { border-color: #3B6D11; background: #EAF3DE; }
+    .ep-method-icon { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .ep-method-title { font-size: 14px; font-weight: 500; color: #1C1C1A; margin-bottom: 2px; }
+    .ep-method-desc { font-size: 12px; color: #666660; line-height: 1.4; }
+    .ep-method-sub {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+      background: #F5FAF0;
+      border: 1.5px solid #3B6D11;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 0 14px;
+      margin-top: -2px;
+    }
+    .ep-method-sub.open { max-height: 120px; opacity: 1; padding: 12px 14px; }
+
+    /* ── Applicants sheet ── */
+    .appl-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 300;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .appl-overlay.open { display: flex; }
+    .appl-sheet {
+      width: 100%;
+      max-width: 390px;
+      max-height: 96vh;
+      background: #FAFAF8;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .appl-overlay.open .appl-sheet { transform: translateY(0); }
+    .appl-handle {
+      width: 36px; height: 4px;
+      background: #D3D1C7; border-radius: 2px;
+      margin: 12px auto 0; flex-shrink: 0;
+    }
+    .appl-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 14px 20px 14px;
+      border-bottom: 0.5px solid #D3D1C7;
+      flex-shrink: 0;
+    }
+    .appl-title { font-size: 17px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.3px; }
+    .appl-subtitle { font-size: 12px; color: #888780; margin-top: 2px; }
+    .appl-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #EEEEE9; border: none; cursor: pointer;
+      font-size: 14px; color: #666; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .appl-body { overflow-y: auto; padding: 16px 20px; flex: 1; }
+
+    .appl-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: #999;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .appl-empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+    .appl-row {
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    .appl-row-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .appl-row-name { font-size: 15px; font-weight: 600; color: #1C1C1A; letter-spacing: -0.3px; }
+    .appl-row-time { font-size: 11px; color: #aaa; flex-shrink: 0; margin-left: 8px; padding-top: 2px; }
+    .appl-row-meta { font-size: 12px; color: #666660; margin-bottom: 8px; }
+    .appl-cert-line { font-size: 12px; margin-bottom: 10px; }
+    .appl-cert-match { color: #3B6D11; font-weight: 500; }
+    .appl-cert-partial { color: #888; }
+    .appl-actions { display: flex; gap: 8px; }
+    .appl-action-btn {
+      flex: 1; padding: 8px; font-size: 12px; font-weight: 500;
+      border-radius: 7px; cursor: pointer; font-family: inherit;
+      text-align: center; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .appl-btn-email { background: #EAF3DE; color: #3B6D11; border: 0.5px solid #c8dfb0; }
+    .appl-btn-email:hover { background: #d5ecb8; }
+    .appl-btn-call { background: #fff; color: #444; border: 0.5px solid #D3D1C7; }
+    .appl-btn-call:hover { border-color: #999; }
+
+    /* Interested badge on job card */
+    .real-job-btn-interested {
+      background: #EAF3DE;
+      color: #3B6D11;
+      border: 0.5px solid #c8dfb0;
+      font-weight: 600;
+    }
+    .real-job-btn-interested:hover { background: #d5ecb8; }
+    .no-applicants-note {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 8px;
+      text-align: center;
+    }
+
     /* ── Dual-handle pay range slider ── */
     .pay-slider-wrap { margin-bottom: 18px; }
     .pay-display {
@@ -515,10 +640,89 @@
       <div class="field-label">What do you do? <span style="font-weight:400;color:#999;">(1–2 sentences)</span></div>
       <textarea class="app-input" id="ep-description" rows="3" placeholder="e.g. We manufacture Toyota forklifts and have been a cornerstone employer in Greene, NY for over 40 years."></textarea>
 
+      <!-- Application method -->
+      <div style="height:0.5px;background:#E8E6DC;margin:20px 0 16px;"></div>
+      <div style="font-size:14px;font-weight:600;color:#1C1C1A;margin-bottom:4px;">How should candidates reach you?</div>
+      <div style="font-size:12px;color:#888780;margin-bottom:14px;">Choose how locals apply to your jobs.</div>
+
+      <div style="margin-bottom:8px;">
+        <div class="ep-method-card" id="ep-method-homegrown" onclick="epSelectMethod('homegrown')">
+          <div class="ep-method-icon">
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+              <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ep-method-title">Through Homegrown</div>
+            <div class="ep-method-desc">Candidates express interest here and you reach out to them.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <div class="ep-method-card" id="ep-method-call" onclick="epSelectMethod('call')">
+          <div class="ep-method-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ep-method-title">Call us directly</div>
+            <div class="ep-method-desc">Show candidates your phone number to call or text.</div>
+          </div>
+        </div>
+        <div class="ep-method-sub" id="ep-sub-call">
+          <div class="two-col">
+            <input class="app-input" id="ep-contact-name" type="text" placeholder="Contact name" style="background:#fff;" />
+            <input class="app-input" id="ep-contact-phone" type="tel" placeholder="607-555-0100" style="background:#fff;" oninput="formatPhone(this)" />
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="ep-method-card" id="ep-method-ats" onclick="epSelectMethod('ats')">
+          <div class="ep-method-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M7 8h10M7 12h10M7 16h6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ep-method-title">Internal ATS</div>
+            <div class="ep-method-desc">We'll handle candidates through our own hiring system.</div>
+          </div>
+        </div>
+        <div class="ep-method-sub" id="ep-sub-ats">
+          <input class="app-input" id="ep-ats-url" type="url" placeholder="https://yourcompany.com/careers" style="background:#fff;" />
+        </div>
+      </div>
+
       <div class="ep-save-status" id="ep-save-status"></div>
       <button class="ep-save-btn" onclick="saveProfile()">Save profile</button>
       <button class="ep-logout-btn" onclick="logout()">Log out</button>
       <div style="height:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Applicants Sheet -->
+<div class="appl-overlay" id="appl-overlay" onclick="applOverlayClose(event)">
+  <div class="appl-sheet">
+    <div class="appl-handle"></div>
+    <div class="appl-header">
+      <div>
+        <div class="appl-title" id="appl-title">Interested Locals</div>
+        <div class="appl-subtitle" id="appl-subtitle"></div>
+      </div>
+      <button class="appl-close" onclick="closeApplicantsSheet()">✕</button>
+    </div>
+    <div class="appl-body" id="appl-body">
+      <div class="appl-empty">
+        <div class="appl-empty-icon">🌱</div>
+        <div>No one has applied yet.<br>Check back once your job is live.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -533,12 +737,7 @@
     </div>
 
     <div class="sheet-body">
-      <div class="sheet-steps">
-        <div class="sheet-step-tab active" id="tab-1">1 · Role details</div>
-        <div class="sheet-step-tab" id="tab-2">2 · Anything else?</div>
-      </div>
-
-      <!-- STEP 1: Role details -->
+      <!-- Single screen form -->
       <div id="post-step-1">
 
         <div class="field-label">Role title</div>
@@ -611,18 +810,11 @@
           <option>Tioga</option>
         </datalist>
 
+        <div class="field-label" style="margin-top:4px;">Job description</div>
+        <textarea class="app-input" id="f-extra" rows="5" placeholder='e.g. "You&#x27;ll be assembling forklift components on the production floor. No experience needed — we train. Day shift, steel-toed boots required."'></textarea>
+
         <div class="error-msg" id="step1-error"></div>
-        <button class="app-btn-primary" onclick="goStep2()" style="margin-top:4px;">Next →</button>
-      </div>
-
-      <!-- STEP 2: Anything else? (optional) -->
-      <div id="post-step-2" style="display:none;">
-        <div class="field-label">Anything else locals should know? <span style="font-weight:400;color:#999;">(optional)</span></div>
-        <textarea class="app-input" id="f-extra" rows="6" placeholder='e.g. "We&#x27;re a family-owned shop, relaxed environment, good chance of going full-time after 90 days."'></textarea>
-        <div style="font-size:12px;color:#999;margin-bottom:16px;">Leave blank to skip — you can always edit later.</div>
-
-        <div class="error-msg" id="step2-error"></div>
-        <button class="app-btn-primary" id="submit-btn" onclick="submitJob()">Post job →</button>
+        <button class="app-btn-primary" id="submit-btn" onclick="submitJob()" style="margin-top:4px;">Post job →</button>
       </div>
     </div>
   </div>
@@ -639,6 +831,11 @@
   let isUnion = false;
   let sponsorsCerts = false;
   let offersApprenticeships = false;
+  let editingJobId = null;
+  let epSelectedMethod = '';
+  const _jobsCache = {};
+  let applicantCounts = {};
+  let applicantsByJob = {};
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
@@ -653,7 +850,7 @@
     if (localProfile) employerProfile = localProfile;
 
     const { data: emp } = await _sb.from('employers')
-      .select('company_name, county, industry, logo_url, company_size, website, description')
+      .select('company_name, county, industry, logo_url, company_size, website, description, application_method, contact_name, contact_phone, ats_url')
       .eq('email', email)
       .single();
     if (emp) {
@@ -688,6 +885,22 @@
     document.getElementById('jobs-sub').textContent =
       `${active} active · ${jobs.length - active} paused`;
 
+    jobs.forEach(j => { _jobsCache[j.id] = j; });
+
+    // Load applicant counts for all jobs
+    const jobIds = jobs.map(j => j.id);
+    const { data: apps } = await _sb.from('applications')
+      .select('*')
+      .in('job_id', jobIds)
+      .order('created_at', { ascending: false });
+    applicantsByJob = {};
+    applicantCounts = {};
+    (apps || []).forEach(a => {
+      if (!applicantsByJob[a.job_id]) applicantsByJob[a.job_id] = [];
+      applicantsByJob[a.job_id].push(a);
+      applicantCounts[a.job_id] = (applicantCounts[a.job_id] || 0) + 1;
+    });
+
     document.getElementById('jobs-list').innerHTML =
       jobs.map(renderJobCard).join('');
 
@@ -712,6 +925,13 @@
       ? `<button class="real-job-btn real-job-btn-pause" onclick="toggleJob('${job.id}', false)">Pause</button>`
       : `<button class="real-job-btn real-job-btn-activate" onclick="toggleJob('${job.id}', true)">Activate</button>`;
 
+    const appCount = applicantCounts[job.id] || 0;
+    const interestedRow = appCount > 0
+      ? `<button class="real-job-btn real-job-btn-interested" style="width:100%;margin-top:8px;" onclick="openApplicantsSheet('${job.id}')">
+           ${appCount} interested ${appCount === 1 ? 'local' : 'locals'} — view →
+         </button>`
+      : `<div class="no-applicants-note">No applicants yet</div>`;
+
     return `
       <div class="real-job-card" id="job-card-${job.id}">
         <div class="real-job-top">
@@ -720,7 +940,11 @@
         </div>
         <div class="real-job-pay">${escapeHtml(meta)}</div>
         ${certPills}
-        <div class="real-job-actions">${toggleBtn}</div>
+        ${interestedRow}
+        <div class="real-job-actions" style="margin-top:8px;">
+          <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="openEditSheet('${job.id}')">Edit role</button>
+          ${toggleBtn}
+        </div>
       </div>`;
   }
 
@@ -801,12 +1025,8 @@
   }
 
   function resetPostForm() {
-    document.getElementById('post-step-1').style.display = 'block';
-    document.getElementById('post-step-2').style.display = 'none';
-    document.getElementById('tab-1').className = 'sheet-step-tab active';
-    document.getElementById('tab-2').className = 'sheet-step-tab';
+    editingJobId = null;
     document.getElementById('step1-error').style.display = 'none';
-    document.getElementById('step2-error').style.display = 'none';
     document.getElementById('f-role').value = '';
     document.getElementById('f-pay-min').value = 18;
     document.getElementById('f-pay-max').value = 28;
@@ -826,6 +1046,49 @@
     document.getElementById('sheet-title').textContent = 'Post a Job';
     document.getElementById('submit-btn').innerHTML = 'Post job →';
     document.getElementById('submit-btn').disabled = false;
+  }
+
+  function openEditSheet(jobId) {
+    const job = _jobsCache[jobId];
+    if (!job) return;
+    resetPostForm();
+    editingJobId = job.id;
+    document.getElementById('sheet-title').textContent = 'Edit Role';
+    document.getElementById('submit-btn').innerHTML = 'Save changes →';
+
+    // Populate fields
+    document.getElementById('f-role').value = job.role_title || '';
+    document.getElementById('f-extra').value = job.student_description || job.employer_description || '';
+    document.getElementById('f-county').value = job.city || '';
+
+    // Parse pay range e.g. "$18–$28/hr"
+    const payMatch = (job.pay || '').match(/\$?(\d+)[–-]\$?(\d+)/);
+    if (payMatch) {
+      document.getElementById('f-pay-min').value = parseInt(payMatch[1]);
+      document.getElementById('f-pay-max').value = parseInt(payMatch[2]);
+    }
+    updatePaySlider();
+
+    // Shift
+    const shiftEl = document.getElementById('f-shift');
+    for (let i = 0; i < shiftEl.options.length; i++) {
+      if (shiftEl.options[i].text === job.shift_type) { shiftEl.selectedIndex = i; break; }
+    }
+
+    // Toggles
+    if (job.is_union) { isUnion = true; document.getElementById('toggle-union').className = 'toggle-switch on'; document.getElementById('union-label').textContent = 'Yes'; }
+    if (job.sponsors_certifications) { sponsorsCerts = true; document.getElementById('toggle-sponsors').className = 'toggle-switch on'; document.getElementById('sponsors-label').textContent = 'Yes'; }
+    if (job.offers_apprenticeships) { offersApprenticeships = true; document.getElementById('toggle-apprenticeships').className = 'toggle-switch on'; document.getElementById('apprenticeships-label').textContent = 'Yes'; }
+
+    // Certs
+    const reqCerts = job.certifications_required || [];
+    document.querySelectorAll('#cert-checklist .app-check-row').forEach(row => {
+      const label = row.querySelector('.app-check-label').textContent;
+      if (reqCerts.includes(label)) row.classList.add('selected');
+    });
+
+    document.getElementById('post-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function updatePaySlider() {
@@ -865,19 +1128,6 @@
     }
   }
 
-  function goStep2() {
-    const role = document.getElementById('f-role').value.trim();
-    const errEl = document.getElementById('step1-error');
-    if (!role) { errEl.textContent = 'Please enter a role title.'; errEl.style.display = 'block'; return; }
-    errEl.style.display = 'none';
-    document.getElementById('post-step-1').style.display = 'none';
-    document.getElementById('post-step-2').style.display = 'block';
-    document.getElementById('tab-1').className = 'sheet-step-tab done';
-    document.getElementById('tab-2').className = 'sheet-step-tab active';
-    document.getElementById('sheet-title').textContent = 'Anything else?';
-    document.querySelector('.sheet-body').scrollTop = 0;
-  }
-
   function toggleCert(el) { el.classList.toggle('selected'); }
 
   async function submitJob() {
@@ -887,9 +1137,10 @@
     const shift = document.getElementById('f-shift').value;
     const county = document.getElementById('f-county').value.trim();
     const extra = document.getElementById('f-extra').value.trim();
-    const errEl = document.getElementById('step2-error');
+    const errEl = document.getElementById('step1-error');
 
     errEl.style.display = 'none';
+    if (!role) { errEl.textContent = 'Please enter a role title.'; errEl.style.display = 'block'; return; }
 
     const pay = `$${payMin}–$${payMax}/hr`;
     const certifications_required = Array.from(
@@ -901,11 +1152,10 @@
       || '';
 
     const btn = document.getElementById('submit-btn');
-    btn.innerHTML = '<span class="spinner"></span>Posting…';
+    btn.innerHTML = '<span class="spinner"></span>Saving…';
     btn.disabled = true;
 
-    const { error } = await _sb.from('jobs').insert([{
-      company_name: companyName,
+    const payload = {
       role_title: role,
       city: county || null,
       state: 'NY',
@@ -918,13 +1168,19 @@
       offers_apprenticeships: offersApprenticeships,
       employer_description: extra || null,
       student_description: extra || null,
-      is_active: true
-    }]);
+    };
+
+    let error;
+    if (editingJobId) {
+      ({ error } = await _sb.from('jobs').update(payload).eq('id', editingJobId));
+    } else {
+      ({ error } = await _sb.from('jobs').insert([{ ...payload, company_name: companyName, is_active: true }]));
+    }
 
     if (error) {
       errEl.textContent = error.message;
       errEl.style.display = 'block';
-      btn.innerHTML = 'Post job →';
+      btn.innerHTML = editingJobId ? 'Save changes →' : 'Post job →';
       btn.disabled = false;
       return;
     }
@@ -980,6 +1236,21 @@
     [...sizeEl.options].forEach(o => o.selected = o.value === p.company_size);
     document.getElementById('ep-website').value = p.website || '';
     document.getElementById('ep-description').value = p.description || '';
+
+    // Reset method cards
+    ['homegrown', 'call', 'ats'].forEach(k => {
+      const card = document.getElementById('ep-method-' + k);
+      card.classList.remove('selected');
+      card.style.borderRadius = '10px';
+    });
+    document.getElementById('ep-sub-call').classList.remove('open');
+    document.getElementById('ep-sub-ats').classList.remove('open');
+    document.getElementById('ep-contact-name').value = p.contact_name || '';
+    document.getElementById('ep-contact-phone').value = p.contact_phone || '';
+    document.getElementById('ep-ats-url').value = p.ats_url || '';
+    if (p.application_method) epSelectMethod(p.application_method);
+    else epSelectedMethod = '';
+
     document.getElementById('ep-save-status').textContent = '';
     // Logo
     if (p.logo_url) {
@@ -1001,6 +1272,19 @@
 
   function epOverlayClose(e) {
     if (e.target === document.getElementById('ep-overlay')) closeProfileSheet();
+  }
+
+  function epSelectMethod(key) {
+    ['homegrown', 'call', 'ats'].forEach(k => {
+      const card = document.getElementById('ep-method-' + k);
+      card.classList.toggle('selected', k === key);
+      if (k === 'call' || k === 'ats') {
+        card.style.borderRadius = (k === key) ? '10px 10px 0 0' : '10px';
+      }
+    });
+    document.getElementById('ep-sub-call').classList.toggle('open', key === 'call');
+    document.getElementById('ep-sub-ats').classList.toggle('open', key === 'ats');
+    epSelectedMethod = key;
   }
 
   function loadLogoPreview(url) {
@@ -1042,6 +1326,29 @@
     }
   }
 
+  function validateWebsite(url) {
+    try {
+      const parsed = new URL(url);
+      // Must be http or https
+      if (!['http:', 'https:'].includes(parsed.protocol)) return 'Website must start with https:// or http://';
+      // No @ in the URL (phishing redirect trick: http://real.com@evil.com)
+      if (url.includes('@')) return 'Website URL looks invalid — please double-check it.';
+      const host = parsed.hostname.toLowerCase();
+      // Block IP addresses (v4)
+      if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return 'IP address URLs are not allowed — please use your company domain.';
+      // Block localhost / private ranges
+      if (['localhost', '127.0.0.1', '0.0.0.0'].includes(host)) return 'That URL is not a public website.';
+      // Block common URL shorteners
+      const shorteners = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','buff.ly','rb.gy','short.link','cutt.ly','is.gd','tiny.cc'];
+      if (shorteners.some(s => host === s || host.endsWith('.' + s))) return 'URL shorteners are not allowed — please link directly to your company website.';
+      // Must have at least one dot in hostname (e.g. company.com)
+      if (!host.includes('.')) return 'Please enter a valid website address (e.g. https://yourcompany.com).';
+      return null; // valid
+    } catch {
+      return 'Please enter a valid website address (e.g. https://yourcompany.com).';
+    }
+  }
+
   async function saveProfile() {
     const name    = document.getElementById('ep-name').value.trim();
     const industry = document.getElementById('ep-industry').value;
@@ -1052,6 +1359,11 @@
     const statusEl = document.getElementById('ep-save-status');
 
     if (!name) { statusEl.style.color = '#c0392b'; statusEl.textContent = 'Company name is required.'; return; }
+
+    if (website) {
+      const urlErr = validateWebsite(website);
+      if (urlErr) { statusEl.style.color = '#c0392b'; statusEl.textContent = urlErr; return; }
+    }
 
     const btn = document.querySelector('.ep-save-btn');
     btn.textContent = 'Saving…'; btn.disabled = true;
@@ -1065,6 +1377,10 @@
       website: website || null,
       description: desc || null,
       logo_url: employerProfile?.logo_url || null,
+      application_method: epSelectedMethod || null,
+      contact_name: document.getElementById('ep-contact-name').value.trim() || null,
+      contact_phone: document.getElementById('ep-contact-phone').value.trim() || null,
+      ats_url: document.getElementById('ep-ats-url').value.trim() || null,
     };
 
     const userEmail = currentSession.user.email;
@@ -1085,6 +1401,115 @@
     statusEl.style.color = '#3B6D11';
     statusEl.textContent = '✓ Saved';
     setTimeout(() => closeProfileSheet(), 900);
+  }
+
+  function formatPhone(input) {
+    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    let formatted = digits;
+    if (digits.length > 6) formatted = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+    else if (digits.length > 3) formatted = digits.slice(0,3) + '-' + digits.slice(3);
+    input.value = formatted;
+  }
+
+  /* ── Applicants Sheet ── */
+
+  function openApplicantsSheet(jobId) {
+    const job = _jobsCache[jobId];
+    if (!job) return;
+
+    document.getElementById('appl-title').textContent = job.role_title || 'Interested Locals';
+    const apps = applicantsByJob[jobId] || [];
+    const count = apps.length;
+    document.getElementById('appl-subtitle').textContent =
+      count === 0 ? 'No applicants yet' : `${count} interested local${count !== 1 ? 's' : ''}`;
+
+    const body = document.getElementById('appl-body');
+    if (count === 0) {
+      body.innerHTML = `<div class="appl-empty">
+        <div class="appl-empty-icon">🌱</div>
+        <div>No one has applied yet.<br>Check back once your job is live.</div>
+      </div>`;
+    } else {
+      const reqCerts = job.certifications_required || [];
+      body.innerHTML = apps.map(a => renderApplicantRow(a, reqCerts)).join('');
+    }
+
+    document.getElementById('appl-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderApplicantRow(app, reqCerts) {
+    const name = escapeHtml(app.student_name || 'Anonymous');
+    const email = app.student_email || '';
+    const phone = app.student_phone || '';
+    const county = app.student_county || '';
+    const certs = app.certifications || [];
+    const ago = timeAgo(app.created_at);
+
+    // Cert match
+    let certLine = '';
+    if (reqCerts.length > 0) {
+      const matched = reqCerts.filter(c => certs.includes(c)).length;
+      if (matched === reqCerts.length) {
+        certLine = `<div class="appl-cert-line"><span class="appl-cert-match">✓ Has all required certs</span></div>`;
+      } else {
+        certLine = `<div class="appl-cert-line"><span class="appl-cert-partial">${matched}/${reqCerts.length} required certs</span></div>`;
+      }
+    } else if (certs.length > 0) {
+      certLine = `<div class="appl-cert-line"><span class="appl-cert-match">${certs.length} cert${certs.length !== 1 ? 's' : ''}</span></div>`;
+    }
+
+    // Meta line
+    const metaParts = [];
+    if (county) metaParts.push(county + ' County');
+    if (email) metaParts.push(email);
+    const meta = metaParts.join(' · ');
+
+    // Action buttons
+    const emailBtn = email
+      ? `<a class="appl-action-btn appl-btn-email" href="mailto:${escapeHtml(email)}">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+           Email
+         </a>` : '';
+
+    const cleanPhone = phone.replace(/\D/g, '');
+    const callBtn = cleanPhone
+      ? `<a class="appl-action-btn appl-btn-call" href="tel:${cleanPhone}">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+           Call ${phone ? escapeHtml(phone) : ''}
+         </a>` : '';
+
+    return `
+      <div class="appl-row">
+        <div class="appl-row-top">
+          <div class="appl-row-name">${name}</div>
+          <div class="appl-row-time">${ago}</div>
+        </div>
+        ${meta ? `<div class="appl-row-meta">${escapeHtml(meta)}</div>` : ''}
+        ${certLine}
+        ${(emailBtn || callBtn) ? `<div class="appl-actions">${emailBtn}${callBtn}</div>` : ''}
+      </div>`;
+  }
+
+  function closeApplicantsSheet() {
+    document.getElementById('appl-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function applOverlayClose(e) {
+    if (e.target === document.getElementById('appl-overlay')) closeApplicantsSheet();
+  }
+
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    if (days > 0) return `${days}d ago`;
+    if (hrs > 0) return `${hrs}h ago`;
+    if (mins > 0) return `${mins}m ago`;
+    return 'just now';
   }
 
   function escapeHtml(str) {

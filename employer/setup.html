@@ -11,7 +11,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f5f5;
+      background: #FAFAF8;
       color: #1C1C1A;
       min-height: 100vh;
     }
@@ -217,14 +217,34 @@
       border: 1.5px solid #D3D1C7;
       border-radius: 12px;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 0;
       background: #fff;
-      transition: all 0.15s;
+      transition: border-color 0.15s, background 0.15s;
     }
     .method-card.selected { border-color: #3B6D11; background: #EAF3DE; border-width: 2px; }
-    .method-icon { font-size: 24px; flex-shrink: 0; line-height: 1; }
+    .method-icon { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .method-title { font-size: 15px; font-weight: 500; color: #1C1C1A; margin-bottom: 3px; }
     .method-desc { font-size: 13px; color: #666660; line-height: 1.4; }
+
+    /* Method wrapper: card + expanding sub-fields */
+    .method-wrap { margin-bottom: 10px; }
+    .method-sub {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.28s ease, padding 0.28s ease, opacity 0.2s ease;
+      opacity: 0;
+      background: #F5FAF0;
+      border: 1.5px solid #3B6D11;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 0 16px;
+    }
+    .method-sub.open {
+      max-height: 200px;
+      opacity: 1;
+      padding: 14px 16px;
+    }
+    .method-sub .f-input { background: #fff; }
 
     /* Response time pills (single-select) */
     .response-pills { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -313,11 +333,10 @@
       <label class="field-label">Company size</label>
       <select class="f-input" id="company-size">
         <option value="" disabled selected>Select size…</option>
-        <option>Just me (1)</option>
-        <option>2–10 employees</option>
-        <option>11–50 employees</option>
-        <option>51–200 employees</option>
-        <option>200+ employees</option>
+        <option>1–10</option>
+        <option>11–50</option>
+        <option>51–200</option>
+        <option>200+</option>
       </select>
     </div>
 
@@ -402,38 +421,65 @@
     <!-- Application method -->
     <div class="section-gap">
       <div class="section-heading">How should candidates apply?</div>
+      <div style="margin-top:12px;">
 
-      <div class="method-card" id="method-homegrown" onclick="selectMethod('homegrown')">
-        <div class="method-icon">🌱</div>
-        <div>
-          <div class="method-title">Through Homegrown</div>
-          <div class="method-desc">Candidates express interest here and you reach out to them.</div>
+        <!-- Through Homegrown -->
+        <div class="method-wrap">
+          <div class="method-card" id="method-homegrown" onclick="selectMethod('homegrown')">
+            <div class="method-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
+                <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="method-title">Through Homegrown</div>
+              <div class="method-desc">Candidates express interest here and you reach out to them.</div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="method-card" id="method-call" onclick="selectMethod('call')">
-        <div class="method-icon">📞</div>
-        <div>
-          <div class="method-title">Call us directly</div>
-          <div class="method-desc">Show candidates your phone number to call or text.</div>
+        <!-- Call us directly -->
+        <div class="method-wrap">
+          <div class="method-card" id="method-call" onclick="selectMethod('call')" style="border-radius:12px 12px 0 0;">
+            <div class="method-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="method-title">Call us directly</div>
+              <div class="method-desc">Show candidates your phone number to call or text.</div>
+            </div>
+          </div>
+          <div class="method-sub" id="sub-call">
+            <div class="two-col">
+              <input class="f-input" id="contact-name" type="text" placeholder="Contact name" />
+              <input class="f-input" id="contact-phone" type="tel" placeholder="607-555-0100" />
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="method-card" id="method-walkin" onclick="selectMethod('walkin')">
-        <div class="method-icon">🚶</div>
-        <div>
-          <div class="method-title">Show up in person</div>
-          <div class="method-desc">Tell candidates to come in during business hours.</div>
+        <!-- Internal ATS -->
+        <div class="method-wrap">
+          <div class="method-card" id="method-ats" onclick="selectMethod('ats')" style="border-radius:12px 12px 0 0;">
+            <div class="method-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M7 8h10M7 12h10M7 16h6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="method-title">Internal ATS</div>
+              <div class="method-desc">We'll handle candidates through our own hiring system.</div>
+            </div>
+          </div>
+          <div class="method-sub" id="sub-ats">
+            <input class="f-input" id="ats-url" type="url" placeholder="https://yourcompany.com/careers" />
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Contact -->
-    <div class="section-gap">
-      <div class="section-heading">Who should candidates contact?</div>
-      <div style="margin-top:10px;" class="two-col">
-        <input class="f-input" id="contact-name" type="text" placeholder="e.g. Sarah in HR" />
-        <input class="f-input" id="contact-info" type="text" placeholder="607-555-0100 or hr@co.com" />
       </div>
     </div>
 
@@ -531,9 +577,20 @@
 
   // ── Step 3 interactions ──
   function selectMethod(key) {
-    ['homegrown', 'call', 'walkin'].forEach(k => {
-      document.getElementById('method-' + k).classList.toggle('selected', k === key);
+    const methods = ['homegrown', 'call', 'ats'];
+    methods.forEach(k => {
+      const card = document.getElementById('method-' + k);
+      card.classList.toggle('selected', k === key);
+      // Round corners: flat bottom only when this card is selected and has a sub-panel
+      if (k === 'call' || k === 'ats') {
+        card.style.borderRadius = (k === key) ? '12px 12px 0 0' : '12px';
+      }
     });
+    // Show/hide sub-panels
+    const subCall = document.getElementById('sub-call');
+    const subAts  = document.getElementById('sub-ats');
+    subCall.classList.toggle('open', key === 'call');
+    subAts.classList.toggle('open',  key === 'ats');
     selectedMethod = key;
   }
 
@@ -552,6 +609,10 @@
     }
     errEl.style.display = 'none';
 
+    const contactName  = document.getElementById('contact-name').value.trim();
+    const contactPhone = document.getElementById('contact-phone').value.trim();
+    const atsUrl       = document.getElementById('ats-url').value.trim();
+
     const profile = {
       company_description: document.getElementById('company-description').value.trim(),
       company_size: document.getElementById('company-size').value || '',
@@ -562,8 +623,9 @@
       offers_apprenticeships: document.getElementById('toggle-apprentice').classList.contains('on'),
       sponsors_certifications: document.getElementById('toggle-sponsor').classList.contains('on'),
       application_method: selectedMethod,
-      contact_name: document.getElementById('contact-name').value.trim(),
-      contact_info: document.getElementById('contact-info').value.trim(),
+      contact_name: contactName,
+      contact_phone: contactPhone,
+      ats_url: atsUrl,
       response_time: (document.querySelector('#response-pills .response-pill.selected') || {}).textContent || ''
     };
 
@@ -575,20 +637,17 @@
     try {
       const { data: { session } } = await _sb.auth.getSession();
       if (session) {
-        await _sb.from('employers').update({
-          company_description: profile.company_description,
+        await _sb.from('employers').upsert({
+          email: session.user.email,
+          description: profile.company_description,
           company_size: profile.company_size,
-          website: profile.website,
-          address: profile.address,
-          preferred_backgrounds: profile.preferred_backgrounds,
-          required_certifications: profile.required_certifications,
-          offers_apprenticeships: profile.offers_apprenticeships,
-          sponsors_certifications: profile.sponsors_certifications,
-          application_method: profile.application_method,
-          contact_name: profile.contact_name,
-          contact_info: profile.contact_info,
-          response_time: profile.response_time
-        }).eq('id', session.user.id);
+          website: profile.website || null,
+          application_method: selectedMethod,
+          contact_name: contactName || null,
+          contact_phone: contactPhone || null,
+          ats_url: atsUrl || null,
+          response_time: profile.response_time || null,
+        }, { onConflict: 'email' });
       }
     } catch (e) {
       // localStorage save already done — proceed anyway
