@@ -1451,12 +1451,12 @@
     if (reqCerts.length > 0) {
       const matched = reqCerts.filter(c => certs.includes(c)).length;
       if (matched === reqCerts.length) {
-        certLine = `<div class="appl-cert-line"><span class="appl-cert-match">✓ Has all required certs</span></div>`;
+        certLine = `<div class="appl-cert-line"><span class="appl-cert-match">✓ Has all required certifications</span></div>`;
       } else {
-        certLine = `<div class="appl-cert-line"><span class="appl-cert-partial">${matched}/${reqCerts.length} required certs</span></div>`;
+        certLine = `<div class="appl-cert-line"><span class="appl-cert-partial">${matched}/${reqCerts.length} required certifications</span></div>`;
       }
     } else if (certs.length > 0) {
-      certLine = `<div class="appl-cert-line"><span class="appl-cert-match">${certs.length} cert${certs.length !== 1 ? 's' : ''}</span></div>`;
+      certLine = `<div class="appl-cert-line"><span class="appl-cert-match">${certs.length} certification${certs.length !== 1 ? 's' : ''}</span></div>`;
     }
 
     // Meta line
