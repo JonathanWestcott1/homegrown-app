@@ -698,6 +698,7 @@
   let myCerts = [];
   let currentJobs = [];
   let employerMap = {};
+  let appliedJobIds = new Set();
 
   (async () => {
     const { data: { session } } = await _sb.auth.getSession();
@@ -745,14 +746,11 @@
     myCerts = studentData?.certifications || profile?.certifications || [];
     currentJobs = jobs || [];
 
-    // Fetch employer application methods for all companies in the feed
-    const companyNames = [...new Set(currentJobs.map(j => j.company_name).filter(Boolean))];
-    if (companyNames.length > 0) {
-      const { data: emps } = await _sb.from('employers')
-        .select('company_name, application_method, contact_name, contact_phone, ats_url')
-        .in('company_name', companyNames);
-      (emps || []).forEach(e => { employerMap[e.company_name] = e; });
-    }
+    // Fetch jobs the user has already applied to
+    const { data: myApps } = await _sb.from('applications')
+      .select('job_id')
+      .eq('student_id', session.user.id);
+    appliedJobIds = new Set((myApps || []).map(a => String(a.job_id)));
 
     updateCertDisplay(myCerts);
     initCertEditor(myCerts);
@@ -859,12 +857,17 @@
       const dataCompany = `data-company="${esc(job.company_name || '')}"`;
       const sponsored = !!job.sponsors_certifications;
       const anyway    = !allMet && sponsored;
+      const alreadyApplied = appliedJobIds.has(String(job.id));
 
       let btn;
-      if (!allMet && !sponsored) {
+      if (alreadyApplied) {
+        btn = `<button disabled style="width:100%;padding:12px;font-size:14px;font-weight:500;background:#5a9e20;color:#fff;border:none;border-radius:8px;cursor:default;font-family:inherit;margin-top:8px;">✓ Applied</button>`;
+      } else if (!allMet && !sponsored) {
         btn = `<button disabled style="width:100%;padding:12px;font-size:14px;font-weight:500;background:#F5F4F0;color:#B4B2A9;border:0.5px solid #E0DED6;border-radius:8px;cursor:default;font-family:inherit;">Get the certifications above to apply</button>`;
+      } else if (anyway) {
+        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="openApplySheet(this)" style="background:#3B6D11;margin-top:8px;">Apply anyway →</button>`;
       } else {
-        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="openApplySheet(this)" style="${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${anyway ? 'Apply anyway →' : 'Apply Now'}</button>`;
+        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="openApplySheet(this)" style="background:#5a9e20;margin-top:8px;">Apply Now</button>`;
       }
 
       const hasDesc = job.student_description && job.student_description.trim().length > 0;
@@ -1170,20 +1173,18 @@
       return;
     }
 
+    // Mark locally so refresh isn't needed
+    if (applyJobId) appliedJobIds.add(String(applyJobId));
+
     closeApplySheet();
 
-    // Update the card button
+    // Update the card button in place
     if (applySourceBtn) {
       applySourceBtn.disabled = true;
-      applySourceBtn.textContent = '✓ Applied!';
+      applySourceBtn.textContent = '✓ Applied';
       applySourceBtn.style.background = '#5a9e20';
-      const card = applySourceBtn.closest('.app-job-card');
-      if (card && applyCompany) {
-        const note = document.createElement('div');
-        note.style.cssText = 'font-size:12px;color:#3B6D11;text-align:center;margin-top:6px;';
-        note.textContent = `${applyCompany} will reach out if you're a fit.`;
-        card.appendChild(note);
-      }
+      applySourceBtn.style.border = 'none';
+      applySourceBtn.onclick = null;
     }
   }
 
