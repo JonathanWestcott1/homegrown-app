@@ -261,6 +261,194 @@
       color: #3B6D11;
       margin-top: 10px;
     }
+
+    /* ── Apply flow sheet ── */
+    .apply-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .apply-overlay.open { display: flex; }
+    .apply-sheet {
+      width: 100%;
+      max-width: 390px;
+      max-height: 92vh;
+      background: #FAFAF8;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .apply-overlay.open .apply-sheet { transform: translateY(0); }
+    .apply-handle {
+      width: 36px; height: 4px;
+      background: #D3D1C7; border-radius: 2px;
+      margin: 12px auto 0; flex-shrink: 0;
+    }
+    .apply-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px 10px;
+      flex-shrink: 0;
+    }
+    .apply-back-btn {
+      font-size: 13px; font-weight: 500; color: #3B6D11;
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; padding: 4px 0;
+      visibility: hidden;
+    }
+    .apply-back-btn.visible { visibility: visible; }
+    .apply-page-label {
+      font-size: 12px; font-weight: 500; color: #B4B2A9;
+    }
+    .apply-x-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #EEEEE9; border: none; cursor: pointer;
+      font-size: 14px; color: #666;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .apply-progress-track {
+      height: 3px;
+      background: #EEEEE9;
+      flex-shrink: 0;
+      margin: 0 20px;
+      border-radius: 2px;
+    }
+    .apply-progress-fill {
+      height: 100%;
+      background: #3B6D11;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 33%;
+    }
+    .apply-body {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .apply-page {
+      display: none;
+      padding: 20px 20px 4px;
+    }
+    .apply-page.active { display: block; }
+    .apply-page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1C1C1A;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    .apply-page-sub {
+      font-size: 13px;
+      color: #888780;
+      margin-bottom: 20px;
+    }
+    .apply-question {
+      margin-bottom: 20px;
+    }
+    .apply-q-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1C1C1A;
+      margin-bottom: 10px;
+    }
+    .apply-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .apply-chip {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1.5px solid #D3D1C7;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444441;
+      cursor: pointer;
+      transition: all 0.12s;
+      user-select: none;
+      font-family: inherit;
+    }
+    .apply-chip:hover { border-color: #3B6D11; }
+    .apply-chip.selected {
+      background: #EAF3DE;
+      border-color: #3B6D11;
+      color: #3B6D11;
+    }
+    .apply-phone-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .apply-phone-wrap:focus-within { border-color: #3B6D11; }
+    .apply-phone-prefix {
+      padding: 12px 10px 12px 14px;
+      font-size: 14px;
+      color: #444;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .apply-phone-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1C1C1A;
+      padding: 12px 14px 12px 0;
+      outline: none;
+    }
+    .apply-note-input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1C1C1A;
+      background: #fff;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    .apply-note-input:focus { border-color: #3B6D11; }
+    .apply-footer {
+      padding: 12px 20px 28px;
+      flex-shrink: 0;
+    }
+    .apply-err {
+      font-size: 12px;
+      color: #c0392b;
+      margin-bottom: 8px;
+      min-height: 16px;
+    }
+    .apply-next-btn {
+      width: 100%;
+      padding: 14px;
+      background: #3B6D11;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .apply-next-btn:disabled { opacity: 0.6; cursor: default; }
   </style>
 </head>
 <body>
@@ -376,6 +564,127 @@
 
     <button class="sheet-edit" onclick="window.location.href='/student/onboarding.html'">Edit my information</button>
     <button class="sheet-logout" onclick="logout()">Log out</button>
+  </div>
+</div>
+
+<!-- Apply flow sheet -->
+<div class="apply-overlay" id="apply-overlay" onclick="applyOverlayClose(event)">
+  <div class="apply-sheet">
+    <div class="apply-handle"></div>
+    <div class="apply-top">
+      <button class="apply-back-btn" id="apply-back-btn" onclick="applyBack()">← Back</button>
+      <div class="apply-page-label" id="apply-page-label">1 of 3</div>
+      <button class="apply-x-btn" onclick="closeApplySheet()">✕</button>
+    </div>
+    <div class="apply-progress-track">
+      <div class="apply-progress-fill" id="apply-progress-fill"></div>
+    </div>
+
+    <div class="apply-body">
+
+      <!-- Page 1: Availability -->
+      <div class="apply-page active" id="apply-p1">
+        <div class="apply-page-title">Availability</div>
+        <div class="apply-page-sub">Tell the employer how you work best.</div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Your phone number <span style="color:#c0392b;">*</span></div>
+          <div class="apply-phone-wrap">
+            <div class="apply-phone-prefix">+1</div>
+            <input class="apply-phone-input" id="apply-phone" type="tel" placeholder="607-555-0100" oninput="applyFormatPhone(this)" maxlength="12" />
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">When can you start?</div>
+          <div class="apply-chips" id="chips-start">
+            <button class="apply-chip" onclick="selectChip('start',this)">Immediately</button>
+            <button class="apply-chip" onclick="selectChip('start',this)">Within 2 weeks</button>
+            <button class="apply-chip" onclick="selectChip('start',this)">Within a month</button>
+            <button class="apply-chip" onclick="selectChip('start',this)">2+ months</button>
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Which shifts work for you? <span style="font-weight:400;color:#888;">(select all)</span></div>
+          <div class="apply-chips" id="chips-shifts">
+            <button class="apply-chip" onclick="toggleChip(this)">1st shift (7am–3pm)</button>
+            <button class="apply-chip" onclick="toggleChip(this)">2nd shift (3pm–11pm)</button>
+            <button class="apply-chip" onclick="toggleChip(this)">3rd shift (11pm–7am)</button>
+            <button class="apply-chip" onclick="toggleChip(this)">Flexible / any shift</button>
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Full time or part time?</div>
+          <div class="apply-chips" id="chips-emptype">
+            <button class="apply-chip" onclick="selectChip('emptype',this)">Full time</button>
+            <button class="apply-chip" onclick="selectChip('emptype',this)">Part time</button>
+            <button class="apply-chip" onclick="selectChip('emptype',this)">Either works</button>
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Can you work overtime?</div>
+          <div class="apply-chips" id="chips-overtime">
+            <button class="apply-chip" onclick="selectChip('overtime',this)">Yes</button>
+            <button class="apply-chip" onclick="selectChip('overtime',this)">Sometimes</button>
+            <button class="apply-chip" onclick="selectChip('overtime',this)">No</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page 2: Logistics -->
+      <div class="apply-page" id="apply-p2">
+        <div class="apply-page-title">Logistics</div>
+        <div class="apply-page-sub">A few quick practical questions.</div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Do you have reliable transportation?</div>
+          <div class="apply-chips" id="chips-transport">
+            <button class="apply-chip" onclick="selectChip('transport',this)">Yes</button>
+            <button class="apply-chip" onclick="selectChip('transport',this)">No</button>
+            <button class="apply-chip" onclick="selectChip('transport',this)">Sometimes</button>
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Do you have a valid driver's license?</div>
+          <div class="apply-chips" id="chips-license">
+            <button class="apply-chip" onclick="selectChip('license',this)">Yes</button>
+            <button class="apply-chip" onclick="selectChip('license',this)">No</button>
+            <button class="apply-chip" onclick="selectChip('license',this)">Learner's permit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page 3: Background -->
+      <div class="apply-page" id="apply-p3">
+        <div class="apply-page-title">Background</div>
+        <div class="apply-page-sub">Last step — almost there.</div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Any previous trades or manufacturing experience?</div>
+          <div class="apply-chips" id="chips-experience">
+            <button class="apply-chip" onclick="selectChip('experience',this)">No experience</button>
+            <button class="apply-chip" onclick="selectChip('experience',this)">A little (under 1 yr)</button>
+            <button class="apply-chip" onclick="selectChip('experience',this)">Some (1–3 years)</button>
+            <button class="apply-chip" onclick="selectChip('experience',this)">Experienced (3+ years)</button>
+          </div>
+        </div>
+
+        <div class="apply-question">
+          <div class="apply-q-label">Anything specific you want the employer to know? <span style="font-weight:400;color:#888;">(optional)</span></div>
+          <textarea class="apply-note-input" id="apply-note" rows="3" placeholder="e.g. I'm a fast learner and available to start Monday…"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /apply-body -->
+
+    <div class="apply-footer">
+      <div class="apply-err" id="apply-err"></div>
+      <button class="apply-next-btn" id="apply-next-btn" onclick="applyNext()">Next →</button>
+    </div>
   </div>
 </div>
 
@@ -548,33 +857,14 @@
         : '';
 
       const dataCompany = `data-company="${esc(job.company_name || '')}"`;
-      const emp = employerMap[job.company_name] || {};
-      const appMethod = emp.application_method || 'homegrown';
-      const contactName  = emp.contact_name  || '';
-      const contactPhone = emp.contact_phone || '';
-      const atsUrl       = emp.ats_url       || '';
-      const cleanPhone   = contactPhone.replace(/\D/g, '');
-      const sponsored    = !!job.sponsors_certifications;
-      const anyway       = !allMet && sponsored;
+      const sponsored = !!job.sponsors_certifications;
+      const anyway    = !allMet && sponsored;
 
       let btn;
       if (!allMet && !sponsored) {
-        // Blocked — missing certs, no sponsorship
         btn = `<button disabled style="width:100%;padding:12px;font-size:14px;font-weight:500;background:#F5F4F0;color:#B4B2A9;border:0.5px solid #E0DED6;border-radius:8px;cursor:default;font-family:inherit;">Get the certifications above to apply</button>`;
-      } else if (appMethod === 'call' && cleanPhone) {
-        // Call to apply
-        const label = anyway ? 'Call anyway →' : 'Call to apply';
-        const subtext = [contactName ? 'Ask for ' + esc(contactName) : '', esc(contactPhone)].filter(Boolean).join(' · ');
-        btn = `<a href="tel:${cleanPhone}" class="app-btn-primary" style="display:block;text-align:center;text-decoration:none;${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${label}</a>
-               ${subtext ? `<div style="font-size:12px;color:#666660;text-align:center;margin-top:5px;">${subtext}</div>` : ''}
-               ${anyway ? `<div style="font-size:12px;color:#3B6D11;text-align:center;margin-top:2px;">They'll help you get certified</div>` : ''}`;
-      } else if (appMethod === 'ats' && atsUrl) {
-        // External ATS link
-        btn = `<a href="${esc(atsUrl)}" target="_blank" rel="noopener noreferrer" class="app-btn-primary" style="display:block;text-align:center;text-decoration:none;${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">Apply on their website →</a>
-               ${anyway ? `<div style="font-size:12px;color:#3B6D11;text-align:center;margin-top:4px;">They'll help you get certified</div>` : ''}`;
       } else {
-        // Through Homegrown (default)
-        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="showApplyConfirm(this)" style="${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${anyway ? 'Apply anyway →' : 'Apply Now'}</button>`;
+        btn = `<button class="app-btn-primary" ${dataCompany} data-job-id="${job.id}" onclick="openApplySheet(this)" style="${anyway ? 'background:#5a9e20;' : ''}margin-top:8px;">${anyway ? 'Apply anyway →' : 'Apply Now'}</button>`;
       }
 
       const hasDesc = job.student_description && job.student_description.trim().length > 0;
@@ -718,37 +1008,182 @@
     setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
   }
 
-  async function showApplyConfirm(btn) {
-    const companyName = btn.dataset.company || '';
-    const jobId = btn.dataset.jobId || null;
-    const card = btn.closest('.app-job-card');
-    btn.disabled = true;
-    btn.textContent = '✓ Interest sent!';
-    btn.style.background = '#5a9e20';
-    if (card) {
-      const note = document.createElement('div');
-      note.style.cssText = 'font-size:12px;color:#3B6D11;text-align:center;margin-top:6px;';
-      note.textContent = companyName
-        ? `${companyName} will be notified of your interest.`
-        : 'The employer will be notified of your interest.';
-      card.appendChild(note);
+  /* ── Apply flow ── */
+  let applyJobId   = null;
+  let applyCompany = null;
+  let applySourceBtn = null;
+  let applyCurrPage  = 1;
+
+  function openApplySheet(btn) {
+    applyJobId     = btn.dataset.jobId || null;
+    applyCompany   = btn.dataset.company || '';
+    applySourceBtn = btn;
+    applyCurrPage  = 1;
+
+    // Pre-fill phone if we already have it
+    const meta = currentSession?.user?.user_metadata || {};
+    const savedPhone = meta.phone || JSON.parse(localStorage.getItem('hg_profile') || '{}').phone || '';
+    document.getElementById('apply-phone').value = savedPhone;
+
+    // Reset all chips
+    document.querySelectorAll('.apply-chip').forEach(c => c.classList.remove('selected'));
+    document.getElementById('apply-note').value = '';
+    document.getElementById('apply-err').textContent = '';
+
+    applyShowPage(1);
+    document.getElementById('apply-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeApplySheet() {
+    document.getElementById('apply-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function applyOverlayClose(e) {
+    if (e.target === document.getElementById('apply-overlay')) closeApplySheet();
+  }
+
+  function applyShowPage(n) {
+    applyCurrPage = n;
+    [1,2,3].forEach(i => {
+      document.getElementById('apply-p' + i).classList.toggle('active', i === n);
+    });
+    document.getElementById('apply-page-label').textContent = `${n} of 3`;
+    document.getElementById('apply-progress-fill').style.width = (n / 3 * 100) + '%';
+
+    const backBtn = document.getElementById('apply-back-btn');
+    backBtn.classList.toggle('visible', n > 1);
+
+    const nextBtn = document.getElementById('apply-next-btn');
+    nextBtn.textContent = n === 3 ? 'Submit application →' : 'Next →';
+    document.getElementById('apply-err').textContent = '';
+  }
+
+  function applyBack() {
+    if (applyCurrPage > 1) applyShowPage(applyCurrPage - 1);
+  }
+
+  function selectChip(group, chip) {
+    const parent = chip.closest('.apply-chips');
+    parent.querySelectorAll('.apply-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+  }
+
+  function toggleChip(chip) {
+    chip.classList.toggle('selected');
+  }
+
+  function applyFormatPhone(input) {
+    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    let f = digits;
+    if (digits.length > 6) f = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+    else if (digits.length > 3) f = digits.slice(0,3) + '-' + digits.slice(3);
+    input.value = f;
+  }
+
+  function applyGetSelected(chipsId) {
+    return [...document.querySelectorAll(`#${chipsId} .apply-chip.selected`)]
+      .map(c => c.textContent.trim());
+  }
+
+  function applyNext() {
+    const errEl = document.getElementById('apply-err');
+    errEl.textContent = '';
+
+    if (applyCurrPage === 1) {
+      const phone = document.getElementById('apply-phone').value.trim();
+      if (phone.replace(/\D/g,'').length < 10) {
+        errEl.textContent = 'Please enter a valid 10-digit phone number.'; return;
+      }
+      if (!applyGetSelected('chips-start').length) {
+        errEl.textContent = 'When can you start?'; return;
+      }
+      if (!applyGetSelected('chips-shifts').length) {
+        errEl.textContent = 'Select at least one shift.'; return;
+      }
+      if (!applyGetSelected('chips-emptype').length) {
+        errEl.textContent = 'Full time or part time?'; return;
+      }
+      if (!applyGetSelected('chips-overtime').length) {
+        errEl.textContent = 'Can you work overtime?'; return;
+      }
+      applyShowPage(2);
+
+    } else if (applyCurrPage === 2) {
+      if (!applyGetSelected('chips-transport').length) {
+        errEl.textContent = 'Do you have reliable transportation?'; return;
+      }
+      if (!applyGetSelected('chips-license').length) {
+        errEl.textContent = 'Do you have a valid driver\'s license?'; return;
+      }
+      applyShowPage(3);
+
+    } else if (applyCurrPage === 3) {
+      if (!applyGetSelected('chips-experience').length) {
+        errEl.textContent = 'Please select your experience level.'; return;
+      }
+      submitApplication();
     }
-    // Write application to Supabase
-    if (jobId && currentSession) {
-      const meta = currentSession.user.user_metadata || {};
-      const name = meta.full_name || meta.name
-        || ((meta.first_name || meta.last_name) ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : null);
-      const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
-      await _sb.from('applications').upsert({
-        job_id: jobId,
-        student_id: currentSession.user.id,
-        student_name: name || null,
-        student_email: currentSession.user.email || null,
-        student_phone: meta.phone || null,
-        student_county: profile.county || null,
-        certifications: myCerts.length > 0 ? myCerts : null,
-        status: 'new'
-      }, { onConflict: 'job_id,student_id', ignoreDuplicates: true });
+  }
+
+  async function submitApplication() {
+    const btn = document.getElementById('apply-next-btn');
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    const meta = currentSession?.user?.user_metadata || {};
+    const name = meta.full_name || meta.name
+      || ((meta.first_name || meta.last_name)
+          ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : null);
+    const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
+    const phone = document.getElementById('apply-phone').value.trim();
+
+    const payload = {
+      job_id:          applyJobId ? parseInt(applyJobId) : null,
+      student_id:      currentSession.user.id,
+      student_name:    name || null,
+      student_email:   currentSession.user.email || null,
+      student_phone:   phone || null,
+      student_county:  profile.county || null,
+      certifications:  myCerts.length > 0 ? myCerts : null,
+      status:          'new',
+      start_when:      applyGetSelected('chips-start')[0] || null,
+      shifts:          applyGetSelected('chips-shifts'),
+      employment_type: applyGetSelected('chips-emptype')[0] || null,
+      can_overtime:    applyGetSelected('chips-overtime')[0] || null,
+      has_transportation: applyGetSelected('chips-transport')[0] || null,
+      has_license:     applyGetSelected('chips-license')[0] || null,
+      prior_experience: applyGetSelected('chips-experience')[0] || null,
+      employer_note:   document.getElementById('apply-note').value.trim() || null,
+    };
+
+    const { error } = await _sb.from('applications')
+      .upsert(payload, { onConflict: 'job_id,student_id', ignoreDuplicates: false });
+
+    btn.disabled = false;
+
+    if (error) {
+      document.getElementById('apply-err').textContent = 'Something went wrong — try again.';
+      btn.textContent = 'Submit application →';
+      console.error('[homegrown] apply error:', error);
+      return;
+    }
+
+    closeApplySheet();
+
+    // Update the card button
+    if (applySourceBtn) {
+      applySourceBtn.disabled = true;
+      applySourceBtn.textContent = '✓ Applied!';
+      applySourceBtn.style.background = '#5a9e20';
+      const card = applySourceBtn.closest('.app-job-card');
+      if (card && applyCompany) {
+        const note = document.createElement('div');
+        note.style.cssText = 'font-size:12px;color:#3B6D11;text-align:center;margin-top:6px;';
+        note.textContent = `${applyCompany} will reach out if you're a fit.`;
+        card.appendChild(note);
+      }
     }
   }
 
