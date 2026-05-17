@@ -1464,7 +1464,11 @@
 
     // Meta line
     const metaParts = [];
-    if (county) metaParts.push(county + ' County');
+    if (county) {
+      // Avoid "Chenango County County" — only append if not already ending in County/York
+      const countyDisplay = /county|new york/i.test(county) ? county : county + ' County';
+      metaParts.push(countyDisplay);
+    }
     if (email) metaParts.push(email);
     const meta = metaParts.join(' · ');
 

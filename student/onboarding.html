@@ -141,6 +141,47 @@
     }
     .college-option:last-child { border-bottom: none; }
     .college-option:active { background: #EAF3DE; }
+    /* County search step */
+    .county-search-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1.5px solid #D3D1C7;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1C1C1A;
+      background: #fff;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+    .county-search-input:focus { border-color: #3B6D11; }
+    .county-list {
+      max-height: 44vh;
+      overflow-y: auto;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 10px;
+      background: #fff;
+      margin-bottom: 16px;
+    }
+    .county-option {
+      padding: 13px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1C1C1A;
+      cursor: pointer;
+      border-bottom: 0.5px solid #F0EFE9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.1s;
+    }
+    .county-option:last-child { border-bottom: none; }
+    .county-option:hover { background: #F5FAF0; }
+    .county-option.selected { background: #EAF3DE; color: #3B6D11; font-weight: 600; }
+    .county-option.selected::after { content: '✓'; font-size: 13px; color: #3B6D11; }
+    .county-none { padding: 20px; text-align: center; font-size: 13px; color: #999; }
   </style>
 </head>
 <body>
@@ -320,17 +361,8 @@
   <div class="app-content" id="step-county" style="display:none;">
     <div class="app-step-title">Where are you located?</div>
     <div class="app-step-sub">We'll show you jobs close to home.</div>
-    <select class="app-select" id="county-select" onchange="checkSelect('county-select','county-btn')">
-      <option value="" disabled selected>Select your county…</option>
-      <option>Chenango County</option>
-      <option>Delaware County</option>
-      <option>Madison County</option>
-      <option>Otsego County</option>
-      <option>Broome County</option>
-      <option>Cortland County</option>
-      <option>Other upstate NY county</option>
-      <option>Outside New York</option>
-    </select>
+    <input class="county-search-input" id="county-search" type="text" placeholder="Search county…" oninput="filterCounties(this.value)" autocomplete="off" />
+    <div class="county-list" id="county-list"></div>
     <button class="ob-btn" id="county-btn" onclick="nextStep()" disabled>Continue</button>
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
@@ -487,6 +519,11 @@
       updateProgress(stepNum, total);
     }
 
+    if (sequence[idx] === 'step-county') {
+      buildCountyList('');
+      document.getElementById('county-search').value = '';
+    }
+
     if (sequence[idx] === 'step-industries') {
       if (selected.has('job') && !industriesDirty) {
         const expLabels = new Set(
@@ -544,6 +581,54 @@
     document.getElementById(btnId).disabled = !document.getElementById(selectId).value;
   }
 
+  /* ── County search/select ── */
+  const ALL_COUNTIES = [
+    'Albany County','Allegany County','Broome County','Cattaraugus County',
+    'Cayuga County','Chautauqua County','Chemung County','Chenango County',
+    'Clinton County','Columbia County','Cortland County','Delaware County',
+    'Dutchess County','Erie County','Essex County','Franklin County',
+    'Fulton County','Genesee County','Greene County','Hamilton County',
+    'Herkimer County','Jefferson County','Lewis County','Livingston County',
+    'Madison County','Monroe County','Montgomery County','Nassau County',
+    'Niagara County','Oneida County','Onondaga County','Ontario County',
+    'Orange County','Orleans County','Oswego County','Otsego County',
+    'Putnam County','Rensselaer County','Rockland County','St. Lawrence County',
+    'Saratoga County','Schenectady County','Schoharie County','Schuyler County',
+    'Seneca County','Steuben County','Suffolk County','Sullivan County',
+    'Tioga County','Tompkins County','Ulster County','Warren County',
+    'Washington County','Wayne County','Westchester County','Wyoming County',
+    'Yates County','Outside New York',
+  ];
+  let selectedCounty = '';
+
+  function buildCountyList(filter) {
+    const list = document.getElementById('county-list');
+    if (!list) return;
+    const q = (filter || '').toLowerCase().trim();
+    const matches = ALL_COUNTIES.filter(c => !q || c.toLowerCase().includes(q));
+    if (matches.length === 0) {
+      list.innerHTML = '<div class="county-none">No counties found</div>';
+      return;
+    }
+    list.innerHTML = matches.map(c => {
+      const sel = c === selectedCounty ? ' selected' : '';
+      return `<div class="county-option${sel}" onclick="selectCounty(this,'${c.replace(/'/g,"\\'")}')">
+        ${c}
+      </div>`;
+    }).join('');
+  }
+
+  function selectCounty(el, value) {
+    selectedCounty = value;
+    document.querySelectorAll('.county-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('county-btn').disabled = false;
+  }
+
+  function filterCounties(q) {
+    buildCountyList(q);
+  }
+
   function checkInput(inputId, btnId) {
     document.getElementById(btnId).disabled = !document.getElementById(inputId).value.trim();
   }
@@ -574,7 +659,7 @@
       college_name: document.getElementById('college-name')?.value.trim() || null,
       military_branch: document.getElementById('military-branch')?.value || null,
       graduation_year: document.getElementById('grad-year').value || null,
-      county: document.getElementById('county-select').value || null,
+      county: selectedCounty || null,
       job_experience: sequence.includes('step-job-experience')
         ? Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
             .map(c => c.querySelector('.industry-card-label').textContent)
@@ -624,7 +709,7 @@
       document.getElementById('grad-btn').disabled = false;
     }
     if (p.county) {
-      document.getElementById('county-select').value = p.county;
+      selectedCounty = p.county;
       document.getElementById('county-btn').disabled = false;
     }
 
