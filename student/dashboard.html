@@ -1136,10 +1136,11 @@
     btn.disabled = true;
 
     const meta = currentSession?.user?.user_metadata || {};
-    const name = meta.full_name || meta.name
-      || ((meta.first_name || meta.last_name)
-          ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : null);
     const profile = JSON.parse(localStorage.getItem('hg_profile') || '{}');
+    const firstName = (meta.first_name || '').trim();
+    const lastName  = (meta.last_name  || '').trim();
+    const fullFromMeta = [firstName, lastName].filter(Boolean).join(' ');
+    const name = meta.full_name || meta.name || fullFromMeta || profile.name || null;
     const phone = document.getElementById('apply-phone').value.trim();
 
     const payload = {

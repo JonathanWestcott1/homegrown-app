@@ -1439,7 +1439,10 @@
   }
 
   function renderApplicantRow(app, reqCerts) {
-    const name = escapeHtml(app.student_name || 'Anonymous');
+    const rawName = app.student_name
+      || (app.student_email ? app.student_email.split('@')[0] : null)
+      || 'Applicant';
+    const name = escapeHtml(rawName);
     const email = app.student_email || '';
     const phone = app.student_phone || '';
     const county = app.student_county || '';
