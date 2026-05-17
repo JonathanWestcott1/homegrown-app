@@ -432,6 +432,64 @@
       text-align: center;
     }
 
+    /* ── Messaging chat sheet ── */
+    .chat-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 400;
+      align-items: flex-end; justify-content: center;
+    }
+    .chat-overlay.open { display: flex; }
+    .chat-sheet {
+      width: 100%; max-width: 390px; height: 88vh;
+      background: #FAFAF8; border-radius: 20px 20px 0 0;
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: translateY(100%); transition: transform 0.3s ease;
+    }
+    .chat-overlay.open .chat-sheet { transform: translateY(0); }
+    .chat-handle { width:36px;height:4px;background:#D3D1C7;border-radius:2px;margin:12px auto 0;flex-shrink:0; }
+    .chat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px 12px; border-bottom: 0.5px solid #D3D1C7; flex-shrink:0;
+    }
+    .chat-back {
+      font-size:13px;font-weight:500;color:#3B6D11;background:none;border:none;
+      cursor:pointer;font-family:inherit;padding:4px 0;white-space:nowrap;
+    }
+    .chat-header-info { flex:1; min-width:0; }
+    .chat-header-name { font-size:15px;font-weight:600;color:#1C1C1A;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .chat-header-sub { font-size:11px;color:#888780;margin-top:1px; }
+    .chat-x { width:28px;height:28px;border-radius:50%;background:#EEEEE9;border:none;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .chat-messages { flex:1;overflow-y:auto;padding:16px; display:flex;flex-direction:column;gap:8px; }
+    .chat-empty { flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#999;text-align:center;line-height:1.6; }
+    .chat-bubble-row { display:flex; }
+    .chat-bubble-row.mine { justify-content:flex-end; }
+    .chat-bubble-row.theirs { justify-content:flex-start; }
+    .chat-bubble {
+      max-width:78%;padding:10px 14px;font-size:14px;line-height:1.45;
+      border-radius:16px;word-break:break-word;
+    }
+    .chat-bubble-row.mine .chat-bubble { background:#3B6D11;color:#fff;border-radius:16px 16px 4px 16px; }
+    .chat-bubble-row.theirs .chat-bubble { background:#F0EFE9;color:#1C1C1A;border-radius:16px 16px 16px 4px; }
+    .chat-time { font-size:10px;color:#aaa;margin-top:3px;text-align:right; }
+    .chat-bubble-row.theirs .chat-time { text-align:left; }
+    .chat-input-row {
+      display:flex;gap:8px;padding:12px 16px 24px;border-top:0.5px solid #D3D1C7;flex-shrink:0;background:#FAFAF8;
+    }
+    .chat-input {
+      flex:1;border:1.5px solid #D3D1C7;border-radius:22px;padding:10px 16px;
+      font-size:14px;font-family:inherit;color:#1C1C1A;background:#fff;outline:none;
+      transition:border-color 0.15s;
+    }
+    .chat-input:focus { border-color:#3B6D11; }
+    .chat-send {
+      width:40px;height:40px;border-radius:50%;background:#3B6D11;color:#fff;
+      border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .chat-send:disabled { opacity:0.5;cursor:default; }
+    /* Message button in applicant row */
+    .appl-btn-message { background:#EAF3DE;color:#3B6D11;border:0.5px solid #c8dfb0; }
+    .appl-btn-message:hover { background:#d5ecb8; }
+
     /* ── Dual-handle pay range slider ── */
     .pay-slider-wrap { margin-bottom: 18px; }
     .pay-display {
@@ -723,6 +781,26 @@
         <div class="appl-empty-icon">🌱</div>
         <div>No one has applied yet.<br>Check back once your job is live.</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Sheet -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-sheet">
+    <div class="chat-handle"></div>
+    <div class="chat-header">
+      <button class="chat-back" onclick="closeChatSheet()">← Back</button>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="chat-header-name"></div>
+        <div class="chat-header-sub" id="chat-header-sub"></div>
+      </div>
+      <button class="chat-x" onclick="closeChatSheet()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-msg-input" type="text" placeholder="Message…" onkeydown="if(event.key==='Enter')sendChatMsg()" />
+      <button class="chat-send" id="chat-send-btn" onclick="sendChatMsg()">↑</button>
     </div>
   </div>
 </div>
@@ -1411,6 +1489,89 @@
     input.value = formatted;
   }
 
+  /* ── Chat Sheet ── */
+  let chatJobId = null;
+  let chatStudentId = null;
+  let chatStudentName = null;
+  let chatPollInterval = null;
+
+  async function openChatSheet(jobId, studentId, studentName) {
+    chatJobId = jobId;
+    chatStudentId = studentId;
+    chatStudentName = studentName;
+
+    const job = _jobsCache[jobId] || {};
+    document.getElementById('chat-header-name').textContent = studentName;
+    document.getElementById('chat-header-sub').textContent = job.role_title || '';
+    document.getElementById('chat-msg-input').value = '';
+    document.getElementById('chat-messages').innerHTML = '';
+
+    document.getElementById('chat-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    await loadChatMessages();
+
+    // Poll for new messages every 4 seconds
+    clearInterval(chatPollInterval);
+    chatPollInterval = setInterval(loadChatMessages, 4000);
+  }
+
+  function closeChatSheet() {
+    clearInterval(chatPollInterval);
+    document.getElementById('chat-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  async function loadChatMessages() {
+    if (!chatJobId || !chatStudentId) return;
+    const { data: msgs } = await _sb.from('messages')
+      .select('*')
+      .eq('job_id', chatJobId)
+      .eq('student_id', chatStudentId)
+      .order('created_at', { ascending: true });
+
+    const container = document.getElementById('chat-messages');
+    if (!msgs || msgs.length === 0) {
+      container.innerHTML = `<div class="chat-empty">No messages yet.<br>Send the first message to ${escapeHtml(chatStudentName)}.</div>`;
+      return;
+    }
+
+    const scrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 40;
+    container.innerHTML = msgs.map(m => {
+      const mine = m.sender_role === 'employer';
+      const t = new Date(m.created_at);
+      const timeStr = t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      return `<div class="chat-bubble-row ${mine ? 'mine' : 'theirs'}">
+        <div>
+          <div class="chat-bubble">${escapeHtml(m.body)}</div>
+          <div class="chat-time">${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+    if (scrolledToBottom) container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendChatMsg() {
+    const input = document.getElementById('chat-msg-input');
+    const body = input.value.trim();
+    if (!body || !chatJobId || !chatStudentId) return;
+
+    const btn = document.getElementById('chat-send-btn');
+    btn.disabled = true;
+    input.value = '';
+
+    await _sb.from('messages').insert({
+      job_id: parseInt(chatJobId),
+      student_id: chatStudentId,
+      sender_role: 'employer',
+      body
+    });
+
+    btn.disabled = false;
+    await loadChatMessages();
+    const container = document.getElementById('chat-messages');
+    container.scrollTop = container.scrollHeight;
+  }
+
   /* ── Applicants Sheet ── */
 
   function openApplicantsSheet(jobId) {
@@ -1473,11 +1634,10 @@
     const meta = metaParts.join(' · ');
 
     // Action buttons
-    const emailBtn = email
-      ? `<a class="appl-action-btn appl-btn-email" href="mailto:${escapeHtml(email)}">
-           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-           Email
-         </a>` : '';
+    const msgBtn = `<button class="appl-action-btn appl-btn-message" onclick="openChatSheet('${app.job_id}','${escapeHtml(app.student_id)}','${escapeHtml(rawName)}')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Message
+      </button>`;
 
     const cleanPhone = phone.replace(/\D/g, '');
     const callBtn = cleanPhone
@@ -1494,7 +1654,7 @@
         </div>
         ${meta ? `<div class="appl-row-meta">${escapeHtml(meta)}</div>` : ''}
         ${certLine}
-        ${(emailBtn || callBtn) ? `<div class="appl-actions">${emailBtn}${callBtn}</div>` : ''}
+        <div class="appl-actions">${msgBtn}${callBtn}</div>
       </div>`;
   }
 

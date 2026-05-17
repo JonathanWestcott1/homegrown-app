@@ -262,6 +262,45 @@
       margin-top: 10px;
     }
 
+    /* ── Messages ── */
+    .messages-section { padding: 0 0 8px; }
+    .messages-section-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 20px 0 12px;
+    }
+    .messages-section-title { font-size:18px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px; }
+    .messages-unread-badge {
+      background:#3B6D11;color:#fff;border-radius:20px;
+      font-size:11px;font-weight:600;padding:2px 8px;
+    }
+    .convo-card {
+      border:0.5px solid #D3D1C7;border-radius:12px;
+      padding:14px;background:#fff;margin-bottom:8px;
+      cursor:pointer;transition:border-color 0.15s;
+    }
+    .convo-card:hover { border-color:#3B6D11; }
+    .convo-card.has-unread { border-color:#3B6D11;background:#FAFFF7; }
+    .convo-card-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px; }
+    .convo-company { font-size:15px;font-weight:600;color:#1C1C1A;letter-spacing:-0.3px; }
+    .convo-time { font-size:11px;color:#aaa;flex-shrink:0;margin-left:8px;padding-top:2px; }
+    .convo-role { font-size:12px;color:#888780;margin-bottom:5px; }
+    .convo-preview { font-size:13px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .convo-preview.unread { font-weight:600;color:#1C1C1A; }
+
+    .student-chat-overlay {
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.45);z-index:200;
+      align-items:flex-end;justify-content:center;
+    }
+    .student-chat-overlay.open { display:flex; }
+    .student-chat-sheet {
+      width:100%;max-width:390px;height:88vh;
+      background:#FAFAF8;border-radius:20px 20px 0 0;
+      display:flex;flex-direction:column;overflow:hidden;
+      transform:translateY(100%);transition:transform 0.3s ease;
+    }
+    .student-chat-overlay.open .student-chat-sheet { transform:translateY(0); }
+
     /* ── Apply flow sheet ── */
     .apply-overlay {
       display: none;
@@ -469,6 +508,14 @@
   <div class="app-content">
     <div class="app-step-title" id="feed-title">Jobs for you</div>
     <div class="app-step-sub">Updated daily</div>
+    <div id="messages-section" class="messages-section" style="display:none;">
+      <div style="height:0.5px;background:#E8E6DC;margin-bottom:0;"></div>
+      <div class="messages-section-header">
+        <div class="messages-section-title">Messages</div>
+        <div class="messages-unread-badge" id="msg-unread-badge" style="display:none;"></div>
+      </div>
+      <div id="conversations-list"></div>
+    </div>
     <div id="job-feed">
       <div id="jobs-loading" style="display:flex;flex-direction:column;align-items:center;padding:48px 0;gap:12px;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:spin 1s linear infinite;">
@@ -688,6 +735,26 @@
   </div>
 </div>
 
+<!-- Student Chat Sheet -->
+<div class="student-chat-overlay" id="student-chat-overlay">
+  <div class="student-chat-sheet">
+    <div class="chat-handle" style="width:36px;height:4px;background:#D3D1C7;border-radius:2px;margin:12px auto 0;flex-shrink:0;"></div>
+    <div class="chat-header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid #D3D1C7;flex-shrink:0;">
+      <button class="chat-back" style="font-size:13px;font-weight:500;color:#3B6D11;background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0;white-space:nowrap;" onclick="closeStudentChat()">← Back</button>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:600;color:#1C1C1A;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="student-chat-name"></div>
+        <div style="font-size:11px;color:#888780;margin-top:1px;" id="student-chat-sub"></div>
+      </div>
+      <button style="width:28px;height:28px;border-radius:50%;background:#EEEEE9;border:none;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="closeStudentChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="student-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="display:flex;gap:8px;padding:12px 16px 28px;border-top:0.5px solid #D3D1C7;flex-shrink:0;background:#FAFAF8;">
+      <input style="flex:1;border:1.5px solid #D3D1C7;border-radius:22px;padding:10px 16px;font-size:14px;font-family:inherit;color:#1C1C1A;background:#fff;outline:none;" id="student-msg-input" type="text" placeholder="Message…" onkeydown="if(event.key==='Enter')sendStudentMsg()" />
+      <button style="width:40px;height:40px;border-radius:50%;background:#3B6D11;color:#fff;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="student-send-btn" onclick="sendStudentMsg()">↑</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const _sb = window.supabase.createClient(
     'https://mccrpgqtqtrxfifxvwbd.supabase.co',
@@ -756,6 +823,7 @@
     initCertEditor(myCerts);
     document.getElementById('jobs-loading').remove();
     renderJobs(currentJobs, myCerts);
+    loadConversations();
   })();
 
   function populateSheet(user, profile) {
@@ -1187,6 +1255,156 @@
       applySourceBtn.style.border = 'none';
       applySourceBtn.onclick = null;
     }
+  }
+
+  /* ── Messages / Chat ── */
+  let studentChatJobId = null;
+  let studentChatJobTitle = null;
+  let studentChatCompany = null;
+  let studentChatPoll = null;
+
+  async function loadConversations() {
+    if (!currentSession) return;
+    const { data: msgs } = await _sb.from('messages')
+      .select('job_id, sender_role, body, created_at, read_at')
+      .eq('student_id', currentSession.user.id)
+      .order('created_at', { ascending: false });
+
+    if (!msgs || msgs.length === 0) return;
+
+    // Group by job_id — latest message per thread
+    const threads = {};
+    msgs.forEach(m => {
+      if (!threads[m.job_id]) threads[m.job_id] = m;
+    });
+
+    const jobIds = Object.keys(threads);
+    const { data: jobs } = await _sb.from('jobs')
+      .select('id, role_title, company_name')
+      .in('id', jobIds);
+    const jobMap = {};
+    (jobs || []).forEach(j => { jobMap[j.id] = j; });
+
+    // Count unread (from employer, not yet read)
+    const unread = msgs.filter(m => m.sender_role === 'employer' && !m.read_at).length;
+
+    const section = document.getElementById('messages-section');
+    const list = document.getElementById('conversations-list');
+    const badge = document.getElementById('msg-unread-badge');
+
+    section.style.display = 'block';
+    if (unread > 0) {
+      badge.style.display = 'inline-block';
+      badge.textContent = unread + ' new';
+    }
+
+    list.innerHTML = jobIds.map(jid => {
+      const latest = threads[jid];
+      const job = jobMap[jid] || {};
+      const preview = (latest.sender_role === 'employer' ? '' : 'You: ') + latest.body;
+      const hasUnread = latest.sender_role === 'employer' && !latest.read_at;
+      const ago = timeAgoStudent(latest.created_at);
+      return `<div class="convo-card ${hasUnread ? 'has-unread' : ''}" onclick="openStudentChat('${jid}','${esc(job.role_title||'')}','${esc(job.company_name||'')}')">
+        <div class="convo-card-top">
+          <div class="convo-company">${esc(job.company_name || 'Employer')}</div>
+          <div class="convo-time">${ago}</div>
+        </div>
+        <div class="convo-role">${esc(job.role_title || '')}</div>
+        <div class="convo-preview ${hasUnread ? 'unread' : ''}">${esc(preview)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function openStudentChat(jobId, roleTitle, company) {
+    studentChatJobId = jobId;
+    studentChatJobTitle = roleTitle;
+    studentChatCompany = company;
+
+    document.getElementById('student-chat-name').textContent = company || 'Employer';
+    document.getElementById('student-chat-sub').textContent = roleTitle;
+    document.getElementById('student-msg-input').value = '';
+    document.getElementById('student-chat-messages').innerHTML = '';
+
+    document.getElementById('student-chat-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    await loadStudentChatMsgs();
+
+    // Mark employer messages as read
+    await _sb.from('messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('job_id', jobId)
+      .eq('student_id', currentSession.user.id)
+      .eq('sender_role', 'employer')
+      .is('read_at', null);
+
+    clearInterval(studentChatPoll);
+    studentChatPoll = setInterval(loadStudentChatMsgs, 4000);
+  }
+
+  function closeStudentChat() {
+    clearInterval(studentChatPoll);
+    document.getElementById('student-chat-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    loadConversations(); // refresh unread counts
+  }
+
+  async function loadStudentChatMsgs() {
+    if (!studentChatJobId || !currentSession) return;
+    const { data: msgs } = await _sb.from('messages')
+      .select('*')
+      .eq('job_id', studentChatJobId)
+      .eq('student_id', currentSession.user.id)
+      .order('created_at', { ascending: true });
+
+    const container = document.getElementById('student-chat-messages');
+    if (!msgs || msgs.length === 0) {
+      container.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#999;text-align:center;line-height:1.6;">${esc(studentChatCompany)} will message you here if they're interested.</div>`;
+      return;
+    }
+    const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 40;
+    container.innerHTML = msgs.map(m => {
+      const mine = m.sender_role === 'student';
+      const t = new Date(m.created_at);
+      const timeStr = t.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      return `<div class="chat-bubble-row ${mine ? 'mine' : 'theirs'}">
+        <div>
+          <div class="chat-bubble" style="${mine ? 'background:#3B6D11;color:#fff;border-radius:16px 16px 4px 16px;' : 'background:#F0EFE9;color:#1C1C1A;border-radius:16px 16px 16px 4px;'}max-width:78%;padding:10px 14px;font-size:14px;line-height:1.45;word-break:break-word;">${esc(m.body)}</div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px;${mine ? 'text-align:right' : 'text-align:left'}">${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+    if (atBottom) container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendStudentMsg() {
+    const input = document.getElementById('student-msg-input');
+    const body = input.value.trim();
+    if (!body || !studentChatJobId || !currentSession) return;
+    const btn = document.getElementById('student-send-btn');
+    btn.disabled = true;
+    input.value = '';
+    await _sb.from('messages').insert({
+      job_id: parseInt(studentChatJobId),
+      student_id: currentSession.user.id,
+      sender_role: 'student',
+      body
+    });
+    btn.disabled = false;
+    await loadStudentChatMsgs();
+    const c = document.getElementById('student-chat-messages');
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function timeAgoStudent(dateStr) {
+    if (!dateStr) return '';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    if (days > 0) return days + 'd ago';
+    if (hrs > 0) return hrs + 'h ago';
+    if (mins > 0) return mins + 'm ago';
+    return 'just now';
   }
 
   // ── Cert matching constants ──
