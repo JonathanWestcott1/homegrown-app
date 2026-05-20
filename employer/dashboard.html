@@ -700,65 +700,6 @@
       <div class="field-label">What do you do? <span style="font-weight:400;color:#999;">(1–2 sentences)</span></div>
       <textarea class="app-input" id="ep-description" rows="3" placeholder="e.g. We manufacture Toyota forklifts and have been a cornerstone employer in Greene, NY for over 40 years."></textarea>
 
-      <!-- Application method -->
-      <div style="height:0.5px;background:#E8E6DC;margin:20px 0 16px;"></div>
-      <div style="font-size:14px;font-weight:600;color:#1C1C1A;margin-bottom:4px;">How should candidates reach you?</div>
-      <div style="font-size:12px;color:#888780;margin-bottom:14px;">Choose how locals apply to your jobs.</div>
-
-      <div style="margin-bottom:8px;">
-        <div class="ep-method-card" id="ep-method-homegrown" onclick="epSelectMethod('homegrown')">
-          <div class="ep-method-icon">
-            <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
-              <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
-            </svg>
-          </div>
-          <div>
-            <div class="ep-method-title">Through Homegrown</div>
-            <div class="ep-method-desc">Candidates express interest here and you reach out to them.</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:8px;">
-        <div class="ep-method-card" id="ep-method-call" onclick="epSelectMethod('call')">
-          <div class="ep-method-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-          </div>
-          <div>
-            <div class="ep-method-title">Call us directly</div>
-            <div class="ep-method-desc">Show candidates your phone number to call or text.</div>
-          </div>
-        </div>
-        <div class="ep-method-sub" id="ep-sub-call">
-          <div class="two-col">
-            <input class="app-input" id="ep-contact-name" type="text" placeholder="Contact name" style="background:#fff;" />
-            <input class="app-input" id="ep-contact-phone" type="tel" placeholder="607-555-0100" style="background:#fff;" oninput="formatPhone(this)" />
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px;">
-        <div class="ep-method-card" id="ep-method-ats" onclick="epSelectMethod('ats')">
-          <div class="ep-method-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M7 8h10M7 12h10M7 16h6"/>
-            </svg>
-          </div>
-          <div>
-            <div class="ep-method-title">Internal ATS</div>
-            <div class="ep-method-desc">We'll handle candidates through our own hiring system.</div>
-          </div>
-        </div>
-        <div class="ep-method-sub" id="ep-sub-ats">
-          <input class="app-input" id="ep-ats-url" type="url" placeholder="https://yourcompany.com/careers" style="background:#fff;" />
-        </div>
-      </div>
-
       <div class="ep-save-status" id="ep-save-status"></div>
       <button class="ep-save-btn" onclick="saveProfile()">Save profile</button>
       <button class="ep-logout-btn" onclick="logout()">Log out</button>
@@ -913,7 +854,6 @@
   let sponsorsCerts = false;
   let offersApprenticeships = false;
   let editingJobId = null;
-  let epSelectedMethod = '';
   const _jobsCache = {};
   let applicantCounts = {};
   let applicantsByJob = {};
@@ -931,7 +871,7 @@
     if (localProfile) employerProfile = localProfile;
 
     const { data: emp } = await _sb.from('employers')
-      .select('company_name, county, industry, logo_url, company_size, website, description, application_method, contact_name, contact_phone, ats_url')
+      .select('company_name, county, industry, logo_url, company_size, website, description')
       .eq('user_id', session.user.id)
       .single();
     if (emp) {
@@ -986,20 +926,6 @@
     document.getElementById('ep-website').value = p.website || '';
     document.getElementById('ep-description').value = p.description || '';
 
-    // Reset method cards
-    ['homegrown', 'call', 'ats'].forEach(k => {
-      const card = document.getElementById('ep-method-' + k);
-      card.classList.remove('selected');
-      card.style.borderRadius = '10px';
-    });
-    document.getElementById('ep-sub-call').classList.remove('open');
-    document.getElementById('ep-sub-ats').classList.remove('open');
-    document.getElementById('ep-contact-name').value = p.contact_name || '';
-    document.getElementById('ep-contact-phone').value = p.contact_phone || '';
-    document.getElementById('ep-ats-url').value = p.ats_url || '';
-    if (p.application_method) epSelectMethod(p.application_method);
-    else epSelectedMethod = '';
-
     document.getElementById('ep-save-status').textContent = '';
     // Logo
     if (p.logo_url) {
@@ -1021,19 +947,6 @@
 
   function epOverlayClose(e) {
     if (e.target === document.getElementById('ep-overlay')) closeProfileSheet();
-  }
-
-  function epSelectMethod(key) {
-    ['homegrown', 'call', 'ats'].forEach(k => {
-      const card = document.getElementById('ep-method-' + k);
-      card.classList.toggle('selected', k === key);
-      if (k === 'call' || k === 'ats') {
-        card.style.borderRadius = (k === key) ? '10px 10px 0 0' : '10px';
-      }
-    });
-    document.getElementById('ep-sub-call').classList.toggle('open', key === 'call');
-    document.getElementById('ep-sub-ats').classList.toggle('open', key === 'ats');
-    epSelectedMethod = key;
   }
 
   function loadLogoPreview(url) {
@@ -1126,10 +1039,6 @@
       website: website || null,
       description: desc || null,
       logo_url: employerProfile?.logo_url || null,
-      application_method: epSelectedMethod || null,
-      contact_name: document.getElementById('ep-contact-name').value.trim() || null,
-      contact_phone: document.getElementById('ep-contact-phone').value.trim() || null,
-      ats_url: document.getElementById('ep-ats-url').value.trim() || null,
     };
 
     const { error } = await _sb.from('employers')

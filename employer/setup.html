@@ -301,7 +301,7 @@
       </svg>
       <span style="font-size:16px;font-weight:600;color:#1C1C1A;letter-spacing:-0.4px;">home<span style="color:#3B6D11;">grown</span>.ai</span>
     </div>
-    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 3</div>
+    <div style="font-size:12px;color:#999;">Step <span id="step-num">1</span> of 2</div>
   </div>
 
   <!-- Progress bar -->
@@ -312,10 +312,6 @@
     </div>
     <div class="progress-step">
       <div class="progress-circle" id="pc2">2</div>
-      <div class="progress-line" id="pl2"></div>
-    </div>
-    <div class="progress-step">
-      <div class="progress-circle" id="pc3">3</div>
     </div>
   </div>
 
@@ -344,12 +340,6 @@
     <div class="field-group">
       <label class="field-label">Website <span style="font-weight:400;color:#888780;">(optional)</span></label>
       <input class="f-input" id="company-website" type="url" placeholder="https://yourcompany.com" />
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">Street address</label>
-      <div class="field-sublabel">Used to show locals how far you are from them.</div>
-      <input class="f-input" id="company-address" type="text" placeholder="e.g. 20 South Canal Street, Greene, NY 13778" />
     </div>
 
     <div class="error-msg" id="s1-error"></div>
@@ -408,95 +398,9 @@
       </div>
     </div>
 
-    <button class="btn-primary" onclick="goStep(3)">Continue</button>
-    <button class="back-link" onclick="goStep(1)">← Back</button>
-  </div>
-
-  <!-- ── STEP 3: How to Hire ── -->
-  <div class="app-content" id="step-3" style="display:none;">
-    <div class="step-title">How should locals reach you?</div>
-    <div class="step-sub">We'll show this to candidates so they know exactly what to do.</div>
-
-    <!-- Application method -->
-    <div class="section-gap">
-      <div class="section-heading">How should candidates apply?</div>
-      <div style="margin-top:12px;">
-
-        <!-- Through Homegrown -->
-        <div class="method-wrap">
-          <div class="method-card" id="method-homegrown" onclick="selectMethod('homegrown')">
-            <div class="method-icon">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 18V10" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M11 10C11 10 6 9 5 4C5 4 10 3 13 7C14.5 9 11 10 11 10Z" fill="#3B6D11" opacity="0.9"/>
-                <path d="M11 13C11 13 14.5 11.5 17 13C17 13 16 17 13 17.5C11.5 17.7 11 13 11 13Z" fill="#639922" opacity="0.7"/>
-              </svg>
-            </div>
-            <div>
-              <div class="method-title">Through Homegrown</div>
-              <div class="method-desc">Candidates express interest here and you reach out to them.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Call us directly -->
-        <div class="method-wrap">
-          <div class="method-card" id="method-call" onclick="selectMethod('call')" style="border-radius:12px 12px 0 0;">
-            <div class="method-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="method-title">Call us directly</div>
-              <div class="method-desc">Show candidates your phone number to call or text.</div>
-            </div>
-          </div>
-          <div class="method-sub" id="sub-call">
-            <div class="two-col">
-              <input class="f-input" id="contact-name" type="text" placeholder="Contact name" />
-              <input class="f-input" id="contact-phone" type="tel" placeholder="607-555-0100" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Internal ATS -->
-        <div class="method-wrap">
-          <div class="method-card" id="method-ats" onclick="selectMethod('ats')" style="border-radius:12px 12px 0 0;">
-            <div class="method-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <path d="M7 8h10M7 12h10M7 16h6"/>
-              </svg>
-            </div>
-            <div>
-              <div class="method-title">Internal ATS</div>
-              <div class="method-desc">We'll handle candidates through our own hiring system.</div>
-            </div>
-          </div>
-          <div class="method-sub" id="sub-ats">
-            <input class="f-input" id="ats-url" type="url" placeholder="https://yourcompany.com/careers" />
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Response time -->
-    <div class="section-gap">
-      <div class="section-heading">How quickly do you typically respond to candidates?</div>
-      <div style="margin-top:10px;" class="response-pills" id="response-pills">
-        <div class="response-pill" onclick="selectResponse(this)">Within 24 hours</div>
-        <div class="response-pill" onclick="selectResponse(this)">Within a week</div>
-        <div class="response-pill" onclick="selectResponse(this)">1–2 weeks</div>
-        <div class="response-pill" onclick="selectResponse(this)">Varies</div>
-      </div>
-      <div style="font-size:12px;color:#888780;font-style:italic;margin-top:10px;">Candidates will see your typical response time. Faster responses get more applicants.</div>
-    </div>
-
-    <div class="error-msg" id="s3-error"></div>
+    <div class="error-msg" id="s2-finish-error"></div>
     <button class="btn-primary" onclick="finish()">Finish setup →</button>
-    <button class="back-link" onclick="goStep(2)">← Back</button>
+    <button class="back-link" onclick="goStep(1)">← Back</button>
   </div>
 
 </div>
@@ -525,16 +429,14 @@
   })();
 
   let currentStep = 1;
-  let selectedMethod = '';
 
   // ── Navigation ──
   function goStep(n) {
     if (n === 2 && currentStep === 1) {
       const desc = document.getElementById('company-description').value.trim();
-      const addr = document.getElementById('company-address').value.trim();
       const errEl = document.getElementById('s1-error');
-      if (!desc || !addr) {
-        errEl.textContent = 'Please fill in your company description and address.';
+      if (!desc) {
+        errEl.textContent = 'Please fill in your company description.';
         errEl.style.display = 'block';
         return;
       }
@@ -550,7 +452,7 @@
   }
 
   function updateProgress(n) {
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 2; i++) {
       const circle = document.getElementById('pc' + i);
       circle.classList.remove('active', 'done');
       if (i < n) {
@@ -563,55 +465,17 @@
         circle.textContent = i;
       }
     }
-    for (let i = 1; i <= 2; i++) {
-      const line = document.getElementById('pl' + i);
-      line.classList.toggle('done', i < n);
-    }
+    const line = document.getElementById('pl1');
+    if (line) line.classList.toggle('done', n > 1);
   }
 
-  // ── Step 2 interactions ──
+  // ── Step interactions ──
   function togglePill(el) { el.classList.toggle('selected'); }
   function toggleCheck(el) { el.classList.toggle('selected'); }
   function toggleSwitch(el) { el.classList.toggle('on'); }
 
-  // ── Step 3 interactions ──
-  function selectMethod(key) {
-    const methods = ['homegrown', 'call', 'ats'];
-    methods.forEach(k => {
-      const card = document.getElementById('method-' + k);
-      card.classList.toggle('selected', k === key);
-      // Round corners: flat bottom only when this card is selected and has a sub-panel
-      if (k === 'call' || k === 'ats') {
-        card.style.borderRadius = (k === key) ? '12px 12px 0 0' : '12px';
-      }
-    });
-    // Show/hide sub-panels
-    const subCall = document.getElementById('sub-call');
-    const subAts  = document.getElementById('sub-ats');
-    subCall.classList.toggle('open', key === 'call');
-    subAts.classList.toggle('open',  key === 'ats');
-    selectedMethod = key;
-  }
-
-  function selectResponse(el) {
-    document.querySelectorAll('#response-pills .response-pill').forEach(p => p.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
   // ── Finish ──
   async function finish() {
-    const errEl = document.getElementById('s3-error');
-    if (!selectedMethod) {
-      errEl.textContent = 'Please select how candidates should apply.';
-      errEl.style.display = 'block';
-      return;
-    }
-    errEl.style.display = 'none';
-
-    const contactName  = document.getElementById('contact-name').value.trim();
-    const contactPhone = document.getElementById('contact-phone').value.trim();
-    const atsUrl       = document.getElementById('ats-url').value.trim();
-
     const profile = {
       company_description: document.getElementById('company-description').value.trim(),
       company_size: document.getElementById('company-size').value || '',
@@ -620,10 +484,6 @@
       required_certifications: Array.from(document.querySelectorAll('.check-row.selected .check-label')).map(el => el.textContent),
       offers_apprenticeships: document.getElementById('toggle-apprentice').classList.contains('on'),
       sponsors_certifications: document.getElementById('toggle-sponsor').classList.contains('on'),
-      application_method: selectedMethod,
-      contact_name: contactName,
-      contact_phone: contactPhone,
-      ats_url: atsUrl,
     };
 
     // Save to localStorage
@@ -640,10 +500,6 @@
           description: profile.company_description,
           company_size: profile.company_size,
           website: profile.website || null,
-          application_method: selectedMethod,
-          contact_name: contactName || null,
-          contact_phone: contactPhone || null,
-          ats_url: atsUrl || null,
         }, { onConflict: 'email' });
       }
     } catch (e) {
