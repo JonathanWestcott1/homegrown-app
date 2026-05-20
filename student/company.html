@@ -6,6 +6,7 @@
   <title>Company — Homegrown</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/auth.js"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
   <style>
     .co-back {
@@ -201,7 +202,7 @@
 
       ${co.description ? `<div class="co-desc">${esc(co.description)}</div>` : ''}
 
-      ${co.county    ? `<div class="co-row"><span class="co-row-label">County</span><span class="co-row-value">${esc(co.county)} County, NY</span></div>` : ''}
+      ${co.county    ? `<div class="co-row"><span class="co-row-label">County</span><span class="co-row-value">${esc(co.county)}</span></div>` : ''}
       ${co.company_size ? `<div class="co-row"><span class="co-row-label">Company size</span><span class="co-row-value">${esc(co.company_size)} employees</span></div>` : ''}
       ${websiteRow}
     `;

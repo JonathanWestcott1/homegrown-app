@@ -351,7 +351,7 @@
     .appl-sheet {
       width: 100%;
       max-width: 390px;
-      max-height: 96vh;
+      height: 92vh;
       background: #FAFAF8;
       border-radius: 20px 20px 0 0;
       display: flex;
@@ -459,19 +459,21 @@
     .chat-header-name { font-size:15px;font-weight:600;color:#1C1C1A;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
     .chat-header-sub { font-size:11px;color:#888780;margin-top:1px; }
     .chat-x { width:28px;height:28px;border-radius:50%;background:#EEEEE9;border:none;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .chat-messages { flex:1;overflow-y:auto;padding:16px; display:flex;flex-direction:column;gap:8px; }
+    .chat-messages { flex:1;overflow-y:auto;padding:12px 16px 16px; display:flex;flex-direction:column;gap:2px; }
     .chat-empty { flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#999;text-align:center;line-height:1.6; }
-    .chat-bubble-row { display:flex; }
-    .chat-bubble-row.mine { justify-content:flex-end; }
-    .chat-bubble-row.theirs { justify-content:flex-start; }
+    .chat-bubble-row { display:flex;flex-direction:column;margin-bottom:6px; }
+    .chat-bubble-row.mine { align-items:flex-end; }
+    .chat-bubble-row.theirs { align-items:flex-start; }
     .chat-bubble {
-      max-width:78%;padding:10px 14px;font-size:14px;line-height:1.45;
-      border-radius:16px;word-break:break-word;
+      max-width:75%;padding:9px 13px;font-size:14px;line-height:1.45;
+      word-break:break-word;display:inline-block;
     }
-    .chat-bubble-row.mine .chat-bubble { background:#3B6D11;color:#fff;border-radius:16px 16px 4px 16px; }
-    .chat-bubble-row.theirs .chat-bubble { background:#F0EFE9;color:#1C1C1A;border-radius:16px 16px 16px 4px; }
-    .chat-time { font-size:10px;color:#aaa;margin-top:3px;text-align:right; }
-    .chat-bubble-row.theirs .chat-time { text-align:left; }
+    .chat-bubble-row.mine .chat-bubble { background:#3B6D11;color:#fff;border-radius:18px 18px 4px 18px; }
+    .chat-bubble-row.theirs .chat-bubble { background:#EEEEE9;color:#1C1C1A;border-radius:18px 18px 18px 4px; }
+    .chat-meta { font-size:10px;color:#aaa;margin-top:3px;line-height:1.3; }
+    .chat-bubble-row.mine .chat-meta { text-align:right; }
+    .chat-bubble-row.theirs .chat-meta { text-align:left; }
+    .chat-read { color:#3B6D11;font-weight:500; }
     .chat-input-row {
       display:flex;gap:8px;padding:12px 16px 24px;border-top:0.5px solid #D3D1C7;flex-shrink:0;background:#FAFAF8;
     }
@@ -898,12 +900,13 @@
   </div>
 </div>
 
-<script>
-  const _sb = window.supabase.createClient(
-    'https://mccrpgqtqtrxfifxvwbd.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
-  );
+<script src="../shared/supabase.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../employer/jobs.js"></script>
+<script src="../employer/applicants.js"></script>
+<script src="../employer/messages.js"></script>
 
+<script>
   let currentSession = null;
   let employerProfile = null;
   let isUnion = false;
@@ -916,8 +919,8 @@
   let applicantsByJob = {};
 
   (async () => {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) { window.location.href = '/'; return; }
+    const session = await requireAuth('employer');
+    if (!session) return;
     currentSession = session;
 
     const email = session.user.email || '';
@@ -929,7 +932,7 @@
 
     const { data: emp } = await _sb.from('employers')
       .select('company_name, county, industry, logo_url, company_size, website, description, application_method, contact_name, contact_phone, ats_url')
-      .eq('email', email)
+      .eq('user_id', session.user.id)
       .single();
     if (emp) {
       employerProfile = emp;
@@ -939,333 +942,6 @@
 
     await loadJobs();
   })();
-
-  async function loadJobs() {
-    const companyName = employerProfile?.company_name
-      || currentSession.user.user_metadata?.company_name
-      || '';
-
-    const { data: jobs } = await _sb.from('jobs')
-      .select('*')
-      .eq('company_name', companyName)
-      .order('created_at', { ascending: false });
-
-    if (!jobs || jobs.length === 0) {
-      document.getElementById('empty-state').style.display = 'flex';
-      document.getElementById('jobs-state').style.display = 'none';
-      return;
-    }
-
-    document.getElementById('empty-state').style.display = 'none';
-    document.getElementById('jobs-state').style.display = 'block';
-
-    const active = jobs.filter(j => j.is_active).length;
-    document.getElementById('jobs-sub').textContent =
-      `${active} active · ${jobs.length - active} paused`;
-
-    jobs.forEach(j => { _jobsCache[j.id] = j; });
-
-    // Load applicant counts for all jobs
-    const jobIds = jobs.map(j => j.id);
-    const { data: apps } = await _sb.from('applications')
-      .select('*')
-      .in('job_id', jobIds)
-      .order('created_at', { ascending: false });
-    applicantsByJob = {};
-    applicantCounts = {};
-    (apps || []).forEach(a => {
-      if (!applicantsByJob[a.job_id]) applicantsByJob[a.job_id] = [];
-      applicantsByJob[a.job_id].push(a);
-      applicantCounts[a.job_id] = (applicantCounts[a.job_id] || 0) + 1;
-    });
-
-    document.getElementById('jobs-list').innerHTML =
-      jobs.map(renderJobCard).join('');
-
-    await renderPipeline(jobs);
-  }
-
-  function renderJobCard(job) {
-    const statusBadge = job.is_active
-      ? `<span class="app-posting-status">Active</span>`
-      : `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">Paused</span>`;
-
-    const meta = [formatPay(job.pay), job.shift_type].filter(Boolean).join(' · ');
-
-    const certPills = job.certifications_required?.length
-      ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
-          ${job.certifications_required.map(c =>
-            `<span style="font-size:11px;background:#f5f5f5;color:#666;padding:3px 8px;border-radius:20px;">${escapeHtml(c)}</span>`
-          ).join('')}
-        </div>` : '';
-
-    const toggleBtn = job.is_active
-      ? `<button class="real-job-btn real-job-btn-pause" onclick="toggleJob('${job.id}', false)">Pause</button>`
-      : `<button class="real-job-btn real-job-btn-activate" onclick="toggleJob('${job.id}', true)">Activate</button>`;
-
-    const appCount = applicantCounts[job.id] || 0;
-    const interestedRow = appCount > 0
-      ? `<button class="real-job-btn real-job-btn-interested" style="width:100%;margin-top:8px;" onclick="openApplicantsSheet('${job.id}')">
-           ${appCount} interested ${appCount === 1 ? 'local' : 'locals'} — view →
-         </button>`
-      : `<div class="no-applicants-note">No applicants yet</div>`;
-
-    return `
-      <div class="real-job-card" id="job-card-${job.id}">
-        <div class="real-job-top">
-          <div class="real-job-role">${escapeHtml(job.role_title || '')}</div>
-          ${statusBadge}
-        </div>
-        <div class="real-job-pay">${escapeHtml(meta)}</div>
-        ${certPills}
-        ${interestedRow}
-        <div class="real-job-actions" style="margin-top:8px;">
-          <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="openEditSheet('${job.id}')">Edit role</button>
-          ${toggleBtn}
-        </div>
-      </div>`;
-  }
-
-  async function renderPipeline(jobs) {
-    const pipelineSection = document.getElementById('pipeline-section');
-
-    // Collect all unique certs required across active jobs
-    const allCerts = new Set();
-    jobs.filter(j => j.is_active).forEach(j => {
-      (j.certifications_required || []).forEach(c => allCerts.add(c));
-    });
-
-    if (allCerts.size === 0) { pipelineSection.style.display = 'none'; return; }
-
-    // Query real students from Supabase
-    const { data: students } = await _sb.from('students').select('certifications');
-    const studentList = students || [];
-
-    if (studentList.length === 0) { pipelineSection.style.display = 'none'; return; }
-
-    // Count how many students hold each required cert
-    const certRows = [...allCerts]
-      .map(cert => ({
-        cert,
-        count: studentList.filter(s => (s.certifications || []).includes(cert)).length
-      }))
-      .filter(r => r.count > 0)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    if (certRows.length === 0) { pipelineSection.style.display = 'none'; return; }
-
-    const county = employerProfile?.county || 'your county';
-    document.getElementById('pipeline-sub').textContent =
-      `${county} · ${studentList.length} local${studentList.length !== 1 ? 's' : ''} in the system`;
-
-    const rows = certRows.map(r => `
-      <div class="app-pipeline-row">
-        <div>
-          <div class="app-pipeline-row-name">${escapeHtml(r.cert)}</div>
-          <div class="app-pipeline-row-count">${r.count} local${r.count !== 1 ? 's' : ''} certified</div>
-        </div>
-        <div class="app-pipeline-row-cert">matches your role</div>
-      </div>`).join('');
-
-    document.getElementById('pipeline-box').innerHTML = `
-      <div class="app-pipeline-intro">🎓 Locals already certified for your open roles</div>
-      ${rows}`;
-
-    pipelineSection.style.display = 'block';
-  }
-
-  async function toggleJob(jobId, newActive) {
-    const card = document.getElementById('job-card-' + jobId);
-    const btn = card.querySelector('.real-job-btn');
-    const prev = btn.textContent;
-    btn.textContent = '…'; btn.disabled = true;
-    const { error } = await _sb.from('jobs').update({ is_active: newActive }).eq('id', jobId);
-    if (error) { btn.textContent = prev; btn.disabled = false; return; }
-    await loadJobs();
-  }
-
-  /* ── Post Job Sheet ── */
-
-  function openPostSheet() {
-    resetPostForm();
-    document.getElementById('post-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closePostSheet() {
-    document.getElementById('post-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function overlayClickClose(e) {
-    if (e.target === document.getElementById('post-overlay')) closePostSheet();
-  }
-
-  function resetPostForm() {
-    editingJobId = null;
-    document.getElementById('step1-error').style.display = 'none';
-    document.getElementById('f-role').value = '';
-    document.getElementById('f-pay-min').value = 18;
-    document.getElementById('f-pay-max').value = 28;
-    updatePaySlider();
-    document.getElementById('f-shift').selectedIndex = 0;
-    document.getElementById('f-county').value = '';
-    document.getElementById('f-extra').value = '';
-    document.querySelectorAll('#cert-checklist .app-check-row.selected')
-      .forEach(r => r.classList.remove('selected'));
-    isUnion = false; sponsorsCerts = false; offersApprenticeships = false;
-    document.getElementById('toggle-union').className = 'toggle-switch';
-    document.getElementById('toggle-sponsors').className = 'toggle-switch';
-    document.getElementById('toggle-apprenticeships').className = 'toggle-switch';
-    document.getElementById('union-label').textContent = 'No';
-    document.getElementById('sponsors-label').textContent = 'No';
-    document.getElementById('apprenticeships-label').textContent = 'No';
-    document.getElementById('sheet-title').textContent = 'Post a Job';
-    document.getElementById('submit-btn').innerHTML = 'Post job →';
-    document.getElementById('submit-btn').disabled = false;
-  }
-
-  function openEditSheet(jobId) {
-    const job = _jobsCache[jobId];
-    if (!job) return;
-    resetPostForm();
-    editingJobId = job.id;
-    document.getElementById('sheet-title').textContent = 'Edit Role';
-    document.getElementById('submit-btn').innerHTML = 'Save changes →';
-
-    // Populate fields
-    document.getElementById('f-role').value = job.role_title || '';
-    document.getElementById('f-extra').value = job.student_description || job.employer_description || '';
-    document.getElementById('f-county').value = job.city || '';
-
-    // Parse pay range e.g. "$18–$28/hr"
-    const payMatch = (job.pay || '').match(/\$?(\d+)[–-]\$?(\d+)/);
-    if (payMatch) {
-      document.getElementById('f-pay-min').value = parseInt(payMatch[1]);
-      document.getElementById('f-pay-max').value = parseInt(payMatch[2]);
-    }
-    updatePaySlider();
-
-    // Shift
-    const shiftEl = document.getElementById('f-shift');
-    for (let i = 0; i < shiftEl.options.length; i++) {
-      if (shiftEl.options[i].text === job.shift_type) { shiftEl.selectedIndex = i; break; }
-    }
-
-    // Toggles
-    if (job.is_union) { isUnion = true; document.getElementById('toggle-union').className = 'toggle-switch on'; document.getElementById('union-label').textContent = 'Yes'; }
-    if (job.sponsors_certifications) { sponsorsCerts = true; document.getElementById('toggle-sponsors').className = 'toggle-switch on'; document.getElementById('sponsors-label').textContent = 'Yes'; }
-    if (job.offers_apprenticeships) { offersApprenticeships = true; document.getElementById('toggle-apprenticeships').className = 'toggle-switch on'; document.getElementById('apprenticeships-label').textContent = 'Yes'; }
-
-    // Certs
-    const reqCerts = job.certifications_required || [];
-    document.querySelectorAll('#cert-checklist .app-check-row').forEach(row => {
-      const label = row.querySelector('.app-check-label').textContent;
-      if (reqCerts.includes(label)) row.classList.add('selected');
-    });
-
-    document.getElementById('post-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function updatePaySlider() {
-    const minEl = document.getElementById('f-pay-min');
-    const maxEl = document.getElementById('f-pay-max');
-    let lo = parseInt(minEl.value);
-    let hi = parseInt(maxEl.value);
-    // Keep at least $1 gap; whichever thumb was just moved, push the other
-    if (lo >= hi) {
-      if (document.activeElement === minEl) { hi = lo + 1; maxEl.value = hi; }
-      else                                  { lo = hi - 1; minEl.value = lo; }
-    }
-    const SLIDER_MIN = 10, SLIDER_MAX = 60, RANGE = SLIDER_MAX - SLIDER_MIN;
-    const leftPct  = ((lo - SLIDER_MIN) / RANGE) * 100;
-    const rightPct = ((SLIDER_MAX - hi) / RANGE) * 100;
-    document.getElementById('pay-fill').style.left  = leftPct  + '%';
-    document.getElementById('pay-fill').style.right = rightPct + '%';
-    document.getElementById('pay-display').textContent = `$${lo}–$${hi}/hr`;
-    // z-index: bring the active thumb's input on top so it stays draggable
-    minEl.style.zIndex = document.activeElement === minEl ? 3 : 2;
-    maxEl.style.zIndex = document.activeElement === maxEl ? 3 : 2;
-  }
-
-  function toggleSwitch(which) {
-    if (which === 'union') {
-      isUnion = !isUnion;
-      document.getElementById('toggle-union').className = 'toggle-switch' + (isUnion ? ' on' : '');
-      document.getElementById('union-label').textContent = isUnion ? 'Yes' : 'No';
-    } else if (which === 'sponsors') {
-      sponsorsCerts = !sponsorsCerts;
-      document.getElementById('toggle-sponsors').className = 'toggle-switch' + (sponsorsCerts ? ' on' : '');
-      document.getElementById('sponsors-label').textContent = sponsorsCerts ? 'Yes' : 'No';
-    } else {
-      offersApprenticeships = !offersApprenticeships;
-      document.getElementById('toggle-apprenticeships').className = 'toggle-switch' + (offersApprenticeships ? ' on' : '');
-      document.getElementById('apprenticeships-label').textContent = offersApprenticeships ? 'Yes' : 'No';
-    }
-  }
-
-  function toggleCert(el) { el.classList.toggle('selected'); }
-
-  async function submitJob() {
-    const role = document.getElementById('f-role').value.trim();
-    const payMin = parseInt(document.getElementById('f-pay-min').value);
-    const payMax = parseInt(document.getElementById('f-pay-max').value);
-    const shift = document.getElementById('f-shift').value;
-    const county = document.getElementById('f-county').value.trim();
-    const extra = document.getElementById('f-extra').value.trim();
-    const errEl = document.getElementById('step1-error');
-
-    errEl.style.display = 'none';
-    if (!role) { errEl.textContent = 'Please enter a role title.'; errEl.style.display = 'block'; return; }
-
-    const pay = `$${payMin}–$${payMax}/hr`;
-    const certifications_required = Array.from(
-      document.querySelectorAll('#cert-checklist .app-check-row.selected')
-    ).map(r => r.querySelector('.app-check-label').textContent);
-
-    const companyName = employerProfile?.company_name
-      || currentSession.user.user_metadata?.company_name
-      || '';
-
-    const btn = document.getElementById('submit-btn');
-    btn.innerHTML = '<span class="spinner"></span>Saving…';
-    btn.disabled = true;
-
-    const payload = {
-      role_title: role,
-      city: county || null,
-      state: 'NY',
-      pay,
-      shift_type: shift || null,
-      is_union: isUnion,
-      benefits: [],
-      certifications_required,
-      sponsors_certifications: sponsorsCerts,
-      offers_apprenticeships: offersApprenticeships,
-      employer_description: extra || null,
-      student_description: extra || null,
-    };
-
-    let error;
-    if (editingJobId) {
-      ({ error } = await _sb.from('jobs').update(payload).eq('id', editingJobId));
-    } else {
-      ({ error } = await _sb.from('jobs').insert([{ ...payload, company_name: companyName, is_active: true }]));
-    }
-
-    if (error) {
-      errEl.textContent = error.message;
-      errEl.style.display = 'block';
-      btn.innerHTML = editingJobId ? 'Save changes →' : 'Post job →';
-      btn.disabled = false;
-      return;
-    }
-
-    closePostSheet();
-    await loadJobs();
-  }
 
   function sendChat() {
     const input = document.getElementById('chat-input');
@@ -1289,11 +965,6 @@
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') sendChat();
   });
-
-  async function logout() {
-    await _sb.auth.signOut();
-    window.location.href = '/';
-  }
 
   /* ── Profile sheet ── */
 
@@ -1461,9 +1132,8 @@
       ats_url: document.getElementById('ep-ats-url').value.trim() || null,
     };
 
-    const userEmail = currentSession.user.email;
     const { error } = await _sb.from('employers')
-      .upsert({ email: userEmail, ...updates }, { onConflict: 'email' });
+      .upsert({ email: currentSession.user.email, user_id: currentSession.user.id, ...updates }, { onConflict: 'email' });
 
     btn.textContent = 'Save profile'; btn.disabled = false;
 
@@ -1487,209 +1157,6 @@
     if (digits.length > 6) formatted = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
     else if (digits.length > 3) formatted = digits.slice(0,3) + '-' + digits.slice(3);
     input.value = formatted;
-  }
-
-  /* ── Chat Sheet ── */
-  let chatJobId = null;
-  let chatStudentId = null;
-  let chatStudentName = null;
-  let chatPollInterval = null;
-
-  async function openChatSheet(jobId, studentId, studentName) {
-    chatJobId = jobId;
-    chatStudentId = studentId;
-    chatStudentName = studentName;
-
-    const job = _jobsCache[jobId] || {};
-    document.getElementById('chat-header-name').textContent = studentName;
-    document.getElementById('chat-header-sub').textContent = job.role_title || '';
-    document.getElementById('chat-msg-input').value = '';
-    document.getElementById('chat-messages').innerHTML = '';
-
-    document.getElementById('chat-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    await loadChatMessages();
-
-    // Poll for new messages every 4 seconds
-    clearInterval(chatPollInterval);
-    chatPollInterval = setInterval(loadChatMessages, 4000);
-  }
-
-  function closeChatSheet() {
-    clearInterval(chatPollInterval);
-    document.getElementById('chat-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  async function loadChatMessages() {
-    if (!chatJobId || !chatStudentId) return;
-    const { data: msgs } = await _sb.from('messages')
-      .select('*')
-      .eq('job_id', chatJobId)
-      .eq('student_id', chatStudentId)
-      .order('created_at', { ascending: true });
-
-    const container = document.getElementById('chat-messages');
-    if (!msgs || msgs.length === 0) {
-      container.innerHTML = `<div class="chat-empty">No messages yet.<br>Send the first message to ${escapeHtml(chatStudentName)}.</div>`;
-      return;
-    }
-
-    const scrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 40;
-    container.innerHTML = msgs.map(m => {
-      const mine = m.sender_role === 'employer';
-      const t = new Date(m.created_at);
-      const timeStr = t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-      return `<div class="chat-bubble-row ${mine ? 'mine' : 'theirs'}">
-        <div>
-          <div class="chat-bubble">${escapeHtml(m.body)}</div>
-          <div class="chat-time">${timeStr}</div>
-        </div>
-      </div>`;
-    }).join('');
-    if (scrolledToBottom) container.scrollTop = container.scrollHeight;
-  }
-
-  async function sendChatMsg() {
-    const input = document.getElementById('chat-msg-input');
-    const body = input.value.trim();
-    if (!body || !chatJobId || !chatStudentId) return;
-
-    const btn = document.getElementById('chat-send-btn');
-    btn.disabled = true;
-    input.value = '';
-
-    await _sb.from('messages').insert({
-      job_id: parseInt(chatJobId),
-      student_id: chatStudentId,
-      sender_role: 'employer',
-      body
-    });
-
-    btn.disabled = false;
-    await loadChatMessages();
-    const container = document.getElementById('chat-messages');
-    container.scrollTop = container.scrollHeight;
-  }
-
-  /* ── Applicants Sheet ── */
-
-  function openApplicantsSheet(jobId) {
-    const job = _jobsCache[jobId];
-    if (!job) return;
-
-    document.getElementById('appl-title').textContent = job.role_title || 'Interested Locals';
-    const apps = applicantsByJob[jobId] || [];
-    const count = apps.length;
-    document.getElementById('appl-subtitle').textContent =
-      count === 0 ? 'No applicants yet' : `${count} interested local${count !== 1 ? 's' : ''}`;
-
-    const body = document.getElementById('appl-body');
-    if (count === 0) {
-      body.innerHTML = `<div class="appl-empty">
-        <div class="appl-empty-icon">🌱</div>
-        <div>No one has applied yet.<br>Check back once your job is live.</div>
-      </div>`;
-    } else {
-      const reqCerts = job.certifications_required || [];
-      body.innerHTML = apps.map(a => renderApplicantRow(a, reqCerts)).join('');
-    }
-
-    document.getElementById('appl-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function renderApplicantRow(app, reqCerts) {
-    const rawName = app.student_name
-      || (app.student_email ? app.student_email.split('@')[0] : null)
-      || 'Applicant';
-    const name = escapeHtml(rawName);
-    const email = app.student_email || '';
-    const phone = app.student_phone || '';
-    const county = app.student_county || '';
-    const certs = app.certifications || [];
-    const ago = timeAgo(app.created_at);
-
-    // Cert match
-    let certLine = '';
-    if (reqCerts.length > 0) {
-      const matched = reqCerts.filter(c => certs.includes(c)).length;
-      if (matched === reqCerts.length) {
-        certLine = `<div class="appl-cert-line"><span class="appl-cert-match">✓ Has all required certifications</span></div>`;
-      } else {
-        certLine = `<div class="appl-cert-line"><span class="appl-cert-partial">${matched}/${reqCerts.length} required certifications</span></div>`;
-      }
-    } else if (certs.length > 0) {
-      certLine = `<div class="appl-cert-line"><span class="appl-cert-match">${certs.length} certification${certs.length !== 1 ? 's' : ''}</span></div>`;
-    }
-
-    // Meta line
-    const metaParts = [];
-    if (county) {
-      // Avoid "Chenango County County" — only append if not already ending in County/York
-      const countyDisplay = /county|new york/i.test(county) ? county : county + ' County';
-      metaParts.push(countyDisplay);
-    }
-    if (email) metaParts.push(email);
-    const meta = metaParts.join(' · ');
-
-    // Action buttons
-    const msgBtn = `<button class="appl-action-btn appl-btn-message" onclick="openChatSheet('${app.job_id}','${escapeHtml(app.student_id)}','${escapeHtml(rawName)}')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Message
-      </button>`;
-
-    const cleanPhone = phone.replace(/\D/g, '');
-    const callBtn = cleanPhone
-      ? `<a class="appl-action-btn appl-btn-call" href="tel:${cleanPhone}">
-           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-           Call ${phone ? escapeHtml(phone) : ''}
-         </a>` : '';
-
-    return `
-      <div class="appl-row">
-        <div class="appl-row-top">
-          <div class="appl-row-name">${name}</div>
-          <div class="appl-row-time">${ago}</div>
-        </div>
-        ${meta ? `<div class="appl-row-meta">${escapeHtml(meta)}</div>` : ''}
-        ${certLine}
-        <div class="appl-actions">${msgBtn}${callBtn}</div>
-      </div>`;
-  }
-
-  function closeApplicantsSheet() {
-    document.getElementById('appl-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function applOverlayClose(e) {
-    if (e.target === document.getElementById('appl-overlay')) closeApplicantsSheet();
-  }
-
-  function timeAgo(dateStr) {
-    if (!dateStr) return '';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    const hrs = Math.floor(mins / 60);
-    const days = Math.floor(hrs / 24);
-    if (days > 0) return `${days}d ago`;
-    if (hrs > 0) return `${hrs}h ago`;
-    if (mins > 0) return `${mins}m ago`;
-    return 'just now';
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function formatPay(pay) {
-    if (!pay) return '';
-    const s = String(pay).trim();
-    if (s.startsWith('$')) return s;
-    const n = parseFloat(s);
-    if (!isNaN(n)) return `$${n}/hr`;
-    return s;
   }
 </script>
 </body>

@@ -879,6 +879,19 @@
         </div>
         <div id="e-confirm-error" style="display:none;color:#c0392b;font-size:12px;margin-top:-6px;margin-bottom:6px;">Passwords don't match.</div>
         <div class="hg-form">
+          <select id="e-industry" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
+            <option value="" disabled selected>Select your industry...</option>
+            <option>Manufacturing</option>
+            <option>Healthcare</option>
+            <option>Construction &amp; Trades</option>
+            <option>Food Production</option>
+            <option>Agriculture &amp; Conservation</option>
+            <option>Government &amp; Public Works</option>
+            <option>Transportation &amp; Logistics</option>
+            <option>Technology</option>
+            <option>Cosmetology &amp; Barbering</option>
+            <option>Other</option>
+          </select>
           <select id="e-county" onchange="this.style.color=this.value?'#1C1C1A':'#B4B2A9'" style="padding:12px 14px;font-size:15px;border:0.5px solid #D3D1C7;border-radius:8px;background:#fff;color:#B4B2A9;width:100%;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;font-family:inherit;">
             <option value="" disabled selected>Select your county...</option>
             <option>Chenango County</option>
@@ -1178,7 +1191,7 @@
 </div>
 
 <script>
-  const _db = window.supabase.createClient(
+  const _sb = window.supabase.createClient(
     'https://mccrpgqtqtrxfifxvwbd.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jY3JwZ3F0cXRyeGZpZnh2d2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NTAwMDIsImV4cCI6MjA5NDEyNjAwMn0.iB3u2M7H0-D2Z2SbRQN0vHtOB62sASsGeF09FICzcc4'
   );
@@ -1223,7 +1236,7 @@
     const btn = document.getElementById('s-signin-btn');
     if (!email || !pw) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
     btn.textContent = 'Signing in…'; btn.disabled = true;
-    const { data, error } = await _db.auth.signInWithPassword({ email, password: pw });
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pw });
     if (error) { errEl.textContent = friendlyError(error.message); errEl.style.display = 'block'; btn.textContent = 'Sign in'; btn.disabled = false; return; }
     window.location.href = '/student/dashboard.html';
   };
@@ -1235,7 +1248,7 @@
     const btn = document.getElementById('e-signin-btn');
     if (!email || !pw) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
     btn.textContent = 'Signing in…'; btn.disabled = true;
-    const { data, error } = await _db.auth.signInWithPassword({ email, password: pw });
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pw });
     if (error) { errEl.textContent = friendlyError(error.message); errEl.style.display = 'block'; btn.textContent = 'Sign in'; btn.disabled = false; return; }
     window.location.href = '/employer/dashboard.html';
   };
@@ -1282,7 +1295,7 @@
 
   // Redirect already-logged-in users to their dashboard
   (async () => {
-    const { data: { session } } = await _db.auth.getSession();
+    const { data: { session } } = await _sb.auth.getSession();
     if (session) {
       const userType = session.user.user_metadata?.user_type;
       if (userType === 'employer') {
@@ -1320,12 +1333,24 @@
     }
     errEl.style.display = 'none';
 
-    const { data, error } = await _db.auth.signUp({
+    const btn = document.querySelector('[onclick="submitStudent()"]');
+    const origText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = 'Creating account…'; btn.disabled = true; }
+
+    const { data, error } = await _sb.auth.signUp({
       email, password,
       options: { data: { user_type: 'student', first_name: firstName, last_name: lastName, phone } }
     });
+
     if (error) {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
       errEl.textContent = friendlyError(error.message);
+      errEl.style.display = 'block';
+      return;
+    }
+    if (!data.user || !data.session) {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+      errEl.textContent = 'An account with this email already exists — use Sign in below.';
       errEl.style.display = 'block';
       return;
     }
@@ -1336,11 +1361,12 @@
     const company_name = document.getElementById('e-company').value.trim();
     const email = document.getElementById('e-email').value.trim();
     const password = document.getElementById('e-password').value;
+    const industry = document.getElementById('e-industry').value;
     const county = document.getElementById('e-county').value;
     const errEl = document.getElementById('e-error');
 
     const confirm = document.getElementById('e-confirm').value;
-    if (!company_name || !email || !password || !county) {
+    if (!company_name || !email || !password || !industry || !county) {
       errEl.textContent = 'Please fill in all fields.';
       errEl.style.display = 'block';
       return;
@@ -1358,16 +1384,28 @@
     }
     errEl.style.display = 'none';
 
-    const { data, error } = await _db.auth.signUp({
+    const btn = document.querySelector('[onclick="submitEmployer()"]');
+    const origText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = 'Creating account…'; btn.disabled = true; }
+
+    const { data, error } = await _sb.auth.signUp({
       email, password,
       options: { data: { user_type: 'employer' } }
     });
+
     if (error) {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
       errEl.textContent = friendlyError(error.message);
       errEl.style.display = 'block';
       return;
     }
-    await _db.from('employers').upsert([{ email: data.user.email, company_name, county }], { onConflict: 'email' });
+    if (!data.user || !data.session) {
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+      errEl.textContent = 'An account with this email already exists — use Sign in below.';
+      errEl.style.display = 'block';
+      return;
+    }
+    await _sb.from('employers').upsert([{ email: data.user.email, user_id: data.user.id, company_name, industry, county }], { onConflict: 'email' });
     window.location.href = '/employer/setup.html';
   };
 

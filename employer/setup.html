@@ -6,6 +6,7 @@
   <title>Homegrown — Employer Setup</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/auth.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -390,8 +391,6 @@
         <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">CDL License</div></div>
         <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Security Guard Certification</div></div>
         <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">Forklift Operator Certification</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">NYS Cosmetology License</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-label">CPR / First Aid Certified</div></div>
       </div>
     </div>
 
@@ -617,7 +616,6 @@
       company_description: document.getElementById('company-description').value.trim(),
       company_size: document.getElementById('company-size').value || '',
       website: document.getElementById('company-website').value.trim(),
-      address: document.getElementById('company-address').value.trim(),
       preferred_backgrounds: Array.from(document.querySelectorAll('#bg-pills .pill-card.selected')).map(el => el.textContent),
       required_certifications: Array.from(document.querySelectorAll('.check-row.selected .check-label')).map(el => el.textContent),
       offers_apprenticeships: document.getElementById('toggle-apprentice').classList.contains('on'),
@@ -626,7 +624,6 @@
       contact_name: contactName,
       contact_phone: contactPhone,
       ats_url: atsUrl,
-      response_time: (document.querySelector('#response-pills .response-pill.selected') || {}).textContent || ''
     };
 
     // Save to localStorage
@@ -639,6 +636,7 @@
       if (session) {
         await _sb.from('employers').upsert({
           email: session.user.email,
+          user_id: session.user.id,
           description: profile.company_description,
           company_size: profile.company_size,
           website: profile.website || null,
@@ -646,7 +644,6 @@
           contact_name: contactName || null,
           contact_phone: contactPhone || null,
           ats_url: atsUrl || null,
-          response_time: profile.response_time || null,
         }, { onConflict: 'email' });
       }
     } catch (e) {

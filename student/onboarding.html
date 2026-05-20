@@ -6,6 +6,7 @@
   <title>Homegrown — Onboarding</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/auth.js"></script>
   <link rel="stylesheet" href="../shared/styles.css" />
   <style>
     .bg-grid {
@@ -204,9 +205,9 @@
 
   <!-- ── STEP: Background (always first) ── -->
   <div class="app-content" id="step-background">
-    <div class="app-step-title">What's your background?</div>
-    <div class="app-step-sub">Select all that apply.</div>
-    <div class="bg-grid">
+    <div class="app-step-title">Welcome to Homegrown</div>
+    <div class="app-step-sub">This platform is built for DCMO BOCES students and graduates.</div>
+    <div class="bg-grid" style="grid-template-columns:1fr;">
       <div class="bg-card" id="bg-boces" onclick="toggleBg(this, 'boces')">
         <div class="bg-card-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -215,35 +216,6 @@
           </svg>
         </div>
         <div class="bg-card-label">BOCES Program</div>
-      </div>
-      <div class="bg-card" id="bg-college" onclick="toggleBg(this, 'college')">
-        <div class="bg-card-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 21h18"/>
-            <path d="M5 21V7l7-4 7 4v14"/>
-            <path d="M9 21v-6h6v6"/>
-            <path d="M9 10h.01M15 10h.01"/>
-          </svg>
-        </div>
-        <div class="bg-card-label">College</div>
-      </div>
-      <div class="bg-card" id="bg-job" onclick="toggleBg(this, 'job')">
-        <div class="bg-card-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2"/>
-            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-            <line x1="2" y1="13" x2="22" y2="13"/>
-          </svg>
-        </div>
-        <div class="bg-card-label">On the Job / Other</div>
-      </div>
-      <div class="bg-card" id="bg-military" onclick="toggleBg(this, 'military')">
-        <div class="bg-card-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </div>
-        <div class="bg-card-label">Military / Veteran</div>
       </div>
     </div>
     <button class="ob-btn" id="bg-btn" onclick="startSequence()" disabled>Continue</button>
@@ -273,78 +245,6 @@
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
-  <!-- ── STEP: College name ── -->
-  <div class="app-content" id="step-college" style="display:none;">
-    <div class="app-step-title">Which college do/did you attend?</div>
-    <div class="app-step-sub">Enter the name of your school.</div>
-    <div class="college-search-wrap">
-      <input class="app-input" id="college-name" type="text" placeholder="Start typing your college name…" autocomplete="off" style="border-radius:8px;" />
-      <div class="college-dropdown" id="college-dropdown"></div>
-    </div>
-    <button class="ob-btn" id="college-btn" onclick="nextStep()" disabled>Continue</button>
-    <button class="back-link" onclick="prevStep()">← Back</button>
-  </div>
-
-  <!-- ── STEP: Military branch ── -->
-  <div class="app-content" id="step-military" style="display:none;">
-    <div class="app-step-title">Which branch did you serve in?</div>
-    <div class="app-step-sub">Select your branch of service.</div>
-    <select class="app-select" id="military-branch" onchange="checkSelect('military-branch','military-btn')">
-      <option value="" disabled selected>Choose your branch…</option>
-      <option>Army</option>
-      <option>Navy</option>
-      <option>Air Force</option>
-      <option>Marine Corps</option>
-      <option>Coast Guard</option>
-      <option>Space Force</option>
-      <option>National Guard / Reserves</option>
-      <option>Prefer not to say</option>
-    </select>
-    <button class="ob-btn" id="military-btn" onclick="nextStep()" disabled>Continue</button>
-    <button class="back-link" onclick="prevStep()">← Back</button>
-  </div>
-
-  <!-- ── STEP: Job experience ── -->
-  <div class="app-content" id="step-job-experience" style="display:none;">
-    <div class="app-step-title">What kind of work have you done?</div>
-    <div class="app-step-sub">Select all that apply — we'll use this to find your best matches.</div>
-    <div class="industry-grid" id="job-exp-grid">
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="industry-card-label">Manufacturing</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="industry-card-label">Healthcare</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <div class="industry-card-label">Construction &amp; Trades</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
-        <div class="industry-card-label">Food Production</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
-        <div class="industry-card-label">Agriculture &amp; Conservation</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/></svg></div>
-        <div class="industry-card-label">Government &amp; Public Works</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-        <div class="industry-card-label">Transportation &amp; Logistics</div>
-      </div>
-      <div class="industry-card" onclick="toggleJobExp(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
-        <div class="industry-card-label">Technology</div>
-      </div>
-    </div>
-    <button class="ob-btn" id="job-exp-btn" onclick="nextStep()" disabled>Continue</button>
-    <button class="back-link" onclick="prevStep()">← Back</button>
-  </div>
 
   <!-- ── STEP: Graduation year ── -->
   <div class="app-content" id="step-grad-year" style="display:none;">
@@ -367,66 +267,22 @@
     <button class="back-link" onclick="prevStep()">← Back</button>
   </div>
 
-  <!-- ── STEP: Industries ── -->
-  <div class="app-content" id="step-industries" style="display:none;">
-    <div class="app-step-title">What kind of work are you looking for?</div>
-    <div class="app-step-sub">Tap all that interest you.</div>
-    <div class="industry-grid">
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="industry-card-label">Manufacturing</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="industry-card-label">Healthcare</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <div class="industry-card-label">Construction &amp; Trades</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
-        <div class="industry-card-label">Food Production</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
-        <div class="industry-card-label">Agriculture &amp; Conservation</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/></svg></div>
-        <div class="industry-card-label">Government &amp; Public Works</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-        <div class="industry-card-label">Transportation &amp; Logistics</div>
-      </div>
-      <div class="industry-card" onclick="toggleIndustry(this)">
-        <div class="industry-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
-        <div class="industry-card-label">Technology</div>
-      </div>
-    </div>
-    <button class="ob-btn" id="industries-btn" onclick="nextStep()" disabled>Continue</button>
-    <button class="back-link" onclick="prevStep()">← Back</button>
-  </div>
-
-  <!-- ── STEP: Certifications (always last) ── -->
+  <!-- ── STEP: Certifications ── -->
   <div class="app-content" id="step-certs" style="display:none;">
     <div class="app-step-title">What certifications do you have?</div>
     <div class="app-step-sub">Select all that apply — you can update this anytime.</div>
     <div class="cert-list" id="cert-list">
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CPR / First Aid Certified</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">OSHA 10 Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS Cosmetology License</div></div>
-      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Blueprint Reading</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hand Tool Safety</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">IBEW Apprenticeship Application</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Hydraulic Systems Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">ServSafe Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">NYS CNA License</div></div>
       <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Adobe Certified Professional</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">CDL License</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Security Guard Certification</div></div>
+      <div class="cert-row" onclick="toggleCert(this)"><div class="cert-box">✓</div><div class="cert-label">Forklift Operator Certification</div></div>
     </div>
     <div class="cert-note">No certifications? No problem — just tap "See my jobs →" below and we'll show you what you qualify for.</div>
     <button class="ob-btn" onclick="finish()">See my jobs →</button>
@@ -450,7 +306,6 @@
   const selected = new Set();
   let sequence = [];
   let currentIdx = 0;
-  let industriesDirty = false;
 
   function toggleBg(el, key) {
     el.classList.toggle('selected');
@@ -460,16 +315,7 @@
   }
 
   function buildSequence() {
-    const seq = ['step-background'];
-    if (selected.has('boces'))    seq.push('step-boces');
-    if (selected.has('college'))  seq.push('step-college');
-    if (selected.has('military')) seq.push('step-military');
-    if (selected.has('boces') || selected.has('college') || selected.has('military')) {
-      seq.push('step-grad-year');
-    }
-    if (selected.has('job')) seq.push('step-job-experience');
-    seq.push('step-county', 'step-industries', 'step-certs');
-    return seq;
+    return ['step-background', 'step-boces', 'step-certs', 'step-county', 'step-grad-year'];
   }
 
   function buildProgressBar(total) {
@@ -524,42 +370,11 @@
       document.getElementById('county-search').value = '';
     }
 
-    if (sequence[idx] === 'step-industries') {
-      if (selected.has('job') && !industriesDirty) {
-        const expLabels = new Set(
-          Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
-            .map(c => c.querySelector('.industry-card-label').textContent)
-        );
-        document.querySelectorAll('#step-industries .industry-card').forEach(card => {
-          card.classList.toggle('selected', expLabels.has(card.querySelector('.industry-card-label').textContent));
-        });
-        document.getElementById('industries-btn').disabled =
-          document.querySelectorAll('#step-industries .industry-card.selected').length === 0;
-      }
-      const hasPreFill = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
-      document.querySelector('#step-industries .app-step-sub').textContent = hasPreFill && selected.has('job')
-        ? 'Pre-filled from your experience — adjust as needed.'
-        : 'Tap all that interest you.';
-    }
-
-    if (sequence[idx] === 'step-grad-year') {
-      const isMilitary = selected.has('military');
-      document.querySelector('#step-grad-year .app-step-title').textContent =
-        isMilitary ? 'When did / will you complete your service?' : 'When did / will you graduate?';
-      document.querySelector('#step-grad-year .app-step-sub').textContent =
-        isMilitary ? 'Select your end of service year.' : 'Select your graduation year.';
-    }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function startSequence() {
-    industriesDirty = false;
     sequence = buildSequence();
-    if (!selected.has('job')) {
-      document.querySelectorAll('#step-industries .industry-card').forEach(c => c.classList.remove('selected'));
-      document.getElementById('industries-btn').disabled = true;
-    }
     const total = sequence.length - 1;
     buildProgressBar(total);
     currentIdx = 1;
@@ -567,7 +382,6 @@
   }
 
   function nextStep() {
-    if (sequence[currentIdx] === 'step-job-experience') industriesDirty = false;
     currentIdx++;
     showStepAt(currentIdx);
   }
@@ -633,19 +447,6 @@
     document.getElementById(btnId).disabled = !document.getElementById(inputId).value.trim();
   }
 
-  function toggleJobExp(el) {
-    el.classList.toggle('selected');
-    const any = document.querySelectorAll('#job-exp-grid .industry-card.selected').length > 0;
-    document.getElementById('job-exp-btn').disabled = !any;
-  }
-
-  function toggleIndustry(el) {
-    el.classList.toggle('selected');
-    industriesDirty = true;
-    const any = document.querySelectorAll('#step-industries .industry-card.selected').length > 0;
-    document.getElementById('industries-btn').disabled = !any;
-  }
-
   function toggleCert(el) { el.classList.toggle('selected'); }
 
   async function finish() {
@@ -654,18 +455,10 @@
     btn.textContent = 'Saving…';
 
     const profile = {
-      backgrounds: Array.from(selected),
+      backgrounds: ['boces'],
       boces_program: document.getElementById('boces-program')?.value || null,
-      college_name: document.getElementById('college-name')?.value.trim() || null,
-      military_branch: document.getElementById('military-branch')?.value || null,
       graduation_year: document.getElementById('grad-year').value || null,
       county: selectedCounty || null,
-      job_experience: sequence.includes('step-job-experience')
-        ? Array.from(document.querySelectorAll('#job-exp-grid .industry-card.selected'))
-            .map(c => c.querySelector('.industry-card-label').textContent)
-        : null,
-      industries: Array.from(document.querySelectorAll('#step-industries .industry-card.selected'))
-        .map(c => c.querySelector('.industry-card-label').textContent),
       certifications: Array.from(document.querySelectorAll('#cert-list .cert-row.selected'))
         .map(r => r.querySelector('.cert-label').textContent)
     };
@@ -674,10 +467,15 @@
 
     const { data: { session } } = await _sb.auth.getSession();
     if (session) {
+      const meta = session.user.user_metadata || {};
       await _sb.from('students').upsert({
         id: session.user.id,
+        first_name: meta.first_name || null,
+        last_name: meta.last_name || null,
+        phone: meta.phone || null,
         program: profile.boces_program || null,
         graduation_year: profile.graduation_year || null,
+        county: profile.county || null,
         certifications: profile.certifications.length > 0 ? profile.certifications : null
       });
     }
@@ -686,23 +484,13 @@
   }
 
   function prefillProfile(p) {
-    (p.backgrounds || []).forEach(bg => {
-      const card = document.getElementById('bg-' + bg);
-      if (card) { card.classList.add('selected'); selected.add(bg); }
-    });
-    if (selected.size > 0) document.getElementById('bg-btn').disabled = false;
+    const bocesCard = document.getElementById('bg-boces');
+    if (bocesCard) { bocesCard.classList.add('selected'); selected.add('boces'); }
+    document.getElementById('bg-btn').disabled = false;
 
     if (p.boces_program) {
       document.getElementById('boces-program').value = p.boces_program;
       document.getElementById('boces-btn').disabled = false;
-    }
-    if (p.college_name) {
-      document.getElementById('college-name').value = p.college_name;
-      document.getElementById('college-btn').disabled = false;
-    }
-    if (p.military_branch) {
-      document.getElementById('military-branch').value = p.military_branch;
-      document.getElementById('military-btn').disabled = false;
     }
     if (p.graduation_year) {
       document.getElementById('grad-year').value = p.graduation_year;
@@ -712,24 +500,6 @@
       selectedCounty = p.county;
       document.getElementById('county-btn').disabled = false;
     }
-
-    if (p.job_experience?.length) {
-      document.querySelectorAll('#job-exp-grid .industry-card').forEach(card => {
-        if (p.job_experience.includes(card.querySelector('.industry-card-label').textContent))
-          card.classList.add('selected');
-      });
-      document.getElementById('job-exp-btn').disabled = false;
-    }
-
-    if (p.industries?.length) {
-      document.querySelectorAll('#step-industries .industry-card').forEach(card => {
-        if (p.industries.includes(card.querySelector('.industry-card-label').textContent))
-          card.classList.add('selected');
-      });
-      document.getElementById('industries-btn').disabled = false;
-      industriesDirty = true;
-    }
-
     if (p.certifications?.length) {
       document.querySelectorAll('#cert-list .cert-row').forEach(row => {
         if (p.certifications.includes(row.querySelector('.cert-label').textContent))
@@ -738,8 +508,7 @@
     }
   }
 
-  // ── College autocomplete ──
-  const COLLEGES = [
+  const COLLEGES_UNUSED = [
     // SUNY system
     'University at Albany (SUNY)','Binghamton University (SUNY)','University at Buffalo (SUNY)',
     'Stony Brook University (SUNY)','SUNY Brockport','SUNY Buffalo State','SUNY Cortland',
@@ -879,41 +648,6 @@
     'La Salle University','Immaculata University','Cabrini University',
   ].sort();
 
-  (function initCollegeSearch() {
-    const input = document.getElementById('college-name');
-    const dropdown = document.getElementById('college-dropdown');
-
-    input.addEventListener('input', function() {
-      const q = this.value.trim().toLowerCase();
-      if (q.length < 2) {
-        dropdown.classList.remove('open');
-        dropdown.innerHTML = '';
-        document.getElementById('college-btn').disabled = !this.value.trim();
-        return;
-      }
-      const matches = COLLEGES.filter(c => c.toLowerCase().includes(q)).slice(0, 25);
-      if (matches.length === 0) {
-        dropdown.classList.remove('open');
-        dropdown.innerHTML = '';
-      } else {
-        dropdown.innerHTML = matches.map(c =>
-          `<div class="college-option" onmousedown="selectCollege(this, '${c.replace(/'/g,"&#39;")}')">${c}</div>`
-        ).join('');
-        dropdown.classList.add('open');
-      }
-      document.getElementById('college-btn').disabled = !this.value.trim();
-    });
-
-    input.addEventListener('blur', function() {
-      setTimeout(() => dropdown.classList.remove('open'), 150);
-    });
-  })();
-
-  function selectCollege(el, name) {
-    document.getElementById('college-name').value = name;
-    document.getElementById('college-dropdown').classList.remove('open');
-    document.getElementById('college-btn').disabled = false;
-  }
 
   (function populateYears() {
     const select = document.getElementById('grad-year');
