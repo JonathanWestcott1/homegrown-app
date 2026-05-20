@@ -871,7 +871,7 @@
 
     const [{ data: studentData }, { data: jobs, error: jobsError }] = await Promise.all([
       _sb.from('students').select('certifications').eq('id', session.user.id).single(),
-      _sb.from('jobs').select('*').eq('is_active', true).order('created_at', { ascending: false })
+      _sb.from('jobs').select('*').eq('status', 'active').order('created_at', { ascending: false })
     ]);
 
     if (jobsError) {

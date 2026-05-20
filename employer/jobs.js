@@ -32,9 +32,20 @@ async function loadJobs() {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('jobs-state').style.display = 'block';
 
-  const active = jobs.filter(j => j.is_active).length;
-  document.getElementById('jobs-sub').textContent =
-    `${active} active · ${jobs.length - active} paused`;
+  // Normalise status — fall back to is_active for rows that predate the status column
+  jobs.forEach(j => {
+    if (!j.status) j.status = j.is_active ? 'active' : 'paused';
+  });
+
+  const activeJobs = jobs.filter(j => j.status === 'active');
+  const pausedJobs = jobs.filter(j => j.status === 'paused');
+  const filledJobs = jobs.filter(j => j.status === 'filled');
+
+  const parts = [];
+  if (activeJobs.length) parts.push(`${activeJobs.length} active`);
+  if (pausedJobs.length) parts.push(`${pausedJobs.length} paused`);
+  if (filledJobs.length) parts.push(`${filledJobs.length} filled`);
+  document.getElementById('jobs-sub').textContent = parts.join(' · ') || 'No jobs';
 
   jobs.forEach(j => { _jobsCache[j.id] = j; });
 
@@ -65,23 +76,40 @@ async function loadJobs() {
     applicantCounts[a.job_id] = (applicantCounts[a.job_id] || 0) + 1;
   });
 
-  document.getElementById('jobs-list').innerHTML =
-    jobs.map(renderJobCard).join('');
+  // Build grouped HTML
+  let html = '';
+
+  html += activeJobs.map(renderJobCard).join('');
+
+  if (pausedJobs.length > 0) {
+    html += `<div class="jobs-section-header">Paused</div>`;
+    html += pausedJobs.map(renderJobCard).join('');
+  }
+
+  if (filledJobs.length > 0) {
+    html += `<div class="jobs-section-header jobs-section-toggle" onclick="togglePastRoles(this)">
+      Past Roles <span class="past-roles-chevron">▾</span>
+    </div>
+    <div id="past-roles-list" style="display:none;">
+      ${filledJobs.map(renderJobCard).join('')}
+    </div>`;
+  }
+
+  document.getElementById('jobs-list').innerHTML = html;
 
   await renderPipeline(jobs);
 
   // Realtime: re-fetch applicant counts whenever a new application comes in
-  const jobIdList = jobs.map(j => j.id);
   _sb.channel('employer-applications')
     .on('postgres_changes', {
       event: 'INSERT',
       schema: 'public',
       table: 'applications'
     }, async (payload) => {
-      if (!jobIdList.includes(payload.new?.job_id)) return;
+      if (!jobIds.includes(payload.new?.job_id)) return;
       const { data: freshApps } = await _sb.from('applications')
         .select('*')
-        .in('job_id', jobIdList)
+        .in('job_id', jobIds)
         .order('created_at', { ascending: false });
       applicantsByJob = {};
       applicantCounts = {};
@@ -90,15 +118,30 @@ async function loadJobs() {
         applicantsByJob[a.job_id].push(a);
         applicantCounts[a.job_id] = (applicantCounts[a.job_id] || 0) + 1;
       });
-      document.getElementById('jobs-list').innerHTML = jobs.map(renderJobCard).join('');
+      await loadJobs();
     })
     .subscribe();
 }
 
+function togglePastRoles(headerEl) {
+  const list    = document.getElementById('past-roles-list');
+  const chevron = headerEl.querySelector('.past-roles-chevron');
+  const open    = list.style.display !== 'none';
+  list.style.display  = open ? 'none'  : 'block';
+  chevron.textContent = open ? '▾' : '▴';
+}
+
 function renderJobCard(job) {
-  const statusBadge = job.is_active
-    ? `<span class="app-posting-status">Active</span>`
-    : `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">Paused</span>`;
+  const status = job.status || (job.is_active ? 'active' : 'paused');
+
+  let statusBadge;
+  if (status === 'active') {
+    statusBadge = `<span class="app-posting-status">Active</span>`;
+  } else if (status === 'paused') {
+    statusBadge = `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">Paused</span>`;
+  } else {
+    statusBadge = `<span class="app-posting-status" style="background:#f5f5f5;color:#999;">✓ Filled</span>`;
+  }
 
   const meta = [formatPay(job.pay), job.shift_type].filter(Boolean).join(' · ');
 
@@ -109,16 +152,29 @@ function renderJobCard(job) {
         ).join('')}
       </div>` : '';
 
-  const toggleBtn = job.is_active
-    ? `<button class="real-job-btn real-job-btn-pause" onclick="toggleJob('${job.id}', false)">Pause</button>`
-    : `<button class="real-job-btn real-job-btn-activate" onclick="toggleJob('${job.id}', true)">Activate</button>`;
-
   const appCount = applicantCounts[job.id] || 0;
   const interestedRow = appCount > 0
     ? `<button class="real-job-btn real-job-btn-interested" style="width:100%;margin-top:8px;" onclick="openApplicantsSheet('${job.id}')">
          ${appCount} interested ${appCount === 1 ? 'local' : 'locals'} — view →
        </button>`
     : `<div class="no-applicants-note">No applicants yet</div>`;
+
+  let actionBtns;
+  if (status === 'active') {
+    actionBtns = `
+      <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="openEditSheet('${job.id}')">Edit role</button>
+      <button class="real-job-btn real-job-btn-pause" onclick="setJobStatus('${job.id}','paused')">Pause</button>
+      <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="setJobStatus('${job.id}','filled')">Mark filled</button>`;
+  } else if (status === 'paused') {
+    actionBtns = `
+      <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="openEditSheet('${job.id}')">Edit role</button>
+      <button class="real-job-btn real-job-btn-activate" onclick="setJobStatus('${job.id}','active')">Activate</button>
+      <button class="real-job-btn" style="background:#EAF3DE;color:#3B6D11;border:none;" onclick="repostJob('${job.id}')">Repost</button>`;
+  } else {
+    // filled
+    actionBtns = `
+      <button class="real-job-btn" style="background:#EAF3DE;color:#3B6D11;border:none;" onclick="repostJob('${job.id}')">Repost</button>`;
+  }
 
   return `
     <div class="real-job-card" id="job-card-${job.id}">
@@ -129,10 +185,7 @@ function renderJobCard(job) {
       <div class="real-job-pay">${escapeHtml(meta)}</div>
       ${certPills}
       ${interestedRow}
-      <div class="real-job-actions" style="margin-top:8px;">
-        <button class="real-job-btn" style="background:#f5f5f5;color:#444;" onclick="openEditSheet('${job.id}')">Edit role</button>
-        ${toggleBtn}
-      </div>
+      <div class="real-job-actions" style="margin-top:8px;">${actionBtns}</div>
     </div>`;
 }
 
@@ -141,7 +194,7 @@ async function renderPipeline(jobs) {
 
   // Collect all unique certs required across active jobs
   const allCerts = new Set();
-  jobs.filter(j => j.is_active).forEach(j => {
+  jobs.filter(j => j.status === 'active').forEach(j => {
     (j.certifications_required || []).forEach(c => allCerts.add(c));
   });
 
@@ -190,13 +243,56 @@ async function renderPipeline(jobs) {
   pipelineSection.style.display = 'block';
 }
 
-async function toggleJob(jobId, newActive) {
+async function setJobStatus(jobId, status) {
   const card = document.getElementById('job-card-' + jobId);
-  const btn  = card.querySelector('.real-job-btn');
-  const prev = btn.textContent;
-  btn.textContent = '…'; btn.disabled = true;
-  const { error } = await _sb.from('jobs').update({ is_active: newActive }).eq('id', jobId);
-  if (error) { btn.textContent = prev; btn.disabled = false; return; }
+  const btns = card ? card.querySelectorAll('button') : [];
+  btns.forEach(b => { b.disabled = true; });
+
+  const { error } = await _sb.from('jobs')
+    .update({ status, is_active: status === 'active' })
+    .eq('id', jobId);
+
+  if (error) {
+    btns.forEach(b => { b.disabled = false; });
+    return;
+  }
+  await loadJobs();
+}
+
+async function repostJob(jobId) {
+  const job = _jobsCache[jobId];
+  if (!job) return;
+
+  const card = document.getElementById('job-card-' + jobId);
+  const btns = card ? card.querySelectorAll('button') : [];
+  btns.forEach(b => { b.disabled = true; });
+  const repostBtn = card ? card.querySelector(`button[onclick="repostJob('${jobId}')"]`) : null;
+  if (repostBtn) repostBtn.textContent = 'Reposting…';
+
+  const { error } = await _sb.from('jobs').insert([{
+    role_title:              job.role_title,
+    city:                    job.city,
+    state:                   job.state,
+    pay:                     job.pay,
+    shift_type:              job.shift_type,
+    is_union:                job.is_union,
+    benefits:                job.benefits,
+    certifications_required: job.certifications_required,
+    sponsors_certifications: job.sponsors_certifications,
+    offers_apprenticeships:  job.offers_apprenticeships,
+    employer_description:    job.employer_description,
+    student_description:     job.student_description,
+    company_name:            job.company_name,
+    employer_id:             currentSession.user.id,
+    is_active:               true,
+    status:                  'active'
+  }]);
+
+  if (error) {
+    btns.forEach(b => { b.disabled = false; });
+    if (repostBtn) repostBtn.textContent = 'Repost';
+    return;
+  }
   await loadJobs();
 }
 
@@ -371,7 +467,8 @@ async function submitJob() {
       ...payload,
       company_name: companyName,
       employer_id:  currentSession.user.id,
-      is_active:    true
+      is_active:    true,
+      status:       'active'
     }]));
   }
 
